@@ -1,0 +1,376 @@
+port: 7892
+socks-port: 7891
+redir-port: 0
+mixed-port: 7890
+tproxy-port: 0
+allow-lan: false
+bind-address: '*'
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+log-level: warning
+find-process-mode: strict
+keep-alive-idle: 600
+keep-alive-interval: 15
+disable-keep-alive: false
+profile:
+  store-selected: true
+  store-fake-ip: true
+secret: >-
+  kw1rwlpq9POfMc6jt0U8tU3pvwsaEuiSkRkDzi6xrIshB3U6UTGHurGELi77qdEsObgqr8tzaSbhIeAOL5YiIm9edTZs050HX
+external-controller: '127.0.0.1:9090'
+mode: rule
+lan-allowed-ips:
+  - 0.0.0.0/0
+  - '::/0'
+lan-disallowed-ips: []
+authentication:
+  - "mihomo_core:z7Q^3!w#K@9vL$pF2*mX&8nC"
+skip-auth-prefixes:
+  - 127.0.0.1/32
+geo-auto-update: true
+geo-update-interval: 24
+geodata-mode: false
+geox-url:
+  geoip: 'https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/release/geoip.dat'
+  geosite: >-
+    https://github.com/MetaCubeX/meta-rules-dat/raw/branch/release/geosite.dat
+  mmdb: >-
+    https://github.com/MetaCubeX/meta-rules-dat/raw/branch/release/geoip-lite.metadb
+  asn: >-
+    https://github.com/MetaCubeX/meta-rules-dat/raw/branch/release/GeoLite2-ASN.mmdb
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports:
+        - 80
+        - 8080-8880
+      override-destination: true
+    TLS:
+      ports:
+        - 443
+        - 8443
+    QUIC:
+      ports:
+        - 443
+        - 8443
+  force-domain:
+    - +.v2ex.com
+  skip-domain:
+    - +.baidu.com
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack:
+    - 'any:53'
+    - 'tcp://any:53'
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "rule-set:Privacy,China_Domain,China"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "time.*.com"
+    - "+.ntp.org"                    # NTP 时间同步
+    - "+.pool.ntp.org"
+    - "+.push.apple.com"             # Apple 推送
+    - "+.stun.*.*"                   # STUN/TURN (WebRTC, VoIP)
+    - "+.stun.*.*.*"
+    - "localhost.ptlogin2.qq.com"    # QQ 本地登录
+    - "+.lan"                        # 本地域名
+    - "+.localdomain"
+    - "WORKGROUP"
+  nameserver-policy:
+    "geosite:google,geolocation-!cn":
+      - https://8.8.8.8/dns-query
+      - https://cloudflare-dns.com/dns-query
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://8.8.8.8/dns-query
+    - https://cloudflare-dns.com/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw
+    ipcidr:
+      - 240.0.0.0/4
+proxy-groups:
+  - name: PROXY
+    type: select
+    include-all: true
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Static.png
+  - name: GLOBAL
+    type: select
+    proxies:
+      - AUTO
+      - PROXY
+      - DIRECT
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Global.png
+  - name: Apple
+    type: select
+    proxies:
+      - DIRECT
+      - AUTO
+      - PROXY
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Apple.png
+  - name: Microsoft
+    type: select
+    proxies:
+      - DIRECT
+      - AUTO
+      - PROXY
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Microsoft.png
+  - name: Emby
+    type: select
+    proxies:
+      - DIRECT
+      - AUTO
+      - PROXY
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Emby.png
+  - name: Game
+    type: select
+    proxies:
+      - DIRECT
+      - AUTO
+      - PROXY
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/GAME.png
+  - name: AdBlock
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Adblock.png
+  - name: FINAL
+    type: select
+    proxies:
+      - AUTO
+      - PROXY
+      - DIRECT
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Final.png
+  - name: AUTO
+    type: url-test
+    include-all: true
+    interval: 600
+    tolerance: 50
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Urltest.png
+rule-providers:
+  AdBlock:
+    behavior: domain
+    interval: 86400
+    format: text
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/Cats-Team/AdRules/refs/heads/main/adrules_domainset.txt
+    path: ./ruleset/anti-ad-clash.txt
+  Hijacking:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Hijacking/Hijacking.yaml
+    path: ./ruleset/Hijacking.yaml
+  BlockRevise:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/BlockRevise.yaml
+    path: ./ruleset/BlockRevise.yaml
+  Emby:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Emby.yaml
+    path: ./ruleset/Emby.yaml
+  Apple:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple_Classical.yaml
+    path: ./ruleset/Apple.yaml
+  Microsoft:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml
+    path: ./ruleset/Microsoft.yaml
+  Game:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Game/Game.yaml
+    path: ./ruleset/Game.yaml
+  Game_Download:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Game/GameDownloadCN/GameDownloadCN.yaml
+    path: ./ruleset/GameDownloadCN.yaml
+  Global:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global.yaml
+    path: ./ruleset/Global.yaml
+  Global_Domain:
+    behavior: domain
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.yaml
+    path: ./ruleset/Global_Domain.yaml
+  ProxyRevise:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/ProxyRevise.yaml
+    path: ./ruleset/ProxyRevise.yaml
+  Direct:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Direct/Direct.yaml
+    path: ./ruleset/Direct.yaml
+  DirectRevise:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/DirectRevise.yaml
+    path: ./ruleset/DirectRevise.yaml
+  China:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax.yaml
+    path: ./ruleset/China.yaml
+  China_Domain:
+    behavior: domain
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.yaml
+    path: ./ruleset/China_Domain.yaml
+  Privacy:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Privacy/Privacy_Classical.yaml
+    path: ./ruleset/Privacy_Classical.yaml
+  Lan:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.yaml
+    path: ./ruleset/Lan.yaml
+  Download:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Download/Download.yaml
+    path: ./ruleset/Download.yaml
+  ChinaIP:
+    behavior: ipcidr
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_IP.yaml
+    path: ./ruleset/ChinaIP.yaml
+  Hijacking_DNS:
+    behavior: ipcidr
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Hijacking_DNS.yaml
+    path: ./ruleset/Hijacking_DNS.yaml
+  Application_CN:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Application_CN.yaml
+    path: ./ruleset/Application_CN.yaml
+rules:
+  - RULE-SET,Lan,           DIRECT
+  - RULE-SET,Privacy,       AdBlock
+  - RULE-SET,AdBlock,       AdBlock
+  - RULE-SET,Hijacking,     AdBlock
+  - RULE-SET,BlockRevise,   AdBlock
+  - RULE-SET,DirectRevise,  DIRECT
+  - RULE-SET,Game_Download, DIRECT
+  - RULE-SET,Download,      DIRECT
+  - RULE-SET,Emby,          Emby
+  - RULE-SET,Game,          Game
+  - RULE-SET,Apple,         Apple
+  - RULE-SET,Microsoft,     Microsoft
+  - RULE-SET,ProxyRevise,   GLOBAL
+  - RULE-SET,Application_CN,DIRECT
+  - RULE-SET,Direct,        DIRECT
+  - RULE-SET,Global,        GLOBAL
+  - RULE-SET,Global_Domain, GLOBAL
+  - RULE-SET,China,         DIRECT
+  - RULE-SET,China_Domain,  DIRECT
+  - RULE-SET,Hijacking_DNS, GLOBAL
+  - RULE-SET,ChinaIP,       DIRECT
+  - GEOIP,CN,               DIRECT
+  - MATCH,                  FINAL
