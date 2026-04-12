@@ -351,7 +351,7 @@ rule-providers:
       https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Application_CN.yaml
     path: ./ruleset/Application_CN.yaml
 rules:
-  - DOMAIN-KEYWORD,jyq,     DIRECT
+  - DOMAIN-KEYWORD,jyq.,     DIRECT
   - RULE-SET,Lan,           DIRECT
   - RULE-SET,Privacy,       AdBlock
   - RULE-SET,AdBlock,       AdBlock
