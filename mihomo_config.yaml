@@ -70,11 +70,11 @@ tun:
   auto-detect-interface: true
 dns:
   enable: true
-  listen: 0.0.0.0:1053
+  listen: 127.0.0.1:1053
   ipv6: false
   respect-rules: true
   enhanced-mode: fake-ip
-  fake-ip-range: 28.0.0.1/8
+  fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - "rule-set:Privacy,China_Domain,China"
@@ -90,29 +90,29 @@ dns:
     - "+.lan"                        # 本地域名
     - "+.localdomain"
     - "WORKGROUP"
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
   nameserver-policy:
-    "geosite:google,geolocation-!cn":
-      - https://8.8.8.8/dns-query
-      - https://cloudflare-dns.com/dns-query
+    "geosite:cn":
+      - "https://223.5.5.5/dns-query#DIRECT"
+      - "https://1.12.12.12/dns-query#DIRECT"
+    "rule-set:China_Domain":
+      - "https://223.5.5.5/dns-query#DIRECT"
+      - "https://1.12.12.12/dns-query#DIRECT"
+    "geosite:geolocation-!cn":
+      - "https://8.8.8.8/dns-query#PROXY"
+      - "https://1.1.1.1/dns-query#PROXY"
   proxy-server-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
+    - "https://223.5.5.5/dns-query#DIRECT"
+    - "https://1.12.12.12/dns-query#DIRECT"
   direct-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
+    - "https://223.5.5.5/dns-query#DIRECT"
+    - "https://1.12.12.12/dns-query#DIRECT"
+  direct-nameserver-follow-policy: true
   nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  fallback:
-    - https://8.8.8.8/dns-query
-    - https://cloudflare-dns.com/dns-query
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
-    geosite:
-      - gfw
-    ipcidr:
-      - 240.0.0.0/4
+    - "https://8.8.8.8/dns-query#PROXY"
+    - "https://1.1.1.1/dns-query#PROXY"
 proxy-groups:
   - name: PROXY
     type: select
