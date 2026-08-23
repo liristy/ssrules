@@ -147,11 +147,11 @@ proxy-groups:
   - name: OpenAI
     type: select
     proxies:
-      - QQPW
+      - ISP
       - AUTO
       - PROXY
     icon: >-
-      https://raw.githubusercontent.com/luestr/IconResource/main/Website_icon/1024px/OpenAI.png
+      https://raw.githubusercontent.com/Orz-3/mini/refs/heads/master/Color/OpenAI.png
   - name: Emby
     type: select
     proxies:
