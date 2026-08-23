@@ -109,7 +109,7 @@ dns:
   direct-nameserver:
     - "https://223.5.5.5/dns-query#DIRECT"
     - "https://1.12.12.12/dns-query#DIRECT"
-  direct-nameserver-follow-policy: true
+  direct-nameserver-follow-policy: false
   nameserver:
     - "https://8.8.8.8/dns-query#PROXY"
     - "https://1.1.1.1/dns-query#PROXY"
@@ -177,11 +177,8 @@ proxy-groups:
   - name: AUTO
     type: url-test
     include-all: true
-    url: http://connectivitycheck.platform.hicloud.com/generate_204
     interval: 600
-    timeout: 5000
     tolerance: 50
-    expected-status: 204
     icon: >-
       https://raw.githubusercontent.com/Orz-3/mini/master/Color/Urltest.png
 rule-providers:
