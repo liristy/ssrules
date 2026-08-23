@@ -246,7 +246,7 @@ rule-providers:
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/OpenAI.yaml
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml
     path: ./ruleset/OpenAI.yaml
   Game:
     behavior: classical
