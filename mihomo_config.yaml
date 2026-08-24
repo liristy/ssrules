@@ -124,6 +124,7 @@ proxy-groups:
     type: select
     proxies:
       - AUTO
+      - Verizon
       - PROXY
       - DIRECT
     icon: >-
@@ -133,6 +134,7 @@ proxy-groups:
     proxies:
       - DIRECT
       - AUTO
+      - Verizon
       - PROXY
     icon: >-
       https://raw.githubusercontent.com/Orz-3/mini/master/Color/Apple.png
@@ -165,6 +167,7 @@ proxy-groups:
     proxies:
       - DIRECT
       - AUTO
+      - Verizon
       - PROXY
     icon: >-
       https://raw.githubusercontent.com/Orz-3/mini/master/Color/GAME.png
@@ -179,6 +182,7 @@ proxy-groups:
     type: select
     proxies:
       - AUTO
+      - Verizon
       - PROXY
       - DIRECT
     icon: >-
