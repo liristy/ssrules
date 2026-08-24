@@ -147,7 +147,7 @@ proxy-groups:
   - name: OpenAI
     type: select
     proxies:
-      - Version
+      - Verizon
       - AUTO
       - PROXY
     icon: >-
