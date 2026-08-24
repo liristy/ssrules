@@ -147,7 +147,7 @@ proxy-groups:
   - name: OpenAI
     type: select
     proxies:
-      - ISP
+      - Version
       - AUTO
       - PROXY
     icon: >-
@@ -375,7 +375,6 @@ rules:
   - RULE-SET,AdBlock,       AdBlock
   - RULE-SET,Hijacking,     AdBlock
   - RULE-SET,BlockRevise,   AdBlock
-  - RULE-SET,ProxyRevise,   GLOBAL
   - RULE-SET,DirectRevise,  DIRECT
   - RULE-SET,Game_Download, DIRECT
   - RULE-SET,Download,      DIRECT
@@ -384,6 +383,7 @@ rules:
   - RULE-SET,Game,          Game
   - RULE-SET,Apple,         Apple
   - RULE-SET,Microsoft,     Microsoft
+  - RULE-SET,ProxyRevise,   GLOBAL
   - RULE-SET,Application_CN,DIRECT
   - RULE-SET,Direct,        DIRECT
   - RULE-SET,Global,        GLOBAL

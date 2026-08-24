@@ -5,7 +5,5 @@ payload:
   - DOMAIN-SUFFIX,sciencedirectassets.com
   - DOMAIN-SUFFIX,sciencedirect.com
   - DOMAIN-SUFFIX,googleapis.com
-  - DOMAIN-SUFFIX,oaistatic.com
-  - DOMAIN-SUFFIX,oaiusercontent.com
   - IP-CIDR,154.26.176.130/8
   - IP-CIDR,152.53.54.223/8
