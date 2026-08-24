@@ -143,6 +143,7 @@ proxy-groups:
     proxies:
       - DIRECT
       - AUTO
+      - Verizon
       - PROXY
     icon: >-
       https://raw.githubusercontent.com/Orz-3/mini/master/Color/Microsoft.png
