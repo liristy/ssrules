@@ -120,7 +120,7 @@ proxy-groups:
     filter: "(?i)(DMIT|V4|V6)"
     icon: >-
       https://raw.githubusercontent.com/Orz-3/mini/master/Color/Static.png
-  - name: Global
+  - name: GLOBAL
     type: select
     proxies:
       - AUTO
