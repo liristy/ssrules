@@ -21,6 +21,11 @@ FIXED = {
 }
 
 
+def excluded_plugin(url):
+    parsed = urllib.parse.urlparse(url)
+    return parsed.netloc.lower() in ('github.com', 'raw.githubusercontent.com') and parsed.path.lower().startswith('/fmz200/')
+
+
 def enabled_plugins(config):
     section = ''
     plugins = []
@@ -37,6 +42,8 @@ def enabled_plugins(config):
         url = line.split(',', 1)[0].strip()
         parsed = urllib.parse.urlparse(url)
         name = Path(parsed.path).name
+        if excluded_plugin(url):
+            continue
         if parsed.scheme != 'https' or not name.endswith(('.lpx', '.plugin')):
             raise ValueError('Unsupported plugin URL: ' + url)
         if name in names:
@@ -129,10 +136,26 @@ def refresh_resources(*, root=ROOT, refresh=False):
             'scripts': len(script_paths),
         }
     # No snapshots are written until both download batches have succeeded.
+    old_manifest = root / 'dependencies.json'
+    previous = json.loads(old_manifest.read_text(encoding='utf-8')) if old_manifest.exists() else {}
+    obsolete = {item['file'] for item in previous.values() if 'file' in item} - set(snapshots)
+    old_aggregate = root / 'sources/blockAds.plugin'
+    if old_aggregate.exists():
+        for url in re.findall(r'(?:jq-path|data-path)\s*=\s*["\']?(https?://[^"\'\s,]+)', old_aggregate.read_text(encoding='utf-8-sig')):
+            relative = 'sources/' + Path(urllib.parse.urlparse(url).path).name
+            if relative not in snapshots:
+                obsolete.add(relative)
+        obsolete.add('sources/blockAds.plugin')
     for path, data in sorted(snapshots.items()):
         atomic_write(root / path, data)
     atomic_write(root / 'dependencies.json', (json.dumps(dependencies, indent=2, ensure_ascii=False) + '\n').encode())
     atomic_write(metadata_path, (json.dumps(metadata, indent=2, ensure_ascii=False) + '\n').encode())
+    for relative in sorted(obsolete):
+        target = (root / relative).resolve()
+        allowed = {(root / 'scripts').resolve(), (root / 'sources').resolve()}
+        if target.parent not in allowed:
+            raise ValueError('Refusing to delete a path outside resource directories: ' + relative)
+        target.unlink(missing_ok=True)
     print(json.dumps({'plugins': len(plugins), 'scripts': len(script_paths), 'resources': len(snapshots), 'date': metadata['date'], 'sha256': fingerprint}))
 
 

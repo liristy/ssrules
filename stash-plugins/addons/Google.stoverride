@@ -1,0 +1,14 @@
+name: Google搜索重定向
+desc: 可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。
+date: '2026-09-16'
+http:
+  url-rewrite:
+  - ^https?:\/\/(www.)?(g|google)\.cn https://www.google.com 307
+  - ^https?:\/\/(ditu|maps).google\.cn https://maps.google.com 307
+  mitm:
+  - -gateway.icloud.com
+  - -gateway.icloud.com.cn
+  - -weather-data.apple.com
+  - -buy.itunes.apple.com
+  - -ios.chat.openai.com
+  - www.google.cn

@@ -1,0 +1,45 @@
+name: 淘宝去广告
+desc: 可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。
+date: '2026-09-16'
+http:
+  url-rewrite:
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.fliggy\.crm\.screen\.(allresource|predict) - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.alibaba\.advertisementservice\.getadv - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.alimama\.etao\.config\.query\/.+?etao_advertise - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.alimusic\.common\.mobileservice\.startinit - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.etao\.noah\.query\/.+tao_splash - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.film\.mtopadvertiseapi\.queryadvertise - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.o2o\.ad\.gateway\.get - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.taobao\.idle\.home\.welcome - reject-dict
+  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.trip\.activity\.querytmsresources - reject-dict
+  - ^https:\/\/(?:gw|heic)\.alicdn\.com\/imgextra\/i\d\/\d*\/?[\w!]+-\d-(?:octopus|tps)-(?:1080|1125)-\d{4}\.(?:jpg|png)_(?:1\d{3}|9\d{2})x(?:\d|1\d{3}|9\d{2})q[59]0
+    - reject-dict
+  - ^https:\/\/guide-acs\.m\.taobao\.com\/gw\/mtop\.taobao\.(volvo\.secondfloor\.getconfig|wireless\.home\.newface\.awesome\.get)
+    - reject-dict
+  script:
+  - name: loon-Taobao_remove_ads-9d853d73
+    match: ^https:\/\/guide-acs\.m\.taobao\.com\/gw\/mtop\.taobao\.(cloudvideo\.video\.query|wireless\.home\.splash\.awesome\.get)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Taobao_remove_ads-9d853d73
+    match: ^https:\/\/poplayer\.template\.alibaba\.com\/\w+\.json
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  mitm:
+  - -gateway.icloud.com
+  - -gateway.icloud.com.cn
+  - -weather-data.apple.com
+  - -buy.itunes.apple.com
+  - -ios.chat.openai.com
+  - acs.m.taobao.com
+  - heic.alicdn.com
+  - guide-acs.m.taobao.com
+  - poplayer.template.alibaba.com
+script-providers:
+  loon-Taobao_remove_ads-9d853d73:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Taobao_remove_ads-9d853d73-24f6ebcb82bb.js
+    interval: 86400

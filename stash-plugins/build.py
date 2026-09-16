@@ -1,4 +1,4 @@
-"""Build one offline Stash override from the enabled Loon plugins.
+"""Build a lightweight Stash core and optional per-app HTTP overrides.
 
 Requires PyYAML. Unknown syntax fails the build instead of silently losing rules.
 """
@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import urllib.parse
 import yaml
-from fetch_dependencies import enabled_plugins
+from fetch_dependencies import enabled_plugins, excluded_plugin
 
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent
@@ -18,6 +18,12 @@ QUIC_RULES = [
     'PROTOCOL,QUIC,REJECT,no-track',
     'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track',
 ]
+RUNTIME_URL = 'https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/'
+MAX_BODY_BYTES = 1024 * 1024
+
+
+def needs_http(rule):
+    return bool(re.search(r'(?:^|\()(?:URL-REGEX|USER-AGENT),', rule))
 
 
 def sections(text):
@@ -117,6 +123,8 @@ class Builder:
         self.source = ''
         self.line = 0
         self.shadowed_rules = []
+        self.plugin_entries = {}
+        self.plugin_names = {}
 
     def note(self, message):
         self.notes.append({'source': self.source, 'line': self.line, 'message': message})
@@ -165,6 +173,11 @@ class Builder:
         self.locations['rules'] = locations
 
     def add(self, section, entry):
+        # Capture independently: a later optional addon must not lose entries
+        # just because another addon contains the same rule.
+        entries = self.plugin_entries.setdefault(self.source, {}).setdefault(section, [])
+        if entry not in entries:
+            entries.append(entry)
         key = json.dumps(entry, sort_keys=True, ensure_ascii=False)
         seen = self.seen.setdefault(section, set())
         if key in seen:
@@ -174,6 +187,77 @@ class Builder:
         target = self.data['rules'] if section == 'rules' else self.data['http'][section]
         target.append(entry)
         self.locations.setdefault(section, []).append(f'{self.source}:{self.line}')
+
+    def export_lightweight(self):
+        """No HTTP processing or JavaScript is enabled by the default override."""
+        full = self.data
+        # Build-time validation only. This file is ignored by Git and never imported.
+        (ROOT / 'validation-input.json').write_text(json.dumps(full, ensure_ascii=False), encoding='utf-8')
+        core = {
+            'name': '广告净化 · 轻量',
+            'desc': '广告域名拦截与 QUIC 屏蔽；应用增强按需单独启用。',
+            'date': full['date'],
+            'rules': [r for r in full['rules'] if not needs_http(r)],
+            'http': {'mitm': [host for host in full['http']['mitm'] if host.startswith('-')]},
+        }
+        addons = []
+        runtime_files = {}
+        addon_dir = ROOT / 'addons'
+        addon_dir.mkdir(exist_ok=True)
+        for source in self.sources:
+            filename = source['file']
+            entries = self.plugin_entries.get(filename, {})
+            http = {key: list(value) for key, value in entries.items() if key not in ('rules', 'mitm') and value}
+            rules = [r for r in entries.get('rules', []) if needs_http(r)]
+            if not http and not rules:
+                continue
+            http['mitm'] = list(dict.fromkeys(core['http']['mitm'] + entries.get('mitm', [])))
+            addon = {
+                'name': self.plugin_names[filename],
+                'desc': '可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。',
+                'date': full['date'],
+                'http': http,
+            }
+            if rules:
+                addon['rules'] = rules
+            providers = {}
+            if 'script' in http:
+                http['script'] = [dict(entry) for entry in http['script']]
+                for entry in http['script']:
+                    entry['timeout'] = min(entry.get('timeout', 10), 10)
+                    if entry.get('require-body'):
+                        entry['max-size'] = min(entry.get('max-size', MAX_BODY_BYTES) or MAX_BODY_BYTES, MAX_BODY_BYTES)
+                    name = entry['name']
+                    payload = str(full['script-providers'][name]['payload'])
+                    digest = sha256(payload.encode()).hexdigest()[:12]
+                    runtime_name = name + '-' + digest + '.js'
+                    runtime_files[runtime_name] = payload
+                    providers[name] = {'url': RUNTIME_URL + runtime_name, 'interval': 86400}
+                addon['script-providers'] = providers
+            target = Path(filename).stem + '.stoverride'
+            text = yaml.dump(addon, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=120)
+            assert len(http.get('script', [])) <= 80, 'Addon grew too large: ' + filename
+            assert len(text.encode()) < 100_000, 'Addon grew too large: ' + filename
+            (addon_dir / target).write_text(text, encoding='utf-8', newline='\n')
+            addons.append({'file': 'addons/' + target, 'source': filename, 'scripts': len(http.get('script', [])), 'providers': len(providers), 'bytes': len(text.encode())})
+        runtime_dir = ROOT / 'runtime'
+        runtime_dir.mkdir(exist_ok=True)
+        for name, payload in runtime_files.items():
+            (runtime_dir / name).write_text(payload, encoding='utf-8', newline='\n')
+        # Remove only files identified as generated by the previous build report.
+        active = {Path(item['file']).name for item in addons}
+        previous_report = ROOT / 'report.json'
+        previous = json.loads(previous_report.read_text(encoding='utf-8')) if previous_report.exists() else {}
+        for item in previous.get('addons', []):
+            old = (ROOT / item['file']).resolve()
+            if old.parent != addon_dir.resolve():
+                raise ValueError('Invalid generated addon path')
+            if old.name not in active:
+                old.unlink(missing_ok=True)
+        # Versioned runtime scripts are retained for clients using an older addon.
+        self.data = core
+        self.locations['rules'] = [loc for rule, loc in zip(full['rules'], self.locations['rules']) if not needs_http(rule)]
+        return addons
 
     def provider(self, url):
         entry = self.dependencies[url]
@@ -330,6 +414,8 @@ class Builder:
         for url, filename in plugins:
             self.source = filename
             text = (ROOT / 'sources' / self.source).read_text(encoding='utf-8-sig')
+            title = re.search(r'^#!name\s*=\s*(.+)$', text, re.M)
+            self.plugin_names[filename] = title[1].strip() if title else Path(filename).stem
             self.sources.append({'file': self.source, 'url': url, 'sha256': sha256(text.encode()).hexdigest()})
             parts = sections(text)
             self.defaults = {}
@@ -369,13 +455,17 @@ class Builder:
                 exclusions.extend(x.strip() for x in line.split('=',1)[1].split(',') if x.strip().startswith('-'))
         hosts = self.data['http']['mitm']
         self.data['http']['mitm'] = list(dict.fromkeys(exclusions + [x for x in hosts if x.startswith('-')] + [x for x in hosts if not x.startswith('-')]))
-        counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': len(self.data['script-providers']), **{k:len(v) for k,v in self.data['http'].items()}}
-        report = {'date': self.data['date'], 'counts': counts, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
+        source_counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': len(self.data['script-providers']), **{k:len(v) for k,v in self.data['http'].items()}}
+        addons = self.export_lightweight()
+        counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': 0, 'script': 0, 'mitm': len(self.data['http']['mitm'])}
+        excluded = [line.split(',', 1)[0].strip() for _, line in config.get('plugin', []) if excluded_plugin(line.split(',', 1)[0].strip())]
+        report = {'date': self.data['date'], 'profile': 'lightweight-core', 'counts': counts, 'source_counts': source_counts, 'addons': addons, 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
         (ROOT / 'report.json').write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
         (ROOT / 'locations.json').write_text(json.dumps(self.locations, ensure_ascii=False), encoding='utf-8')
-        header = '# 自动生成：python stash-plugins/build.py；依赖 PyYAML。\n# 脚本和 mock 内容已内嵌，无需再从 kelee.one 下载；不含 CA 私钥。\n# AUTO 策略组沿用当前基础配置；不要与同功能覆写重复启用。\n'
+        header = '# 自动生成：python stash-plugins/build.py\n# 轻量主覆写：不启用脚本、正文重写或 HTTPS 解密；增强功能位于 stash-plugins/addons。\n# 请先停用旧的大合集，再启用此文件。\n'
         output = header + yaml.dump(self.data, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=120)
         assert yaml.safe_load(output) == self.data
+        assert len(output.encode()) < 150_000, 'Core override exceeded its size budget'
         assert not re.search(r'\{(?:\w+_enable|Weather\.Provider)\}', output)
         OUTPUT.write_text(output, encoding='utf-8')
         print(json.dumps(counts, ensure_ascii=False))

@@ -16,6 +16,7 @@ for (const script of config.http.script) {
 }
 
 // Exercise the actual adapted gzip prelude with compressed binary data.
+let gzipAdapters = 0;
 for (const [name, provider] of Object.entries(providers)) {
   if (!provider.payload.includes('var $utils = { ungzip:')) continue;
   const end = provider.payload.indexOf('\n', provider.payload.indexOf('var $utils = { ungzip:'));
@@ -24,6 +25,7 @@ for (const [name, provider] of Object.entries(providers)) {
   context.input = [...zlib.gzipSync('Stash gzip compatibility 测试')];
   const result = vm.runInContext('$utils.ungzip(input)', context);
   assert.equal(Buffer.from(result).toString(), 'Stash gzip compatibility 测试', name);
+  gzipAdapters++;
 }
 
 // Execute the real 12306 request script against blocked and allowed operations.
@@ -39,4 +41,4 @@ for (const [operation, blocked] of [['com.cars.otsmobile.newHomePage.initData', 
   assert.ok(called);
   assert.equal(result === undefined, blocked);
 }
-console.log(`JavaScript syntax OK: ${Object.keys(providers).length} providers; ${config.http.script.length} script bindings; gzip and 12306 behavior OK.`);
+console.log(`JavaScript syntax OK: ${Object.keys(providers).length} providers; ${config.http.script.length} script bindings; gzip adapters tested: ${gzipAdapters}; 12306 behavior OK.`);

@@ -1,0 +1,44 @@
+name: YouTube去广告
+desc: 可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。
+date: '2026-09-16'
+http:
+  script:
+  - name: loon-YouTube_remove_ads_response-0e06084d
+    match: ^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$
+    type: response
+    require-body: true
+    binary-mode: true
+    argument: '{"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"zh-Hans","debug":false}'
+    timeout: 10
+    max-size: 1048576
+  - name: loon-YouTube_remove_ads_request-a8704cad
+    match: ^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*
+    type: request
+    require-body: true
+    binary-mode: true
+    argument: '{"captionLang":"zh-Hans"}'
+    timeout: 10
+    max-size: 1048576
+  - name: loon-YouTube_remove_ads_request-a8704cad
+    match: ^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event
+    type: request
+    require-body: true
+    binary-mode: true
+    argument: '{"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"zh-Hans","debug":false}'
+    timeout: 10
+    max-size: 1048576
+  mitm:
+  - -gateway.icloud.com
+  - -gateway.icloud.com.cn
+  - -weather-data.apple.com
+  - -buy.itunes.apple.com
+  - -ios.chat.openai.com
+  - '*.googlevideo.com'
+  - youtubei.googleapis.com
+script-providers:
+  loon-YouTube_remove_ads_response-0e06084d:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_response-0e06084d-73cbae3c9cb3.js
+    interval: 86400
+  loon-YouTube_remove_ads_request-a8704cad:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
+    interval: 86400

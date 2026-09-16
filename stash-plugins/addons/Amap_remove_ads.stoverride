@@ -1,0 +1,123 @@
+name: 高德地图去广告
+desc: 可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。
+date: '2026-09-16'
+http:
+  url-rewrite:
+  - ^https:\/\/m5\.amap\.com\/ws\/shield\/search\/new_hotword\? - reject-dict
+  - ^https:\/\/m5\.amap\.com\/ws\/faas\/amap-navigation\/card-service-(?:car-end|route-plan) - reject-dict
+  - ^https:\/\/m5\.amap\.com\/ws\/shield\/search_poi\/tips_adv\? - reject-dict
+  - ^https:\/\/oss\.amap\.com\/ws\/banner\/lists\/\? - reject-dict
+  - ^https:\/\/ai\.amap\.com\/v1\/ai_rec\/ - reject-dict
+  - ^https:\/\/m5\.amap\.com\/ws\/aos\/main\/page\/product\/list\? - reject-dict
+  - ^https:\/\/m5\.amap\.com\/ws\/faas\/amap-navigation\/(?:main-page-assets|main-page-location|ridewalk-end-fc|usr-profile-fc\/homeV2)
+    - reject-dict
+  - ^https:\/\/m5\.amap\.com\/ws\/(?:mapapi\/hint_text\/offline_data|message\/notice\/list|shield\/search\/new_hotword) -
+    reject-dict
+  - ^https:\/\/m5\.amap\.com\/ws\/shield\/scene\/recommend\? - reject-dict
+  - ^https:\/\/m5\.amap\.com\/ws\/valueadded\/weather\/v2\? - reject-dict
+  - ^https:\/\/sns\.amap\.com\/ws\/msgbox\/pull_mp\? - reject-dict
+  - ^https:\/\/m5-zb\.amap\.com\/ws\/boss\/(?:order\/car\/(?:feedback\/get_card_questions|feedback\/viptips|king_toolbox_car_bubble|remark\/satisfactionConf|rights_information)|tips\/onscene_visual_optimization)
+    - reject-dict
+  - ^https:\/\/m5-zb\.amap\.com\/ws\/boss\/(?:pay\/web\/paySuccess\/info\/request|transportation\/diversion\/resource\/driving)
+    - reject-dict
+  body-rewrite:
+  - ^https:\/\/m5\.amap\.com\/ws\/shield\/search_business\/process\/marketingOperationStructured\? response-json-del data.commonMaterial
+    data.tipsOperationLocation data.resourcePlacement
+  - ^https:\/\/m5\.amap\.com\/ws\/shield\/search_poi\/homepage\? response-json-del history_tags
+  - ^https:\/\/m5-zb\.amap\.com\/ws\/sharedtrip\/taxi\/order_detail_car_tips\? response-json-del data.carTips.data.popupInfo
+  script:
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/aos\/perception\/publicTravel\/beforeNavi\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/bus\/plan\/integrate\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/c3frontend\/(?:af-(?:hotel|launch)\/page\/main|af-nearby\/nearby)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/perception\/drive\/(?:routeInfo|routePlan)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/search_bff\/hotword\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/search_poi\/(?:mps|search\/sp|sug|tips_operation_location)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/faas\/amap-navigation\/(?:card-service-plan-home|main-page)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/frogserver\/aocs\/updatable\/1\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/dsp\/profile\/index\/nodefaasv3\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/search\/nearbyrec_smart\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/valueadded\/alimama\/splash_screen\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5-zb\.amap\.com\/ws\/boss\/(?:car\/order\/content_info|order_web\/friendly_information)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5-zb\.amap\.com\/ws\/promotion-web\/resource(\/home)?\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/(?:info|m5)\.amap\.com\/ws\/shield\/search\/(?:common\/coupon\/info|poi\/detail)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  mitm:
+  - -gateway.icloud.com
+  - -gateway.icloud.com.cn
+  - -weather-data.apple.com
+  - -buy.itunes.apple.com
+  - -ios.chat.openai.com
+  - '*.amap.com'
+script-providers:
+  loon-Amap_remove_ads-19b1882f:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Amap_remove_ads-19b1882f-a228360986d5.js
+    interval: 86400

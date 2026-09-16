@@ -1,0 +1,19 @@
+name: 萤石云视频去广告
+desc: 可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。
+date: '2026-09-16'
+http:
+  url-rewrite:
+  - ^https:\/\/api\.ys7\.com\/api\/ads - reject
+  - ^https:\/\/i\.ys7\.com\/api\/user\/tabList - reject-dict
+  - ^https:\/\/api\.ys7\.com\/v3\/config\/service\/entrance\/bannerInfo - reject-dict
+  - ^https:\/\/api\.ys7\.com\/v3\/intelligent-app\/apps\/linkage - reject-dict
+  - ^https:\/\/api\.ys7\.com\/v3\/configurations\/gray\/info\?grayTypes=185 - reject-dict
+  - ^https:\/\/api\.ys7\.com\/v3\/videoclips\/square\/video\/query - reject-dict
+  mitm:
+  - -gateway.icloud.com
+  - -gateway.icloud.com.cn
+  - -weather-data.apple.com
+  - -buy.itunes.apple.com
+  - -ios.chat.openai.com
+  - api.ys7.com
+  - i.ys7.com

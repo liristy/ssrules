@@ -72,6 +72,21 @@ class RefreshTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             fetcher.enabled_plugins('[Plugin]\nhttps://test.invalid/off.lpx, enabled=false\n')
 
+    def test_fmz200_is_excluded_even_when_enabled_in_loon(self):
+        selected = fetcher.enabled_plugins(
+            '[Plugin]\nhttps://test.invalid/demo.lpx, enabled=true\n'
+            'https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin, enabled=true\n')
+        self.assertEqual(selected, [('https://test.invalid/demo.lpx', 'demo.lpx')])
+
+    def test_obsolete_script_snapshot_is_removed_after_success(self):
+        self.run_refresh()
+        manifest = json.loads((self.root / 'dependencies.json').read_text())
+        old_script = self.root / manifest['https://test.invalid/app.js']['file']
+        self.resources['https://test.invalid/demo.lpx'] = b'[Rule]\nDOMAIN,new.test,REJECT\n'
+        self.run_refresh()
+        self.assertFalse(old_script.exists())
+        self.assertEqual(json.loads((self.root / 'dependencies.json').read_text()), {})
+
     def test_download_uses_loon_ua_and_rejects_html(self):
         class Response:
             def __enter__(self): return self
