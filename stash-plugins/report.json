@@ -5,7 +5,7 @@
     "plugins": 20,
     "rules": 477,
     "providers": 9,
-    "mitm": 123,
+    "mitm": 132,
     "url-rewrite": 213,
     "body-rewrite": 73,
     "mock": 1,
@@ -404,6 +404,39 @@
       "source": "Zhihu_remove_ads.lpx",
       "line": 16,
       "message": "移除重复的 reject-dict 动作。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "message": "将可完整枚举的 MITM 通配域名收窄为实际规则接口。",
+      "before": [
+        "*.amap.com"
+      ],
+      "after": [
+        "ai.amap.com",
+        "info.amap.com",
+        "m5-zb.amap.com",
+        "m5.amap.com",
+        "oss.amap.com",
+        "sns.amap.com"
+      ]
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "message": "将可完整枚举的 MITM 通配域名收窄为实际规则接口。",
+      "before": [
+        "*.weibo.cn",
+        "*.weibo.com",
+        "weibo.com"
+      ],
+      "after": [
+        "api.weibo.cn",
+        "bootpreload.uve.weibo.com",
+        "bootrealtime.uve.weibo.com",
+        "card.weibo.com",
+        "sdkapp.uve.weibo.com",
+        "wbapp.uve.weibo.com",
+        "weibo.com"
+      ]
     }
   ]
 }

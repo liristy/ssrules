@@ -8,6 +8,7 @@ import yaml
 import jq
 from build import Builder, QUIC_RULES, requires_quic, sections, RUNTIME_URL, MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS
 from fetch_dependencies import enabled_plugins
+from fnmatch import fnmatchcase
 
 ROOT = Path(__file__).resolve().parent
 core_path = ROOT.parent / 'stash_plugins.stoverride'
@@ -26,7 +27,10 @@ assert core['rules'] == data['rules']
 for key in NATIVE_HTTP_SECTIONS:
     assert core['http'].get(key, []) == data['http'][key], key
     assert report['counts'].get(key, 0) == len(core['http'].get(key, []))
-assert core['http']['mitm'] == data['http']['mitm']
+assert all(host in data['http']['mitm'] or any(not old.startswith('-') and fnmatchcase(host, old)
+           for old in data['http']['mitm']) for host in core['http']['mitm'])
+assert not {'*.amap.com', '*.weibo.cn', '*.weibo.com'} & set(core['http']['mitm'])
+assert {'m5.amap.com', 'info.amap.com', 'api.weibo.cn', 'sdkapp.uve.weibo.com'} <= set(core['http']['mitm'])
 assert 'weatherkit.apple.com' in core['http']['mitm']
 assert 'api.xiachufang.com' in core['http']['mitm']
 assert core_path.stat().st_size < 150_000
@@ -141,4 +145,4 @@ subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)
 print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
 print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
 print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')
-print('Combined override: all rules, rewrites, MITM hosts and script bindings preserved without duplicates; external providers and body limits verified; no forced HTTP engine or fmz200 aggregate.')
+print('Combined override: rules, rewrites and script bindings preserved; MITM narrowed within source scope; external providers and body limits verified; no forced HTTP engine or fmz200 aggregate.')

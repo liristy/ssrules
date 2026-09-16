@@ -3,6 +3,7 @@
 Requires PyYAML. Unknown syntax fails the build instead of silently losing rules.
 """
 from collections import Counter
+from fnmatch import fnmatchcase
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -19,12 +20,80 @@ QUIC_RULES = [
     'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track',
 ]
 RUNTIME_URL = 'https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/'
-MAX_BODY_BYTES = 1024 * 1024
+MAX_BODY_BYTES = 256 * 1024
 NATIVE_HTTP_SECTIONS = ('url-rewrite', 'header-rewrite', 'body-rewrite', 'mock')
 
 
 def needs_http(rule):
     return bool(re.search(r'(?:^|\()(?:URL-REGEX|USER-AGENT),', rule))
+
+
+def literal_url_hosts(pattern):
+    """Prove a finite host list for simple anchored URL patterns; otherwise abstain."""
+    depth, in_class, escaped = 0, False, False
+    for char in pattern:
+        if escaped:
+            escaped = False
+        elif char == '\\':
+            escaped = True
+        elif char == '[':
+            in_class = True
+        elif char == ']' and in_class:
+            in_class = False
+        elif not in_class:
+            if char == '(':
+                depth += 1
+            elif char == ')':
+                depth -= 1
+            elif char == '|' and depth == 0:
+                return None
+    pattern = pattern.replace(r'\/', '/')
+    prefix = re.match(r'^\^https?\??://', pattern)
+    if not prefix:
+        return None
+    authority, slash, _ = pattern[prefix.end():].partition('/')
+    if not slash:
+        return None
+    pending, hosts = [authority], []
+    while pending:
+        value = pending.pop()
+        group = re.search(r'\(\?:([a-zA-Z0-9|-]+)\)', value)
+        if group:
+            pending.extend(value[:group.start()] + part + value[group.end():] for part in group[1].split('|'))
+            if len(pending) + len(hosts) > 64:
+                return None
+            continue
+        # An unescaped dot, optional port, character class, or other regex means
+        # we cannot safely enumerate every host, so retain the source wildcard.
+        if not re.fullmatch(r'[a-zA-Z0-9-]+(?:\\\.[a-zA-Z0-9-]+)+', value):
+            return None
+        hosts.append(value.replace(r'\.', '.').lower())
+    return sorted(set(hosts))
+
+
+def narrow_mitm(entries):
+    hosts = entries.get('mitm', [])
+    if any(needs_http(rule) for rule in entries.get('rules', [])):
+        return hosts
+    patterns = [row['match'] if isinstance(row, dict) else row.split()[0]
+                for key in (*NATIVE_HTTP_SECTIONS, 'script') for row in entries.get(key, [])]
+    if not patterns:
+        return hosts
+    required = set()
+    for pattern in patterns:
+        resolved = literal_url_hosts(pattern)
+        if resolved is None:
+            return hosts
+        required.update(resolved)
+    result = []
+    for host in hosts:
+        if not host.startswith('-') and '*' in host:
+            matched = sorted(value for value in required if fnmatchcase(value, host.lower()))
+            # Keep unmatched host entries rather than guessing they are obsolete.
+            result.extend(matched or [host])
+        else:
+            result.append(host)
+    return list(dict.fromkeys(result))
 
 
 def sections(text):
@@ -194,13 +263,19 @@ class Builder:
         full = self.data
         # Build-time validation only. This file is ignored by Git and never imported.
         (ROOT / 'validation-input.json').write_text(json.dumps(full, ensure_ascii=False), encoding='utf-8')
+        hosts = [host for host in full['http']['mitm'] if host.startswith('-')]
+        for filename, entries in self.plugin_entries.items():
+            narrowed = narrow_mitm(entries)
+            hosts.extend(narrowed)
+            if narrowed != entries.get('mitm', []):
+                self.notes.append({'source': filename, 'message': '将可完整枚举的 MITM 通配域名收窄为实际规则接口。', 'before': entries['mitm'], 'after': narrowed})
         core = {
             'name': '广告净化',
             'desc': '应用去广告、隐私拦截、QUIC 屏蔽与天气增强。',
             'date': full['date'],
             'rules': list(full['rules']),
             'http': {
-                'mitm': list(full['http']['mitm']),
+                'mitm': list(dict.fromkeys(hosts)),
                 **{key: list(full['http'][key]) for key in NATIVE_HTTP_SECTIONS if full['http'][key]},
                 'script': [dict(entry) for entry in full['http']['script']],
             },
