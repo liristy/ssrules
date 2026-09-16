@@ -1,0 +1,73 @@
+name: Update Stash plugins
+
+on:
+  schedule:
+    # UTC 00:23 = 北京时间每天 08:23
+    - cron: '23 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-stash-plugins-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: stash-plugins/requirements.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Install build dependencies
+        run: python -m pip install -r stash-plugins/requirements.txt
+
+      - name: Test refresh and failure handling
+        run: python -m unittest discover -s stash-plugins -p 'test_*.py'
+
+      - name: Download current plugins and all dependencies
+        run: python stash-plugins/fetch_dependencies.py --refresh
+
+      - name: Build and validate override
+        run: |
+          python stash-plugins/build.py
+          python stash-plugins/validate.py
+
+      - name: Upload validated override
+        uses: actions/upload-artifact@v7
+        with:
+          name: stash-plugins
+          path: |
+            stash_plugins.stoverride
+            stash-plugins/report.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Commit changed snapshots and generated files
+        run: |
+          git add -- stash_plugins.stoverride stash-plugins/sources stash-plugins/scripts stash-plugins/dependencies.json stash-plugins/refresh.json stash-plugins/report.json stash-plugins/locations.json
+          if git diff --cached --quiet; then
+            echo 'No plugin changes.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: update Stash plugin override'
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          echo 'Updated stash_plugins.stoverride; all validation checks passed.' >> "$GITHUB_STEP_SUMMARY"
