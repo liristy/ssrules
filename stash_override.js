@@ -114,62 +114,7 @@ async function main(config) {
     }
     return [renamed];
   });
-  blockProxyQuic(config);
   return config;
-}
-
-// Stash 2.6 使用 Script Shortcuts；在原分流位置拦截，避免被前面的代理规则绕过。
-// 按配置目标判断是否可能代理，无法读取手机上 select 策略组的实时选择。
-function blockProxyQuic(config) {
-  const prefix = 'ssrules_quic_'; // 本覆写保留的快捷脚本命名空间。
-  const script = config.script || {};
-  const shortcuts = { ...(script.shortcuts || {}) };
-  for (const key of Object.keys(shortcuts)) {
-    if (key.startsWith(prefix)) delete shortcuts[key];
-  }
-  const groups = new Map(config['proxy-groups'].map(group => [group.name, group]));
-  const proxies = new Map((config.proxies || []).map(proxy => [proxy.name, proxy]));
-  const mayProxy = (name, seen = new Set()) => {
-    if (['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'].includes(name)) return false;
-    if (['direct', 'reject'].includes(proxies.get(name)?.type)) return false;
-    const group = groups.get(name);
-    if (!group || seen.has(name)) return true;
-    const next = new Set([...seen, name]);
-    return !!group['include-all'] || !!group.use?.length ||
-      [...(group.proxies || []), ...Object.values(group['ssid-policy'] || {})]
-        .some(member => mayProxy(member, next));
-  };
-  let index = 0;
-  config.rules = config.rules.flatMap(rule => {
-    const parts = rule.split(',').map(part => part.trim());
-    // 再次生成时替换旧拦截项，避免重复添加。
-    if (parts[0] === 'SCRIPT' && parts[1]?.startsWith(prefix)) return [];
-    const flags = [];
-    while (['no-resolve', 'no-track'].includes(parts.at(-1))) flags.unshift(parts.pop());
-    const target = parts.pop();
-    if (!mayProxy(target)) return [rule];
-    const [type, value] = parts;
-    const quoted = JSON.stringify(value);
-    const ip = flags.includes('no-resolve') ? 'dst_ip' :
-      "(dst_ip if dst_ip != '' else resolve_ip(host))";
-    let condition;
-    switch (type) {
-      case 'RULE-SET': condition = `match_provider(${quoted})`; break;
-      case 'IP-CIDR':
-      case 'IP-CIDR6': condition = `${ip} != '' and in_cidr(${ip}, ${quoted})`; break;
-      case 'IP-ASN': condition = `${ip} != '' and ipasn(${ip}) == ${Number(value)}`; break;
-      case 'GEOIP': condition = `${ip} != '' and geoip(${ip}) == ${quoted}`; break;
-      case 'DOMAIN': condition = `host == ${quoted}`; break;
-      case 'DOMAIN-SUFFIX': condition = `host == ${quoted} or host.endswith(${JSON.stringify('.' + value)})`; break;
-      case 'DOMAIN-KEYWORD': condition = `${quoted} in host`; break;
-      case 'MATCH': condition = 'True'; break;
-      default: throw new Error('无法安全添加 QUIC 拦截，请检查代理规则：' + rule);
-    }
-    const name = prefix + (++index);
-    shortcuts[name] = `network == 'udp' and dst_port == 443 and (${condition})`;
-    return [`SCRIPT,${name},REJECT,no-track`, rule];
-  });
-  config.script = { ...script, shortcuts };
 }
 
 // Sub-Store 标准文件脚本入口；兼容普通文件和 mihomo 配置文件的脚本操作。
