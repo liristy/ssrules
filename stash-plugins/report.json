@@ -1,12 +1,15 @@
 {
   "date": "2026-09-16",
-  "profile": "lightweight-core",
+  "profile": "native-core",
   "counts": {
     "plugins": 20,
-    "rules": 458,
+    "rules": 477,
     "providers": 0,
     "script": 0,
-    "mitm": 5
+    "mitm": 120,
+    "url-rewrite": 213,
+    "body-rewrite": 73,
+    "mock": 1
   },
   "source_counts": {
     "plugins": 20,
@@ -22,144 +25,60 @@
   },
   "addons": [
     {
-      "file": "addons/Block_HTTPDNS.stoverride",
-      "source": "Block_HTTPDNS.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 2165
-    },
-    {
-      "file": "addons/BlockAdvertisers.stoverride",
-      "source": "BlockAdvertisers.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 679
-    },
-    {
       "file": "addons/12306_remove_ads.stoverride",
       "source": "12306_remove_ads.lpx",
       "scripts": 1,
       "providers": 1,
-      "bytes": 783
+      "bytes": 667
     },
     {
       "file": "addons/AppleWeatherEnhancer.stoverride",
       "source": "AppleWeatherEnhancer.lpx",
       "scripts": 2,
       "providers": 1,
-      "bytes": 1413
-    },
-    {
-      "file": "addons/Google.stoverride",
-      "source": "Google.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 447
+      "bytes": 1407
     },
     {
       "file": "addons/YouTube_remove_ads.stoverride",
       "source": "YouTube_remove_ads.lpx",
       "scripts": 3,
       "providers": 2,
-      "bytes": 1837
-    },
-    {
-      "file": "addons/BaiduNetDisk_remove_ads.stoverride",
-      "source": "BaiduNetDisk_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 996
-    },
-    {
-      "file": "addons/Cainiao_remove_ads.stoverride",
-      "source": "Cainiao_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 1553
-    },
-    {
-      "file": "addons/DiDi_remove_ads.stoverride",
-      "source": "DiDi_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 5378
-    },
-    {
-      "file": "addons/DingdongMaicai_remove_ads.stoverride",
-      "source": "DingdongMaicai_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 2331
-    },
-    {
-      "file": "addons/FC_Box_remove_ads.stoverride",
-      "source": "FC_Box_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 1317
+      "bytes": 1831
     },
     {
       "file": "addons/Amap_remove_ads.stoverride",
       "source": "Amap_remove_ads.lpx",
       "scripts": 14,
       "providers": 1,
-      "bytes": 5219
+      "bytes": 3417
     },
     {
       "file": "addons/HUPU_remove_ads.stoverride",
       "source": "HUPU_remove_ads.lpx",
       "scripts": 4,
       "providers": 1,
-      "bytes": 2255
-    },
-    {
-      "file": "addons/Remove_ads_by_keli.stoverride",
-      "source": "Remove_ads_by_keli.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 8983
+      "bytes": 1405
     },
     {
       "file": "addons/Taobao_remove_ads.stoverride",
       "source": "Taobao_remove_ads.lpx",
       "scripts": 2,
       "providers": 1,
-      "bytes": 2250
+      "bytes": 1030
     },
     {
       "file": "addons/Weibo_remove_ads.stoverride",
       "source": "Weibo_remove_ads.lpx",
       "scripts": 20,
       "providers": 1,
-      "bytes": 6241
-    },
-    {
-      "file": "addons/FleaMarket_remove_ads.stoverride",
-      "source": "FleaMarket_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 5262
+      "bytes": 4625
     },
     {
       "file": "addons/RedPaper_remove_ads.stoverride",
       "source": "RedPaper_remove_ads.lpx",
       "scripts": 12,
       "providers": 1,
-      "bytes": 4231
-    },
-    {
-      "file": "addons/VideoGo_remove_ads.stoverride",
-      "source": "VideoGo_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 775
-    },
-    {
-      "file": "addons/Zhihu_remove_ads.stoverride",
-      "source": "Zhihu_remove_ads.lpx",
-      "scripts": 0,
-      "providers": 0,
-      "bytes": 3915
+      "bytes": 3251
     }
   ],
   "excluded_plugins": [

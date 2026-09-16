@@ -1,16 +1,7 @@
 name: 虎扑去广告
-desc: 可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。
+desc: 可选 JavaScript 增强；配合主覆写及已信任的 MITM 证书使用。
 date: '2026-09-16'
 http:
-  url-rewrite:
-  - ^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/bplapi\/reddot\/v1\/app\/getReddot - reject-dict
-  - ^https:\/\/bbs\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/(bbsallapi\/tag\/v1\/heatTag|bbsrankapi\/v1\/rating\/list) - reject-dict
-  - ^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/search\/v2\/(hintkeylist|hotkeylist) - reject-dict
-  - ^https:\/\/goblin\.hupu\.com\/\d\/\d\.\d\.\d+\/interfaceAd\/getOther\/v\d - reject-dict
-  - ^https:\/\/goblin\.hupu\.com\/\d\/\d\.\d\.\d+\/interfaceAd\/getOther\/batch - reject-dict
-  - ^https:\/\/fairy\.mobileapi\.hupu\.com\/gallery\/getmod2 - reject-200
-  - ^https:\/\/games\.mobileapi\.hupu\.com\/3\/8\.0\.86\/bplcommentapi\/bpl\/score_tab\/groups - reject-dict
-  - ^https:\/\/games\.mobileapi\.hupu\.com\/3\/8\.0\.86\/bplapi\/banner\/getLocationBanners - reject-dict
   script:
   - name: loon-HUPU_remove_ads-09e8dc8c
     match: ^https:\/\/fairy\.mobileapi\.hupu\.com\/mang\/preview\/banners

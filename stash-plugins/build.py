@@ -1,4 +1,4 @@
-"""Build a lightweight Stash core and optional per-app HTTP overrides.
+"""Build a native-rewrite Stash core and optional per-app script overrides.
 
 Requires PyYAML. Unknown syntax fails the build instead of silently losing rules.
 """
@@ -20,6 +20,7 @@ QUIC_RULES = [
 ]
 RUNTIME_URL = 'https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/'
 MAX_BODY_BYTES = 1024 * 1024
+NATIVE_HTTP_SECTIONS = ('url-rewrite', 'header-rewrite', 'body-rewrite', 'mock')
 
 
 def needs_http(rule):
@@ -107,7 +108,7 @@ class Builder:
     def __init__(self):
         self.dependencies = json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8'))
         self.data = {
-            'name': '广告净化合集',
+            'name': '广告净化',
             'desc': '应用去广告、隐私拦截、QUIC 屏蔽与天气增强。',
             'date': '2026-09-16',
             'rules': [],
@@ -188,17 +189,26 @@ class Builder:
         target.append(entry)
         self.locations.setdefault(section, []).append(f'{self.source}:{self.line}')
 
-    def export_lightweight(self):
-        """No HTTP processing or JavaScript is enabled by the default override."""
+    def export_native(self):
+        """Keep native processing in the core; JavaScript is explicitly opt-in."""
         full = self.data
         # Build-time validation only. This file is ignored by Git and never imported.
         (ROOT / 'validation-input.json').write_text(json.dumps(full, ensure_ascii=False), encoding='utf-8')
+        exclusions = [host for host in full['http']['mitm'] if host.startswith('-')]
+        native_hosts = set()
+        for entries in self.plugin_entries.values():
+            if (any(entries.get(key) for key in NATIVE_HTTP_SECTIONS)
+                    or any(needs_http(rule) for rule in entries.get('rules', []))):
+                native_hosts.update(entries.get('mitm', []))
         core = {
-            'name': '广告净化 · 轻量',
-            'desc': '广告域名拦截与 QUIC 屏蔽；应用增强按需单独启用。',
+            'name': '广告净化',
+            'desc': '应用拦截、原生重写与 QUIC 屏蔽；JavaScript 增强按需启用。',
             'date': full['date'],
-            'rules': [r for r in full['rules'] if not needs_http(r)],
-            'http': {'mitm': [host for host in full['http']['mitm'] if host.startswith('-')]},
+            'rules': list(full['rules']),
+            'http': {
+                'mitm': [host for host in full['http']['mitm'] if host.startswith('-') or host in native_hosts],
+                **{key: list(full['http'][key]) for key in NATIVE_HTTP_SECTIONS if full['http'][key]},
+            },
         }
         addons = []
         runtime_files = {}
@@ -207,19 +217,16 @@ class Builder:
         for source in self.sources:
             filename = source['file']
             entries = self.plugin_entries.get(filename, {})
-            http = {key: list(value) for key, value in entries.items() if key not in ('rules', 'mitm') and value}
-            rules = [r for r in entries.get('rules', []) if needs_http(r)]
-            if not http and not rules:
+            if not entries.get('script'):
                 continue
-            http['mitm'] = list(dict.fromkeys(core['http']['mitm'] + entries.get('mitm', [])))
+            http = {'script': list(entries['script'])}
+            http['mitm'] = list(dict.fromkeys(exclusions + entries.get('mitm', [])))
             addon = {
                 'name': self.plugin_names[filename],
-                'desc': '可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。',
+                'desc': '可选 JavaScript 增强；配合主覆写及已信任的 MITM 证书使用。',
                 'date': full['date'],
                 'http': http,
             }
-            if rules:
-                addon['rules'] = rules
             providers = {}
             if 'script' in http:
                 http['script'] = [dict(entry) for entry in http['script']]
@@ -256,7 +263,6 @@ class Builder:
                 old.unlink(missing_ok=True)
         # Versioned runtime scripts are retained for clients using an older addon.
         self.data = core
-        self.locations['rules'] = [loc for rule, loc in zip(full['rules'], self.locations['rules']) if not needs_http(rule)]
         return addons
 
     def provider(self, url):
@@ -456,13 +462,13 @@ class Builder:
         hosts = self.data['http']['mitm']
         self.data['http']['mitm'] = list(dict.fromkeys(exclusions + [x for x in hosts if x.startswith('-')] + [x for x in hosts if not x.startswith('-')]))
         source_counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': len(self.data['script-providers']), **{k:len(v) for k,v in self.data['http'].items()}}
-        addons = self.export_lightweight()
-        counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': 0, 'script': 0, 'mitm': len(self.data['http']['mitm'])}
+        addons = self.export_native()
+        counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': 0, 'script': 0, **{key: len(value) for key, value in self.data['http'].items()}}
         excluded = [line.split(',', 1)[0].strip() for _, line in config.get('plugin', []) if excluded_plugin(line.split(',', 1)[0].strip())]
-        report = {'date': self.data['date'], 'profile': 'lightweight-core', 'counts': counts, 'source_counts': source_counts, 'addons': addons, 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
+        report = {'date': self.data['date'], 'profile': 'native-core', 'counts': counts, 'source_counts': source_counts, 'addons': addons, 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
         (ROOT / 'report.json').write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
         (ROOT / 'locations.json').write_text(json.dumps(self.locations, ensure_ascii=False), encoding='utf-8')
-        header = '# 自动生成：python stash-plugins/build.py\n# 轻量主覆写：不启用脚本、正文重写或 HTTPS 解密；增强功能位于 stash-plugins/addons。\n# 请先停用旧的大合集，再启用此文件。\n'
+        header = '# 自动生成：python stash-plugins/build.py\n# 包含普通拦截与原生重写，不启用 JavaScript；脚本增强位于 stash-plugins/addons。\n# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版后替换。\n'
         output = header + yaml.dump(self.data, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=120)
         assert yaml.safe_load(output) == self.data
         assert len(output.encode()) < 150_000, 'Core override exceeded its size budget'

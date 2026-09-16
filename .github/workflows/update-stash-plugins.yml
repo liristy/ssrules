@@ -44,7 +44,7 @@ jobs:
       - name: Download current plugins and all dependencies
         run: python stash-plugins/fetch_dependencies.py --refresh
 
-      - name: Build and validate lightweight core and optional addons
+      - name: Build and validate native core and optional script addons
         run: |
           python stash-plugins/build.py
           python stash-plugins/validate.py

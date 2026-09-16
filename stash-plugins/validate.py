@@ -6,7 +6,7 @@ import re
 import subprocess
 import yaml
 import jq
-from build import Builder, QUIC_RULES, requires_quic, sections, needs_http, RUNTIME_URL, MAX_BODY_BYTES
+from build import Builder, QUIC_RULES, requires_quic, sections, RUNTIME_URL, MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS
 from fetch_dependencies import enabled_plugins
 
 ROOT = Path(__file__).resolve().parent
@@ -18,14 +18,19 @@ config_text = (ROOT.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
 assert report['counts']['plugins'] == len(enabled_plugins(config_text))
 assert report['counts']['rules'] == len(core['rules'])
 assert report['source_counts']['rules'] == len(data['rules'])
-assert report['profile'] == 'lightweight-core'
+assert report['profile'] == 'native-core'
 assert not any(item['file'] == 'blockAds.plugin' or '/fmz200/' in item['url'] for item in report['sources'])
 assert not any('/fmz200/' in url for url in json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8')))
 assert 'script-providers' not in core
-assert set(core['http']) == {'mitm'}
-assert all(host.startswith('-') for host in core['http']['mitm'])
-assert not any(needs_http(rule) for rule in core['rules'])
-assert core['rules'] == [rule for rule in data['rules'] if not needs_http(rule)]
+assert set(core['http']) <= {'mitm', *NATIVE_HTTP_SECTIONS}
+assert core['rules'] == data['rules']
+for key in NATIVE_HTTP_SECTIONS:
+    assert core['http'].get(key, []) == data['http'][key], key
+    assert report['counts'].get(key, 0) == len(core['http'].get(key, []))
+assert set(core['http']['mitm']) <= set(data['http']['mitm'])
+# Script-only weather processing must not enable HTTPS decryption in the core.
+assert 'weatherkit.apple.com' not in core['http']['mitm']
+assert 'api.xiachufang.com' in core['http']['mitm']
 assert core_path.stat().st_size < 150_000
 assert core['rules'][:2] == QUIC_RULES
 exclusions = []
@@ -111,15 +116,19 @@ assert 'Weather.Provider=ColorfulClouds' in weather['argument']
 assert '-weather-data.apple.com' in data['http']['mitm']
 assert 'weatherkit.apple.com' in data['http']['mitm']
 assert 'api.xiachufang.com' in data['http']['mitm']
+addon_scripts = []
 for item in report['addons']:
     addon_path = ROOT / item['file']
     addon = yaml.safe_load(addon_path.read_text(encoding='utf-8'))
     assert 'blockAds' not in item['file']
     assert addon_path.stat().st_size < 100_000
-    assert 'force-http-engine' not in addon['http']
+    assert set(addon['http']) == {'mitm', 'script'}
+    assert 'rules' not in addon
     assert addon['http']['mitm'][:len(exclusions)] == exclusions
     providers = addon.get('script-providers', {})
     scripts = addon['http'].get('script', [])
+    assert scripts
+    addon_scripts.extend(scripts)
     assert len(scripts) <= 80
     assert set(providers) == {entry['name'] for entry in scripts}
     for entry in scripts:
@@ -133,9 +142,12 @@ for item in report['addons']:
         assert '/' not in filename and '\\' not in filename
         runtime = ROOT / 'runtime' / filename
         assert runtime.read_text(encoding='utf-8') == data['script-providers'][name]['payload']
+def script_identity(entry):
+    return json.dumps({key: value for key, value in entry.items() if key not in ('timeout', 'max-size')}, sort_keys=True)
+assert {script_identity(row) for row in addon_scripts} == {script_identity(row) for row in data['http']['script']}
 (ROOT / 'validation-input.json').write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
 subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)
 print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
 print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
 print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')
-print('Lightweight core: no JavaScript, HTTP matching, body rewrites or positive MITM hosts; fmz200 aggregate excluded. Optional addons have external scripts and bounded bodies.')
+print('Native core: all routing and native rewrites preserved; no JavaScript or forced HTTP engine; fmz200 excluded. Script addons have no duplicated native rewrites and retain all script bindings.')

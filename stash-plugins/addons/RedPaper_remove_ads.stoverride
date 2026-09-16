@@ -1,19 +1,7 @@
 name: 小红书去广告
-desc: 可选增强，请按需启用；需要轻量主覆写与已信任的 MITM 证书。
+desc: 可选 JavaScript 增强；配合主覆写及已信任的 MITM 证书使用。
 date: '2026-09-16'
 http:
-  url-rewrite:
-  - ^https:\/\/ci\.xiaohongshu\.com\/system_config\/watermark - reject-img
-  - ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/surprisebox\/(?:get_style|open|submit_action) - reject-dict
-  - ^https:\/\/www\.xiaohongshu\.com\/api\/marketing\/box\/trigger\? - reject-dict
-  - ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v2\/guide\/user_banner|v3\/note\/guide) - reject-dict
-  - ^https:\/\/www\.xiaohongshu\.com\/api\/sns\/(?:v1\/ads\/resource|v2\/hey\/\w+\/hey_gallery) - reject-dict
-  body-rewrite:
-  - ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/search\/banner_list$ response-json-replace data {}
-  - ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/search\/hot_list$ response-json-replace data.items []
-  - ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v4\/search\/hint response-json-replace data.hint_words []
-  - ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v4\/search\/trending\? response-json-replace data.queries [] data.hint_word
-    {}
   script:
   - name: loon-RedPaper_remove_ads-a29fbc10
     match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/note\/(?:imagefeed|live_photo\/save)
