@@ -44,7 +44,7 @@ jobs:
       - name: Download current plugins and all dependencies
         run: python stash-plugins/fetch_dependencies.py --refresh
 
-      - name: Build and validate native core and optional script addons
+      - name: Build and validate combined override
         run: |
           python stash-plugins/build.py
           python stash-plugins/validate.py
@@ -56,14 +56,14 @@ jobs:
           path: |
             stash_plugins.stoverride
             stash-plugins/report.json
-            stash-plugins/addons/
             stash-plugins/runtime/
           if-no-files-found: error
           retention-days: 14
 
       - name: Commit changed snapshots and generated files
         run: |
-          git add -- stash_plugins.stoverride stash-plugins/sources stash-plugins/scripts stash-plugins/addons stash-plugins/runtime stash-plugins/dependencies.json stash-plugins/refresh.json stash-plugins/report.json stash-plugins/locations.json
+          git add -- stash_plugins.stoverride stash-plugins/sources stash-plugins/scripts stash-plugins/runtime stash-plugins/dependencies.json stash-plugins/refresh.json stash-plugins/report.json stash-plugins/locations.json
+          git add -u -- stash-plugins
           if git diff --cached --quiet; then
             echo 'No plugin changes.' >> "$GITHUB_STEP_SUMMARY"
             exit 0

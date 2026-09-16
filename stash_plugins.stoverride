@@ -1,8 +1,8 @@
 # 自动生成：python stash-plugins/build.py
-# 包含普通拦截与原生重写，不启用 JavaScript；脚本增强位于 stash-plugins/addons。
-# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版后替换。
+# 拦截、重写和脚本已合并；只需导入此覆写，脚本代码通过远程地址加载。
+# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
-desc: 应用拦截、原生重写与 QUIC 屏蔽；JavaScript 增强按需启用。
+desc: 应用去广告、隐私拦截、QUIC 屏蔽与天气增强。
 date: '2026-09-16'
 rules:
 - PROTOCOL,QUIC,REJECT,no-track
@@ -498,7 +498,10 @@ http:
   - images.pinduoduo.com
   - ad.12306.cn
   - mobile.12306.cn
+  - weatherkit.apple.com
   - www.google.cn
+  - '*.googlevideo.com'
+  - youtubei.googleapis.com
   - pan.baidu.com
   - netflow-mtop.cainiao.com
   - nbcps-mtop.cainiao.com
@@ -963,3 +966,387 @@ http:
     text: '{"imgIndex":"0","adv":{"startup_adv":{"advCntList":[],"buttonList":[]}},"respCode":"0000"}'
     headers:
       Content-Type: application/json
+  script:
+  - name: loon-12306_remove_ads-e4e07d3c
+    match: ^https:\/\/mobile\.12306\.cn\/otsmobile\/app\/mgs\/mgw\.htm$
+    type: request
+    timeout: 10
+  - name: loon-response.bundle-a0309086
+    match: ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\/
+    type: response
+    require-body: true
+    argument: Weather.Provider=ColorfulClouds&NextHour.Provider=ColorfulClouds&AirQuality.Calculate.Algorithm=EU_EAQI&API.ColorfulClouds.Token=&API.QWeather.Host=devapi.qweather.com&API.QWeather.Token=&API.WAQI.Token=&Storage=Argument&LogLevel=WARN
+    timeout: 10
+    max-size: 1048576
+  - name: loon-response.bundle-a0309086
+    match: ^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/
+    type: response
+    require-body: true
+    binary-mode: true
+    argument: Weather.Provider=ColorfulClouds&NextHour.Provider=ColorfulClouds&AirQuality.Calculate.Algorithm=EU_EAQI&API.ColorfulClouds.Token=&API.QWeather.Host=devapi.qweather.com&API.QWeather.Token=&API.WAQI.Token=&Storage=Argument&LogLevel=WARN
+    timeout: 10
+    max-size: 1048576
+  - name: loon-YouTube_remove_ads_response-0e06084d
+    match: ^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$
+    type: response
+    require-body: true
+    binary-mode: true
+    argument: '{"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"zh-Hans","debug":false}'
+    timeout: 10
+    max-size: 1048576
+  - name: loon-YouTube_remove_ads_request-a8704cad
+    match: ^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*
+    type: request
+    require-body: true
+    binary-mode: true
+    argument: '{"captionLang":"zh-Hans"}'
+    timeout: 10
+    max-size: 1048576
+  - name: loon-YouTube_remove_ads_request-a8704cad
+    match: ^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event
+    type: request
+    require-body: true
+    binary-mode: true
+    argument: '{"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"zh-Hans","debug":false}'
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/aos\/perception\/publicTravel\/beforeNavi\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/bus\/plan\/integrate\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/c3frontend\/(?:af-(?:hotel|launch)\/page\/main|af-nearby\/nearby)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/perception\/drive\/(?:routeInfo|routePlan)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/search_bff\/hotword\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/search_poi\/(?:mps|search\/sp|sug|tips_operation_location)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/faas\/amap-navigation\/(?:card-service-plan-home|main-page)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/frogserver\/aocs\/updatable\/1\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/dsp\/profile\/index\/nodefaasv3\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/shield\/search\/nearbyrec_smart\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5\.amap\.com\/ws\/valueadded\/alimama\/splash_screen\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5-zb\.amap\.com\/ws\/boss\/(?:car\/order\/content_info|order_web\/friendly_information)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/m5-zb\.amap\.com\/ws\/promotion-web\/resource(\/home)?\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Amap_remove_ads-19b1882f
+    match: ^https:\/\/(?:info|m5)\.amap\.com\/ws\/shield\/search\/(?:common\/coupon\/info|poi\/detail)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-HUPU_remove_ads-09e8dc8c
+    match: ^https:\/\/fairy\.mobileapi\.hupu\.com\/mang\/preview\/banners
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-HUPU_remove_ads-09e8dc8c
+    match: ^https:\/\/bbs\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/bbsallapi\/lego\/data
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-HUPU_remove_ads-09e8dc8c
+    match: ^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/buffer\/hotList
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-HUPU_remove_ads-09e8dc8c
+    match: ^https:\/\/games\.mobileapi\.hupu\.com\/\d\/\d\.\d\.\d+\/bplapi\/user\/v1\/more
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Taobao_remove_ads-9d853d73
+    match: ^https:\/\/guide-acs\.m\.taobao\.com\/gw\/mtop\.taobao\.(cloudvideo\.video\.query|wireless\.home\.splash\.awesome\.get)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Taobao_remove_ads-9d853d73
+    match: ^https:\/\/poplayer\.template\.alibaba\.com\/\w+\.json
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/(?:checkin\/show|client\/publisher_list|push\/active)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/groups\/allgroups\/v2\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/(?:cardlist|page)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/comments\/build_comments\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/(?:container\/asyn|flowlist|flowpage)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/friendships\/(?:create|destroy)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/profile\/(?:container_timeline|dealatt|me|statuses\/tab|userinfo)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/shproxy\/chaohua\/discovery\/searchactive\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/statuses\/(?:comments_expand_child|container_detail_comment)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/statuses\/(?:container_detail\?|container_timeline(?:_hot|_topic|_topicpage|_unread)?|repost_timeline|unread_hot_timeline)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/statuses\/(?:extend|show)\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/video\/(?:full_screen_stream|tiny_stream_mid_detail|tiny_stream_video_list)\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/!\/huati\/discovery_home_bottom_channels\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/direct_messages\/user_list\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/messageflow\/notice\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/search\/(?:container_timeline|finder)\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/api\.weibo\.cn\/2\/searchall\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/bootpreload\.uve\.weibo\.com\/v[12]\/ad\/preload
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/sdkapp\.uve\.weibo\.com\/interface\/sdk\/sdkad\.php
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-Weibo_remove_ads-dc0eef05
+    match: ^https:\/\/wbapp\.uve\.weibo\.com\/(?:preload\/get_ad|wbapplua\/wbpullad\.lua)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/note\/(?:imagefeed|live_photo\/save)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/system\/service\/ui\/config\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/system_service\/config\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v2\/system_service\/splash_config
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v2\/(?:note\/widgets|user\/followings\/followfeed)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v4\/followfeed\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v5\/recommend\/user\/follow_recommend\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v1\/interaction\/comment\/video\/download|v5\/note\/comment\/list)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v2\/note\/feed|v3\/note\/videofeed)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/(?:edith|rec)\.xiaohongshu\.com\/api\/sns\/v6\/homefeed\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/(?:edith|so)\.xiaohongshu\.com\/api\/sns\/v10\/search\/notes\?
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+  - name: loon-RedPaper_remove_ads-a29fbc10
+    match: ^https:\/\/(?:edith|rec|www)\.xiaohongshu\.com\/api\/sns\/(?:v4\/note\/videofeed|v10\/note\/video\/save)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 1048576
+script-providers:
+  loon-12306_remove_ads-e4e07d3c:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-12306_remove_ads-e4e07d3c-8bf1e9cd1adc.js
+    interval: 86400
+  loon-response.bundle-a0309086:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-response.bundle-a0309086-eea5c91be5b3.js
+    interval: 86400
+  loon-YouTube_remove_ads_response-0e06084d:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_response-0e06084d-73cbae3c9cb3.js
+    interval: 86400
+  loon-YouTube_remove_ads_request-a8704cad:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
+    interval: 86400
+  loon-Amap_remove_ads-19b1882f:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Amap_remove_ads-19b1882f-a228360986d5.js
+    interval: 86400
+  loon-HUPU_remove_ads-09e8dc8c:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-HUPU_remove_ads-09e8dc8c-d5ce9a77d2d5.js
+    interval: 86400
+  loon-Taobao_remove_ads-9d853d73:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Taobao_remove_ads-9d853d73-24f6ebcb82bb.js
+    interval: 86400
+  loon-Weibo_remove_ads-dc0eef05:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-d58f875a287b.js
+    interval: 86400
+  loon-RedPaper_remove_ads-a29fbc10:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-RedPaper_remove_ads-a29fbc10-3081cb91ffee.js
+    interval: 86400

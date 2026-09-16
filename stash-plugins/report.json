@@ -1,15 +1,15 @@
 {
   "date": "2026-09-16",
-  "profile": "native-core",
+  "profile": "combined",
   "counts": {
     "plugins": 20,
     "rules": 477,
-    "providers": 0,
-    "script": 0,
-    "mitm": 120,
+    "providers": 9,
+    "mitm": 123,
     "url-rewrite": 213,
     "body-rewrite": 73,
-    "mock": 1
+    "mock": 1,
+    "script": 58
   },
   "source_counts": {
     "plugins": 20,
@@ -23,64 +23,7 @@
     "mock": 1,
     "script": 58
   },
-  "addons": [
-    {
-      "file": "addons/12306_remove_ads.stoverride",
-      "source": "12306_remove_ads.lpx",
-      "scripts": 1,
-      "providers": 1,
-      "bytes": 667
-    },
-    {
-      "file": "addons/AppleWeatherEnhancer.stoverride",
-      "source": "AppleWeatherEnhancer.lpx",
-      "scripts": 2,
-      "providers": 1,
-      "bytes": 1407
-    },
-    {
-      "file": "addons/YouTube_remove_ads.stoverride",
-      "source": "YouTube_remove_ads.lpx",
-      "scripts": 3,
-      "providers": 2,
-      "bytes": 1831
-    },
-    {
-      "file": "addons/Amap_remove_ads.stoverride",
-      "source": "Amap_remove_ads.lpx",
-      "scripts": 14,
-      "providers": 1,
-      "bytes": 3417
-    },
-    {
-      "file": "addons/HUPU_remove_ads.stoverride",
-      "source": "HUPU_remove_ads.lpx",
-      "scripts": 4,
-      "providers": 1,
-      "bytes": 1405
-    },
-    {
-      "file": "addons/Taobao_remove_ads.stoverride",
-      "source": "Taobao_remove_ads.lpx",
-      "scripts": 2,
-      "providers": 1,
-      "bytes": 1030
-    },
-    {
-      "file": "addons/Weibo_remove_ads.stoverride",
-      "source": "Weibo_remove_ads.lpx",
-      "scripts": 20,
-      "providers": 1,
-      "bytes": 4625
-    },
-    {
-      "file": "addons/RedPaper_remove_ads.stoverride",
-      "source": "RedPaper_remove_ads.lpx",
-      "scripts": 12,
-      "providers": 1,
-      "bytes": 3251
-    }
-  ],
+  "addons": [],
   "excluded_plugins": [
     "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin"
   ],

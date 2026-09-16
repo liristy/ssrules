@@ -1,4 +1,4 @@
-"""Build a native-rewrite Stash core and optional per-app script overrides.
+"""Build one Stash override with native rewrites and external script providers.
 
 Requires PyYAML. Unknown syntax fails the build instead of silently losing rules.
 """
@@ -189,81 +189,50 @@ class Builder:
         target.append(entry)
         self.locations.setdefault(section, []).append(f'{self.source}:{self.line}')
 
-    def export_native(self):
-        """Keep native processing in the core; JavaScript is explicitly opt-in."""
+    def export_combined(self):
+        """Merge all enabled features while keeping script code externally hosted."""
         full = self.data
         # Build-time validation only. This file is ignored by Git and never imported.
         (ROOT / 'validation-input.json').write_text(json.dumps(full, ensure_ascii=False), encoding='utf-8')
-        exclusions = [host for host in full['http']['mitm'] if host.startswith('-')]
-        native_hosts = set()
-        for entries in self.plugin_entries.values():
-            if (any(entries.get(key) for key in NATIVE_HTTP_SECTIONS)
-                    or any(needs_http(rule) for rule in entries.get('rules', []))):
-                native_hosts.update(entries.get('mitm', []))
         core = {
             'name': '广告净化',
-            'desc': '应用拦截、原生重写与 QUIC 屏蔽；JavaScript 增强按需启用。',
+            'desc': '应用去广告、隐私拦截、QUIC 屏蔽与天气增强。',
             'date': full['date'],
             'rules': list(full['rules']),
             'http': {
-                'mitm': [host for host in full['http']['mitm'] if host.startswith('-') or host in native_hosts],
+                'mitm': list(full['http']['mitm']),
                 **{key: list(full['http'][key]) for key in NATIVE_HTTP_SECTIONS if full['http'][key]},
+                'script': [dict(entry) for entry in full['http']['script']],
             },
+            'script-providers': {},
         }
-        addons = []
         runtime_files = {}
         addon_dir = ROOT / 'addons'
-        addon_dir.mkdir(exist_ok=True)
-        for source in self.sources:
-            filename = source['file']
-            entries = self.plugin_entries.get(filename, {})
-            if not entries.get('script'):
-                continue
-            http = {'script': list(entries['script'])}
-            http['mitm'] = list(dict.fromkeys(exclusions + entries.get('mitm', [])))
-            addon = {
-                'name': self.plugin_names[filename],
-                'desc': '可选 JavaScript 增强；配合主覆写及已信任的 MITM 证书使用。',
-                'date': full['date'],
-                'http': http,
-            }
-            providers = {}
-            if 'script' in http:
-                http['script'] = [dict(entry) for entry in http['script']]
-                for entry in http['script']:
-                    entry['timeout'] = min(entry.get('timeout', 10), 10)
-                    if entry.get('require-body'):
-                        entry['max-size'] = min(entry.get('max-size', MAX_BODY_BYTES) or MAX_BODY_BYTES, MAX_BODY_BYTES)
-                    name = entry['name']
-                    payload = str(full['script-providers'][name]['payload'])
-                    digest = sha256(payload.encode()).hexdigest()[:12]
-                    runtime_name = name + '-' + digest + '.js'
-                    runtime_files[runtime_name] = payload
-                    providers[name] = {'url': RUNTIME_URL + runtime_name, 'interval': 86400}
-                addon['script-providers'] = providers
-            target = Path(filename).stem + '.stoverride'
-            text = yaml.dump(addon, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=120)
-            assert len(http.get('script', [])) <= 80, 'Addon grew too large: ' + filename
-            assert len(text.encode()) < 100_000, 'Addon grew too large: ' + filename
-            (addon_dir / target).write_text(text, encoding='utf-8', newline='\n')
-            addons.append({'file': 'addons/' + target, 'source': filename, 'scripts': len(http.get('script', [])), 'providers': len(providers), 'bytes': len(text.encode())})
+        for entry in core['http']['script']:
+            entry['timeout'] = min(entry.get('timeout', 10), 10)
+            if entry.get('require-body'):
+                entry['max-size'] = min(entry.get('max-size', MAX_BODY_BYTES) or MAX_BODY_BYTES, MAX_BODY_BYTES)
+            name = entry['name']
+            payload = str(full['script-providers'][name]['payload'])
+            digest = sha256(payload.encode()).hexdigest()[:12]
+            runtime_name = name + '-' + digest + '.js'
+            runtime_files[runtime_name] = payload
+            core['script-providers'][name] = {'url': RUNTIME_URL + runtime_name, 'interval': 86400}
+        assert len(core['http']['script']) <= 80, 'Script bindings exceeded the size budget'
         runtime_dir = ROOT / 'runtime'
         runtime_dir.mkdir(exist_ok=True)
         for name, payload in runtime_files.items():
             (runtime_dir / name).write_text(payload, encoding='utf-8', newline='\n')
         # Remove only files identified as generated by the previous build report.
-        active = {Path(item['file']).name for item in addons}
         previous_report = ROOT / 'report.json'
         previous = json.loads(previous_report.read_text(encoding='utf-8')) if previous_report.exists() else {}
         for item in previous.get('addons', []):
             old = (ROOT / item['file']).resolve()
             if old.parent != addon_dir.resolve():
                 raise ValueError('Invalid generated addon path')
-            if old.name not in active:
-                old.unlink(missing_ok=True)
-        # Versioned runtime scripts are retained for clients using an older addon.
+            old.unlink(missing_ok=True)
+        # Versioned runtime scripts are retained for clients using older overrides.
         self.data = core
-        return addons
 
     def provider(self, url):
         entry = self.dependencies[url]
@@ -462,13 +431,13 @@ class Builder:
         hosts = self.data['http']['mitm']
         self.data['http']['mitm'] = list(dict.fromkeys(exclusions + [x for x in hosts if x.startswith('-')] + [x for x in hosts if not x.startswith('-')]))
         source_counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': len(self.data['script-providers']), **{k:len(v) for k,v in self.data['http'].items()}}
-        addons = self.export_native()
-        counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': 0, 'script': 0, **{key: len(value) for key, value in self.data['http'].items()}}
+        self.export_combined()
+        counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': len(self.data['script-providers']), **{key: len(value) for key, value in self.data['http'].items()}}
         excluded = [line.split(',', 1)[0].strip() for _, line in config.get('plugin', []) if excluded_plugin(line.split(',', 1)[0].strip())]
-        report = {'date': self.data['date'], 'profile': 'native-core', 'counts': counts, 'source_counts': source_counts, 'addons': addons, 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
+        report = {'date': self.data['date'], 'profile': 'combined', 'counts': counts, 'source_counts': source_counts, 'addons': [], 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
         (ROOT / 'report.json').write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
         (ROOT / 'locations.json').write_text(json.dumps(self.locations, ensure_ascii=False), encoding='utf-8')
-        header = '# 自动生成：python stash-plugins/build.py\n# 包含普通拦截与原生重写，不启用 JavaScript；脚本增强位于 stash-plugins/addons。\n# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版后替换。\n'
+        header = '# 自动生成：python stash-plugins/build.py\n# 拦截、重写和脚本已合并；只需导入此覆写，脚本代码通过远程地址加载。\n# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。\n'
         output = header + yaml.dump(self.data, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=120)
         assert yaml.safe_load(output) == self.data
         assert len(output.encode()) < 150_000, 'Core override exceeded its size budget'

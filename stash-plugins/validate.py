@@ -18,18 +18,16 @@ config_text = (ROOT.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
 assert report['counts']['plugins'] == len(enabled_plugins(config_text))
 assert report['counts']['rules'] == len(core['rules'])
 assert report['source_counts']['rules'] == len(data['rules'])
-assert report['profile'] == 'native-core'
+assert report['profile'] == 'combined'
 assert not any(item['file'] == 'blockAds.plugin' or '/fmz200/' in item['url'] for item in report['sources'])
 assert not any('/fmz200/' in url for url in json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8')))
-assert 'script-providers' not in core
-assert set(core['http']) <= {'mitm', *NATIVE_HTTP_SECTIONS}
+assert set(core['http']) <= {'mitm', 'script', *NATIVE_HTTP_SECTIONS}
 assert core['rules'] == data['rules']
 for key in NATIVE_HTTP_SECTIONS:
     assert core['http'].get(key, []) == data['http'][key], key
     assert report['counts'].get(key, 0) == len(core['http'].get(key, []))
-assert set(core['http']['mitm']) <= set(data['http']['mitm'])
-# Script-only weather processing must not enable HTTPS decryption in the core.
-assert 'weatherkit.apple.com' not in core['http']['mitm']
+assert core['http']['mitm'] == data['http']['mitm']
+assert 'weatherkit.apple.com' in core['http']['mitm']
 assert 'api.xiachufang.com' in core['http']['mitm']
 assert core_path.stat().st_size < 150_000
 assert core['rules'][:2] == QUIC_RULES
@@ -116,38 +114,31 @@ assert 'Weather.Provider=ColorfulClouds' in weather['argument']
 assert '-weather-data.apple.com' in data['http']['mitm']
 assert 'weatherkit.apple.com' in data['http']['mitm']
 assert 'api.xiachufang.com' in data['http']['mitm']
-addon_scripts = []
-for item in report['addons']:
-    addon_path = ROOT / item['file']
-    addon = yaml.safe_load(addon_path.read_text(encoding='utf-8'))
-    assert 'blockAds' not in item['file']
-    assert addon_path.stat().st_size < 100_000
-    assert set(addon['http']) == {'mitm', 'script'}
-    assert 'rules' not in addon
-    assert addon['http']['mitm'][:len(exclusions)] == exclusions
-    providers = addon.get('script-providers', {})
-    scripts = addon['http'].get('script', [])
-    assert scripts
-    addon_scripts.extend(scripts)
-    assert len(scripts) <= 80
-    assert set(providers) == {entry['name'] for entry in scripts}
-    for entry in scripts:
-        assert entry['timeout'] <= 10
-        if entry.get('require-body'):
-            assert 0 < entry['max-size'] <= MAX_BODY_BYTES
-    for name, provider in providers.items():
-        assert 'payload' not in provider
-        assert provider['url'].startswith(RUNTIME_URL)
-        filename = provider['url'][len(RUNTIME_URL):]
-        assert '/' not in filename and '\\' not in filename
-        runtime = ROOT / 'runtime' / filename
-        assert runtime.read_text(encoding='utf-8') == data['script-providers'][name]['payload']
+assert report['addons'] == []
+providers = core['script-providers']
+scripts = core['http']['script']
+assert report['counts']['script'] == len(scripts)
+assert report['counts']['providers'] == len(providers)
+assert 0 < len(scripts) <= 80
+assert set(providers) == {entry['name'] for entry in scripts} == set(data['script-providers'])
+for entry in scripts:
+    assert entry['timeout'] <= 10
+    if entry.get('require-body'):
+        assert 0 < entry['max-size'] <= MAX_BODY_BYTES
+for name, provider in providers.items():
+    assert 'payload' not in provider
+    assert provider['url'].startswith(RUNTIME_URL)
+    filename = provider['url'][len(RUNTIME_URL):]
+    assert '/' not in filename and '\\' not in filename
+    runtime = ROOT / 'runtime' / filename
+    assert runtime.read_text(encoding='utf-8') == data['script-providers'][name]['payload']
 def script_identity(entry):
     return json.dumps({key: value for key, value in entry.items() if key not in ('timeout', 'max-size')}, sort_keys=True)
-assert {script_identity(row) for row in addon_scripts} == {script_identity(row) for row in data['http']['script']}
+assert [script_identity(row) for row in scripts] == [script_identity(row) for row in data['http']['script']]
+assert len(scripts) == len({script_identity(row) for row in scripts})
 (ROOT / 'validation-input.json').write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
 subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)
 print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
 print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
 print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')
-print('Native core: all routing and native rewrites preserved; no JavaScript or forced HTTP engine; fmz200 excluded. Script addons have no duplicated native rewrites and retain all script bindings.')
+print('Combined override: all rules, rewrites, MITM hosts and script bindings preserved without duplicates; external providers and body limits verified; no forced HTTP engine or fmz200 aggregate.')
