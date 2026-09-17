@@ -3,7 +3,7 @@
 # HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
 desc: 开屏去广告、YouTube 去广告、天气增强与 QUIC 屏蔽。
-date: '2026-09-16'
+date: '2026-09-17'
 rules:
 - PROTOCOL,QUIC,REJECT,no-track
 - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track
@@ -498,6 +498,9 @@ http:
   - acs.m.goofish.com
   - edith.xiaohongshu.com
   - api.ys7.com
+  - api.zhihu.com
+  - app.bilibili.com
+  - acs-m.freshippo.com
   url-rewrite:
   - ^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/ - reject
   - ^https:\/\/dsp\.fcbox\.com\/adSearch\/ - reject-dict
@@ -521,8 +524,11 @@ http:
   - ^https:\/\/bootrealtime\.uve\.weibo\.com\/v[23]\/ad\/realtime - reject-dict
   - ^https:\/\/acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlecommerce\.splash\.ads\/ - reject-dict
   - ^https:\/\/api\.ys7\.com\/api\/ads - reject
+  - ^https:\/\/api\.zhihu\.com\/commercial_api\/(?:launch_v2|real_time_launch_v2)(?:\?|/|$) - reject-dict
   body-rewrite:
   - ^https:\/\/ad\.12306\.cn\/ad\/ser\/getAdList$ response-json-del materialsList advertParam
+  - ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(list|show|event\/list2)\? response-jq .data |= with_entries(if .key | IN("show",
+    "event_list") then .value = [] else . end)
   mock:
   - match: ^https?:\/\/m\.client\.10010\.com\/mobileService\/customer\/accountListData\.htm
     status-code: 200
@@ -617,6 +623,12 @@ http:
     require-body: true
     timeout: 10
     max-size: 262144
+  - name: loon-freshippo-806c7be0
+    match: ^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.render\.query(?>indexpage|mypage|tabfeedstream)
+    type: response
+    require-body: true
+    timeout: 10
+    max-size: 262144
 script-providers:
   loon-response.bundle-a0309086:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-response.bundle-a0309086-eea5c91be5b3.js
@@ -638,4 +650,7 @@ script-providers:
     interval: 86400
   loon-RedPaper_remove_ads-a29fbc10:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-RedPaper_remove_ads-a29fbc10-28ad765cdf21.js
+    interval: 86400
+  loon-freshippo-806c7be0:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-freshippo-806c7be0-d2de6f9ff0b8.js
     interval: 86400

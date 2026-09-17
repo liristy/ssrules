@@ -34,5 +34,9 @@
   "https://kelee.one/Resource/JavaScript/YouTube/YouTube_remove_ads/YouTube_remove_ads_response.js": {
     "file": "scripts/0e06084d89ad-YouTube_remove_ads_response.js",
     "bytes": 133107
+  },
+  "https://raw.githubusercontent.com/zirawell/R-Store/main/Res/Scripts/AntiAd/freshippo.js": {
+    "file": "scripts/806c7be05c2b-freshippo.js",
+    "bytes": 2094
   }
 }

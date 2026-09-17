@@ -98,6 +98,23 @@ class RefreshTests(unittest.TestCase):
             self.assertEqual(request.call_count, 3)
             self.assertEqual(request.call_args.args[0].get_header('User-agent'), fetcher.UA)
 
+    def test_extra_excerpt_downloads_only_selected_script_dependencies(self):
+        extra = {'file': 'Extra.lpx', 'name': 'Selected app', 'url': 'https://test.invalid/aggregate.plugin',
+                 'select': {'script': [r'^https://selected\.test/']}, 'mitm': ['selected.test']}
+        (self.root / 'extra-plugins.json').write_text(json.dumps([extra]), encoding='utf-8')
+        self.resources[extra['url']] = (
+            '[Script]\nhttp-response ^https://selected\\.test/ script-path=https://test.invalid/selected.js, requires-body=true\n'
+            'http-response ^https://unrelated.test/ script-path=https://test.invalid/unrelated.js\n').encode()
+        self.resources['https://test.invalid/selected.js'] = b'$done({});\n'
+        self.run_refresh()
+        snapshot = (self.root / 'sources/Extra.lpx').read_text()
+        self.assertIn('selected.js', snapshot)
+        self.assertNotIn('unrelated', snapshot)
+        manifest = json.loads((self.root / 'dependencies.json').read_text())
+        self.assertIn('https://test.invalid/selected.js', manifest)
+        self.assertNotIn('https://test.invalid/unrelated.js', manifest)
+        self.assertFalse((self.root / 'sources/aggregate.plugin').exists())
+
 
 if __name__ == '__main__':
     unittest.main()

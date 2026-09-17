@@ -46,7 +46,7 @@ console.log(`JavaScript syntax OK: ${Object.keys(providers).length} providers; $
 // Exercise the actual reduced upstream splash handlers, including Weibo's
 // non-JSON "OK" trailer and RedPaper's unrelated theme/store fields.
 async function splash(app, url, input, trailer = '') {
-  const payload = Object.entries(providers).find(([name]) => name.includes(`-${app}_remove_ads-`))?.[1].payload;
+  const payload = Object.entries(providers).find(([name]) => name.includes(app === 'Hema' ? '-freshippo-' : `-${app}_remove_ads-`))?.[1].payload;
   assert.ok(payload, app);
   let calls = 0, output;
   await vm.runInNewContext(payload, {
@@ -83,3 +83,15 @@ result = await splash('Taobao', 'https://guide-acs.m.taobao.com/gw/mtop.taobao.c
 assert.equal(result.data.duration, '0');
 assert.deepEqual(result.data.resources, []);
 console.log('Reduced splash JS fixtures OK: Weibo SDK/preload/cache, Amap, RedPaper config/splash, Taobao.');
+result = await splash('Hema', 'https://acs-m.freshippo.com/gw/mtop.wdk.render.queryindexpage',
+  {data: {scenes: [{sceneTemplateId: '509'}, {sceneTemplateId: 'unknown'}], secondFloor: {ad: 1}}, keep: true});
+assert.deepEqual(result.data.scenes, [{sceneTemplateId: '509'}]);
+assert.deepEqual(result.data.secondFloor, {});
+assert.equal(result.keep, true);
+result = await splash('Hema', 'https://acs-m.freshippo.com/gw/mtop.wdk.render.querymypage',
+  {data: {scenes: [{sceneTemplateId: '906'}, {sceneTemplateId: 'unknown'}]}});
+assert.deepEqual(result.data.scenes, [{sceneTemplateId: '906'}]);
+result = await splash('Hema', 'https://acs.m.taobao.com/gw/mtop.wdk.render.querytabfeedstream',
+  {data: {scenes: [{sceneType: '100004'}, {sceneType: 'keep'}]}});
+assert.deepEqual(result.data.scenes, [{sceneType: 'keep'}]);
+console.log('Hema homepage, account page and recommendation fixtures OK.');

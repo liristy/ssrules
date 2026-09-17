@@ -1,0 +1,6 @@
+#!name=B站开屏去广告
+# Extracted from: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin
+[Rewrite]
+^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(list|show|event\/list2)\? response-body-json-jq '.data |= with_entries(if .key | IN("show", "event_list") then .value = [] else . end)'
+[MitM]
+hostname=app.bilibili.com

@@ -21,6 +21,49 @@ FIXED = {
 }
 
 
+def extra_plugins(root=ROOT):
+    path = root / 'extra-plugins.json'
+    entries = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
+    for entry in entries:
+        filename = entry['file']
+        if Path(filename).name != filename or not filename.endswith('.lpx'):
+            raise ValueError('Invalid extra plugin filename: ' + filename)
+    return entries
+
+
+def selected_plugins(config, root=ROOT):
+    entries = enabled_plugins(config) + [(entry['url'], entry['file']) for entry in extra_plugins(root)]
+    if len({name for _, name in entries}) != len(entries):
+        raise ValueError('Duplicate selected plugin filename')
+    return entries
+
+
+def extract_plugin(text, entry):
+    """Persist only explicitly selected entries from a large aggregate."""
+    available, section = {}, ''
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith(('#', ';', '//')):
+            continue
+        if line.startswith('[') and line.endswith(']'):
+            section = line[1:-1].lower()
+        else:
+            available.setdefault(section, []).append(line)
+    output = ['#!name=' + entry['name'], '# Extracted from: ' + entry['url']]
+    if entry.get('arguments'):
+        output += ['[Argument]', *entry['arguments']]
+    for section, patterns in entry['select'].items():
+        output.append('[' + section.title() + ']')
+        for pattern in patterns:
+            rows = [line for line in available.get(section, [])
+                    if line.split()[1 if section == 'script' else 0] == pattern]
+            if len(rows) != 1:
+                raise ValueError('Selected aggregate entry changed: ' + pattern)
+            output.append(rows[0])
+    output += ['[MitM]', 'hostname=' + ', '.join(entry['mitm'])]
+    return ('\n'.join(output) + '\n').encode()
+
+
 def excluded_plugin(url):
     parsed = urllib.parse.urlparse(url)
     return parsed.netloc.lower() in ('github.com', 'raw.githubusercontent.com') and parsed.path.lower().startswith('/fmz200/')
@@ -95,9 +138,23 @@ def atomic_write(path, data):
 
 
 def refresh_resources(*, root=ROOT, refresh=False):
-    plugins = enabled_plugins((root.parent / 'loon_config.conf').read_text(encoding='utf-8-sig'))
-    plugin_jobs = {'sources/' + name: url for url, name in plugins}
+    config = (root.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
+    plugins = selected_plugins(config, root)
+    extras = extra_plugins(root)
+    extra_names = {entry['file'] for entry in extras}
+    plugin_jobs = {'sources/' + name: url for url, name in plugins if name not in extra_names}
     snapshots = fetch_batch(plugin_jobs, root=root, refresh=refresh)
+    aggregates = {}
+    for entry in extras:
+        relative = 'sources/' + entry['file']
+        plugin_jobs[relative] = entry['url']
+        cached = root / relative
+        if not refresh and cached.exists():
+            snapshots[relative] = cached.read_bytes()
+            continue
+        if entry['url'] not in aggregates:
+            aggregates[entry['url']] = download(entry['url']).decode('utf-8-sig')
+        snapshots[relative] = extract_plugin(aggregates[entry['url']], entry)
     jobs, script_paths = {}, {}
     for path, data in snapshots.items():
         text = data.decode('utf-8-sig')

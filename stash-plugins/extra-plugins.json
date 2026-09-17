@@ -1,0 +1,32 @@
+[
+  {
+    "file": "Bilibili_splash.lpx",
+    "name": "B站开屏去广告",
+    "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "select": {
+      "rewrite": [
+        "^https:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/(list|show|event\\/list2)\\?"
+      ]
+    },
+    "mitm": [
+      "app.bilibili.com"
+    ]
+  },
+  {
+    "file": "Hema_remove_ads.lpx",
+    "name": "盒马净化",
+    "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "select": {
+      "script": [
+        "^https?:\\/\\/acs(\\.|-)m\\.(taobao|freshippo)\\.com\\/gw\\/mtop\\.wdk\\.render\\.query(?>indexpage|mypage|tabfeedstream)"
+      ]
+    },
+    "arguments": [
+      "hema_enable = switch,true,false"
+    ],
+    "mitm": [
+      "acs.m.taobao.com",
+      "acs-m.freshippo.com"
+    ]
+  }
+]

@@ -1,27 +1,27 @@
 {
-  "date": "2026-09-16",
+  "date": "2026-09-17",
   "profile": "splash-youtube-weather",
   "counts": {
-    "plugins": 20,
+    "plugins": 22,
     "rules": 456,
-    "providers": 7,
-    "mitm": 35,
-    "url-rewrite": 22,
-    "body-rewrite": 1,
+    "providers": 8,
+    "mitm": 38,
+    "url-rewrite": 23,
+    "body-rewrite": 2,
     "mock": 1,
-    "script": 13
+    "script": 14
   },
   "source_counts": {
-    "plugins": 20,
+    "plugins": 22,
     "rules": 477,
-    "providers": 9,
+    "providers": 10,
     "force-http-engine": 1,
-    "mitm": 123,
+    "mitm": 125,
     "url-rewrite": 213,
     "header-rewrite": 0,
-    "body-rewrite": 73,
+    "body-rewrite": 74,
     "mock": 1,
-    "script": 58
+    "script": 59
   },
   "addons": [],
   "excluded_plugins": [
@@ -29,7 +29,7 @@
   ],
   "duplicates_removed": {
     "rules": 25,
-    "mitm": 7
+    "mitm": 8
   },
   "shadowed_rules_removed": [
     {
@@ -397,9 +397,24 @@
       "file": "Zhihu_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Zhihu_remove_ads.lpx",
       "sha256": "8bd1ee2062bc6a04bbbfa742c352e072b82c5cc061d9440cdfeab3fd82523e3d"
+    },
+    {
+      "file": "Bilibili_splash.lpx",
+      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+      "sha256": "ff0333cd8ed70e6973588c36f9dc86617097715a21461a5f6f155f657e2d7ae2"
+    },
+    {
+      "file": "Hema_remove_ads.lpx",
+      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+      "sha256": "5e48f54fb1a7546dcfb0f779fffcedc68b316dee83ed10ef629d88a94d6ba2ea"
     }
   ],
   "adjustments": [
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 16,
+      "message": "知乎商业接口仅保留 launch_v2 / real_time_launch_v2 开屏拦截。"
+    },
     {
       "source": "Zhihu_remove_ads.lpx",
       "line": 16,
@@ -598,6 +613,20 @@
       ],
       "after": [
         "api.ys7.com"
+      ]
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "m-cloud.zhihu.com",
+        "api.zhihu.com",
+        "www.zhihu.com",
+        "page-info.zhihu.com",
+        "zhida.zhihu.com"
+      ],
+      "after": [
+        "api.zhihu.com"
       ]
     }
   ]

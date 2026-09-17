@@ -10,8 +10,8 @@ from pathlib import Path
 import re
 import urllib.parse
 import yaml
-from fetch_dependencies import enabled_plugins, excluded_plugin
-from focus import keep_entry, trim_script, POLICY
+from fetch_dependencies import selected_plugins, excluded_plugin
+from focus import keep_entry, trim_script, POLICY, ZHIHU_COMMERCIAL, ZHIHU_SPLASH
 
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent
@@ -427,6 +427,9 @@ class Builder:
                 line += ', requires-body=true'
             return self.script(line)
         pattern, action, *tail = line.split(maxsplit=2)
+        if self.source == 'Zhihu_remove_ads.lpx' and pattern == ZHIHU_COMMERCIAL:
+            pattern = ZHIHU_SPLASH
+            self.note('知乎商业接口仅保留 launch_v2 / real_time_launch_v2 开屏拦截。')
         rest = tail[0] if tail else ''
         if action == '-':
             action, rest = rest, ''
@@ -483,7 +486,7 @@ class Builder:
             self.add('rules', rule)
         config_text = (PROJECT / 'loon_config.conf').read_text(encoding='utf-8-sig')
         config = sections(config_text)
-        plugins = enabled_plugins(config_text)
+        plugins = selected_plugins(config_text)
         refresh_path = ROOT / 'refresh.json'
         if refresh_path.exists():
             self.data['date'] = json.loads(refresh_path.read_text(encoding='utf-8'))['date']

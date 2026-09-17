@@ -99,6 +99,24 @@
         "^https?:\\/\\/[\\w-]+\\.googlevideo\\.com\\/initplayback.+&ack.*",
         "^https:\\/\\/youtubei\\.googleapis\\.com\\/youtubei\\/v1\\/log_event"
       ]
+    },
+    "Zhihu_remove_ads.lpx": {
+      "rewrite": [
+        "^https:\\/\\/api\\.zhihu\\.com\\/commercial_api\\/(?:launch_v2|real_time_launch_v2)(?:\\?|/|$)"
+      ],
+      "script": []
+    },
+    "Bilibili_splash.lpx": {
+      "rewrite": [
+        "^https:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/(list|show|event\\/list2)\\?"
+      ],
+      "script": []
+    },
+    "Hema_remove_ads.lpx": {
+      "rewrite": [],
+      "script": [
+        "^https?:\\/\\/acs(\\.|-)m\\.(taobao|freshippo)\\.com\\/gw\\/mtop\\.wdk\\.render\\.query(?>indexpage|mypage|tabfeedstream)"
+      ]
     }
   }
 }

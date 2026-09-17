@@ -7,8 +7,8 @@ import subprocess
 import yaml
 import jq
 from build import Builder, QUIC_RULES, requires_quic, sections, RUNTIME_URL, MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS
-from fetch_dependencies import enabled_plugins
-from focus import keep_entry
+from fetch_dependencies import selected_plugins, extra_plugins
+from focus import keep_entry, ZHIHU_SPLASH
 
 ROOT = Path(__file__).resolve().parent
 core_path = ROOT.parent / 'stash_plugins.stoverride'
@@ -17,11 +17,12 @@ data = json.loads((ROOT / 'validation-input.json').read_text(encoding='utf-8'))
 report = json.loads((ROOT / 'report.json').read_text(encoding='utf-8'))
 locations = json.loads((ROOT / 'locations.json').read_text(encoding='utf-8'))
 config_text = (ROOT.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
-assert report['counts']['plugins'] == len(enabled_plugins(config_text))
+assert report['counts']['plugins'] == len(selected_plugins(config_text))
 assert report['counts']['rules'] == len(core['rules'])
 assert report['source_counts']['rules'] == len(data['rules'])
 assert report['profile'] == 'splash-youtube-weather'
-assert not any(item['file'] == 'blockAds.plugin' or '/fmz200/' in item['url'] for item in report['sources'])
+approved_excerpts = {entry['file'] for entry in extra_plugins()}
+assert not any(item['file'] == 'blockAds.plugin' or ('/fmz200/' in item['url'] and item['file'] not in approved_excerpts) for item in report['sources'])
 assert not any('/fmz200/' in url for url in json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8')))
 assert set(core['http']) <= {'mitm', 'script', *NATIVE_HTTP_SECTIONS}
 def selected(section):
@@ -35,7 +36,24 @@ for key in NATIVE_HTTP_SECTIONS:
     assert report['counts'].get(key, 0) == len(core['http'].get(key, []))
 assert not {'*.amap.com', '*.weibo.cn', '*.weibo.com'} & set(core['http']['mitm'])
 assert {'m5.amap.com', 'sdkapp.uve.weibo.com'} <= set(core['http']['mitm'])
-assert not {'info.amap.com', 'api.weibo.cn', 'api.zhihu.com', 'mobile.12306.cn', 'rec.xiaohongshu.com'} & set(core['http']['mitm'])
+assert not {'info.amap.com', 'api.weibo.cn', 'mobile.12306.cn', 'rec.xiaohongshu.com'} & set(core['http']['mitm'])
+assert 'api.zhihu.com' in core['http']['mitm']
+assert ZHIHU_SPLASH + ' - reject-dict' in core['http']['url-rewrite']
+for suffix in ['launch_v2', 'launch_v2?screen=1', 'real_time_launch_v2?screen=1', 'launch_v2/']:
+    assert re.search(ZHIHU_SPLASH, 'https://api.zhihu.com/commercial_api/' + suffix)
+for suffix in ['app_float_layer', 'banners_v3/app_topstory_banner', 'answer/123/bottom-v2', 'launch_v2_extra']:
+    assert not re.search(ZHIHU_SPLASH, 'https://api.zhihu.com/commercial_api/' + suffix)
+assert not any('zhihu' in row['match'] for row in core['http']['script'])
+assert {'app.bilibili.com', 'acs-m.freshippo.com', 'acs.m.taobao.com'} <= set(core['http']['mitm'])
+assert not any('bilibili' in row['name'].lower() for row in core['http']['script'])
+assert sum('freshippo' in row['name'] for row in core['http']['script']) == 1
+bili_rule = next(row for row in core['http']['body-rewrite'] if 'bilibili' in row)
+bili_match, bili_action, bili_expression = bili_rule.split(maxsplit=2)
+assert bili_action == 'response-jq'
+for endpoint in ['list', 'show', 'event/list2']:
+    assert re.search(bili_match, 'https://app.bilibili.com/x/v2/splash/' + endpoint + '?appkey=test')
+assert not re.search(bili_match, 'https://app.bilibili.com/x/v2/feed/index?appkey=test')
+assert jq.compile(bili_expression).input({'code': 0, 'data': {'show': [1], 'event_list': [2], 'keep': 3}}).first() == {'code': 0, 'data': {'show': [], 'event_list': [], 'keep': 3}}
 assert 'weatherkit.apple.com' in core['http']['mitm']
 assert 'api.xiachufang.com' not in core['http']['mitm']
 assert core_path.stat().st_size < 150_000
@@ -155,4 +173,4 @@ subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)
 print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
 print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
 print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')
-print('Focused override: splash handlers, YouTube ad blocking and weather retained; internal UI/feed/watermark processing excluded; script/body limits and remote providers verified.')
+print('Focused override: splash handlers (including Bilibili), YouTube, weather and requested Hema cleanup retained; other internal UI/feed/watermark processing excluded; script/body limits and remote providers verified.')

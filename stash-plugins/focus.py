@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 
 POLICY = json.loads(Path(__file__).with_name('focus-policy.json').read_text(encoding='utf-8'))['plugins']
+ZHIHU_COMMERCIAL = r'^https:\/\/api\.zhihu\.com\/commercial_api\/'
+ZHIHU_SPLASH = ZHIHU_COMMERCIAL + r'(?:launch_v2|real_time_launch_v2)(?:\?|/|$)'
 
 
 def keep_entry(section, entry, source):
