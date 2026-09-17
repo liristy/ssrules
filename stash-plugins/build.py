@@ -346,7 +346,7 @@ class Builder:
         entry = self.dependencies[url]
         if 'error' in entry:
             raise ValueError(f'Dependency download failed: {url}: {entry}')
-        name = 'loon-' + Path(urllib.parse.urlparse(url).path).stem + '-' + sha256(url.encode()).hexdigest()[:8]
+        name = Path(urllib.parse.urlparse(url).path).stem + '-' + sha256(url.encode()).hexdigest()[:8]
         providers = self.data['script-providers']
         if name not in providers:
             script = (ROOT / entry['file']).read_text(encoding='utf-8-sig')

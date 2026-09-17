@@ -72,6 +72,28 @@ const occupied = {...base, 'script-providers': {
 const occupiedMerged = await context.main(occupied);
 assert.ok(occupiedMerged.http.script.some(row => row.name === providerName + '（广告净化 2）'));
 assert.deepEqual(JSON.parse(JSON.stringify(await context.main(occupiedMerged))), JSON.parse(JSON.stringify(occupiedMerged)), 'collision suffix must remain stable');
+// A cached old override must get readable names just by updating stash_plugins.js.
+for (const prefix of ['loon-', 'ssrules-loon-']) {
+  const legacyName = prefix + 'Weibo_remove_ads-dc0eef05';
+  const legacyProvider = {url: 'https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-4cda91c9eed0.js', interval: 86400};
+  const legacyPatch = {
+    rules: patch.rules,
+    http: {script: [{name: legacyName, type: 'response', match: '^https://sdkapp.example/'}]},
+    'script-providers': {[legacyName]: legacyProvider},
+  };
+  downloaded = JSON.stringify(legacyPatch);
+  const legacyMerged = JSON.parse(JSON.stringify(await context.main(clean)));
+  assert.equal(legacyMerged.http.script[0].name, '微博开屏广告');
+  assert.deepEqual(legacyMerged['script-providers']['微博开屏广告'], legacyProvider, 'renaming must preserve the working URL');
+  assert.deepEqual(JSON.parse(JSON.stringify(await context.main(legacyMerged))), legacyMerged);
+  const collisionBase = {...clean, 'script-providers': {'微博开屏广告': customProvider}};
+  const collisionMerged = await context.main(collisionBase);
+  assert.equal(collisionMerged.http.script[0].name, '微博开屏广告（广告净化）');
+  assert.deepEqual(JSON.parse(JSON.stringify(collisionMerged['script-providers']['微博开屏广告'])), customProvider);
+}
+assert.equal(context.stashAdsScriptName('loon-UnknownApp-1234abcd'), 'UnknownApp');
+assert.equal(context.stashAdsScriptName('自定义脚本'), '自定义脚本');
+downloaded = JSON.stringify(patch);
 for (const bad of ['<html>error</html>', '{}', JSON.stringify({...patch, rules: ['MATCH,DIRECT']})]) {
   downloaded = bad;
   await assert.rejects(context.operator(input));

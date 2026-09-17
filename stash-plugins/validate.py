@@ -175,6 +175,7 @@ for name, provider in providers.items():
     assert provider['url'].startswith(RUNTIME_URL)
     filename = provider['url'][len(RUNTIME_URL):]
     assert '/' not in filename and '\\' not in filename
+    assert not filename.startswith(('loon-', 'ssrules-')), filename
     runtime = ROOT / 'runtime' / filename
     original_name = filename.rsplit('-', 1)[0]
     assert runtime.read_text(encoding='utf-8') == data['script-providers'][original_name]['payload']

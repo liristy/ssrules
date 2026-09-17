@@ -46,7 +46,7 @@ console.log(`JavaScript syntax OK: ${Object.keys(providers).length} providers; $
 // Exercise the actual reduced upstream splash handlers, including Weibo's
 // non-JSON "OK" trailer and RedPaper's unrelated theme/store fields.
 async function splash(app, url, input, trailer = '') {
-  const payload = Object.entries(providers).find(([name]) => name.includes(app === 'Hema' ? '-freshippo-' : `-${app}_remove_ads-`))?.[1].payload;
+  const payload = Object.values(providers).find(provider => provider.payload.split('\n', 1)[0].endsWith(app === 'Hema' ? '/freshippo.js' : `/${app}_remove_ads.js`))?.payload;
   assert.ok(payload, app);
   let calls = 0, output;
   await vm.runInNewContext(payload, {

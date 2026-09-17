@@ -637,41 +637,41 @@ http:
     max-size: 262144
 script-providers:
   Apple天气增强 · 天气可用性响应:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-response.bundle-a0309086-eea5c91be5b3.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/response.bundle-a0309086-eea5c91be5b3.js
     interval: 86400
   Apple天气增强 · 天气响应:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-response.bundle-a0309086-eea5c91be5b3.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/response.bundle-a0309086-eea5c91be5b3.js
     interval: 86400
   YouTube去广告:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_response-0e06084d-73cbae3c9cb3.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/YouTube_remove_ads_response-0e06084d-73cbae3c9cb3.js
     interval: 86400
   YouTube · 请求初始化:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
     interval: 86400
   YouTube · 请求日志事件:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
     interval: 86400
   高德地图 · 开屏广告:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Amap_remove_ads-19b1882f-76e3bf8ee849.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/Amap_remove_ads-19b1882f-76e3bf8ee849.js
     interval: 86400
   淘宝 · 开屏广告:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Taobao_remove_ads-9d853d73-24f6ebcb82bb.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/Taobao_remove_ads-9d853d73-24f6ebcb82bb.js
     interval: 86400
   微博 · 开屏广告 preload:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
     interval: 86400
   微博 · 开屏广告 sdkad:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
     interval: 86400
   微博 · 开屏广告 wbapplua:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
     interval: 86400
   小红书 · 开屏广告 config:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-RedPaper_remove_ads-a29fbc10-28ad765cdf21.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/RedPaper_remove_ads-a29fbc10-28ad765cdf21.js
     interval: 86400
   小红书 · 开屏广告 splash_config:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-RedPaper_remove_ads-a29fbc10-28ad765cdf21.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/RedPaper_remove_ads-a29fbc10-28ad765cdf21.js
     interval: 86400
   盒马净化:
-    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-freshippo-806c7be0-d2de6f9ff0b8.js
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/freshippo-806c7be0-d2de6f9ff0b8.js
     interval: 86400

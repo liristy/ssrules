@@ -7,6 +7,23 @@ function stashAdsObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+function stashAdsScriptName(name) {
+  // 兼容远程缓存中的旧版名称，改名与脚本下载地址无关。
+  if (!/^(?:ssrules-|loon-)/.test(name)) return name;
+  const stem = name.replace(/^(?:(?:ssrules|loon)-)+/, '').replace(/-[a-f0-9]{8,64}$/i, '');
+  const labels = {
+    'response.bundle': 'Apple天气增强',
+    YouTube_remove_ads_response: 'YouTube去广告',
+    YouTube_remove_ads_request: 'YouTube请求处理',
+    Amap_remove_ads: '高德地图开屏广告',
+    Taobao_remove_ads: '淘宝开屏广告',
+    Weibo_remove_ads: '微博开屏广告',
+    RedPaper_remove_ads: '小红书开屏广告',
+    freshippo: '盒马净化',
+  };
+  return Object.prototype.hasOwnProperty.call(labels, stem) ? labels[stem] : (stem || '广告净化脚本');
+}
+
 function stashAdsKey(value) {
   if (Array.isArray(value)) return '[' + value.map(stashAdsKey).join(',') + ']';
   if (stashAdsObject(value)) {
@@ -60,19 +77,20 @@ async function main(config) {
     throw new Error('去广告覆写的脚本提供者格式不正确。');
   }
 
-  // 保留可读名称；仅在同名脚本内容不同时添加后缀，保护用户原有脚本。
+  // 在合并端转换旧名称；仅在同名冲突时添加后缀，保护用户原有脚本。
   const existingProviders = config['script-providers'] || {};
   const incomingProviders = Object.create(null);
   const providerNames = new Map();
-  const reservedNames = new Set(Object.keys(patch['script-providers'] || {}));
+  const reservedNames = new Set(Object.keys(patch['script-providers'] || {}).map(stashAdsScriptName));
   for (const [name, provider] of Object.entries(patch['script-providers'] || {})) {
     if (!stashAdsObject(provider) || typeof provider.url !== 'string' || !provider.url.startsWith('https://')) {
       throw new Error('去广告脚本缺少有效的远程地址：' + name);
     }
-    let resolved = name, suffix = 1;
+    const label = stashAdsScriptName(name);
+    let resolved = label, suffix = 1;
     while ((Object.hasOwn(existingProviders, resolved) && stashAdsKey(existingProviders[resolved]) !== stashAdsKey(provider))
-      || Object.hasOwn(incomingProviders, resolved) || (resolved !== name && reservedNames.has(resolved))) {
-      resolved = name + (suffix === 1 ? '（广告净化）' : '（广告净化 ' + suffix + '）');
+      || Object.hasOwn(incomingProviders, resolved) || (resolved !== label && reservedNames.has(resolved))) {
+      resolved = label + (suffix === 1 ? '（广告净化）' : '（广告净化 ' + suffix + '）');
       suffix++;
     }
     incomingProviders[resolved] = provider;
