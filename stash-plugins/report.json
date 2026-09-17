@@ -5,8 +5,8 @@
     "plugins": 22,
     "rules": 456,
     "providers": 8,
-    "mitm": 38,
-    "url-rewrite": 23,
+    "mitm": 39,
+    "url-rewrite": 25,
     "body-rewrite": 2,
     "mock": 1,
     "script": 14

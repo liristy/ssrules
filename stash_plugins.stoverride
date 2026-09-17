@@ -470,6 +470,7 @@ http:
   - -ios.chat.openai.com
   - ad.12306.cn
   - weatherkit.apple.com
+  - www.google.cn
   - '*.googlevideo.com'
   - youtubei.googleapis.com
   - maicai.api.ddxq.mobi
@@ -502,6 +503,8 @@ http:
   - app.bilibili.com
   - acs-m.freshippo.com
   url-rewrite:
+  - ^https?:\/\/(www.)?(g|google)\.cn https://www.google.com 307
+  - ^https?:\/\/(ditu|maps).google\.cn https://maps.google.com 307
   - ^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/ - reject
   - ^https:\/\/dsp\.fcbox\.com\/adSearch\/ - reject-dict
   - ^https?:\/\/api\.m\.mi\.com\/v\d\/app\/start - reject-200

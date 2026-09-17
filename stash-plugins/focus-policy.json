@@ -117,6 +117,13 @@
       "script": [
         "^https?:\\/\\/acs(\\.|-)m\\.(taobao|freshippo)\\.com\\/gw\\/mtop\\.wdk\\.render\\.query(?>indexpage|mypage|tabfeedstream)"
       ]
+    },
+    "Google.lpx": {
+      "rewrite": [
+        "^https?:\\/\\/(www.)?(g|google)\\.cn",
+        "^https?:\\/\\/(ditu|maps).google\\.cn"
+      ],
+      "script": []
     }
   }
 }

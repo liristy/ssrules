@@ -34,6 +34,10 @@ assert core['rules'] == selected('rules')
 for key in NATIVE_HTTP_SECTIONS:
     assert core['http'].get(key, []) == selected(key), key
     assert report['counts'].get(key, 0) == len(core['http'].get(key, []))
+google_redirects = [row for row, loc in zip(data['http']['url-rewrite'], locations['url-rewrite']) if loc.startswith('Google.lpx:')]
+assert len(google_redirects) == 2
+assert all(row in core['http']['url-rewrite'] and row.endswith(' 307') for row in google_redirects)
+assert 'www.google.cn' in core['http']['mitm']
 assert not {'*.amap.com', '*.weibo.cn', '*.weibo.com'} & set(core['http']['mitm'])
 assert {'m5.amap.com', 'sdkapp.uve.weibo.com'} <= set(core['http']['mitm'])
 assert not {'info.amap.com', 'api.weibo.cn', 'mobile.12306.cn', 'rec.xiaohongshu.com'} & set(core['http']['mitm'])
