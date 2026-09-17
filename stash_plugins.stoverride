@@ -542,14 +542,14 @@ http:
     headers:
       Content-Type: application/json
   script:
-  - name: loon-response.bundle-a0309086
+  - name: Apple天气增强 · 天气可用性响应
     match: ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\/
     type: response
     require-body: true
     argument: Weather.Provider=ColorfulClouds&NextHour.Provider=ColorfulClouds&AirQuality.Calculate.Algorithm=EU_EAQI&API.ColorfulClouds.Token=&API.QWeather.Host=devapi.qweather.com&API.QWeather.Token=&API.WAQI.Token=&Storage=Argument&LogLevel=WARN
     timeout: 10
     max-size: 262144
-  - name: loon-response.bundle-a0309086
+  - name: Apple天气增强 · 天气响应
     match: ^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/
     type: response
     require-body: true
@@ -557,7 +557,7 @@ http:
     argument: Weather.Provider=ColorfulClouds&NextHour.Provider=ColorfulClouds&AirQuality.Calculate.Algorithm=EU_EAQI&API.ColorfulClouds.Token=&API.QWeather.Host=devapi.qweather.com&API.QWeather.Token=&API.WAQI.Token=&Storage=Argument&LogLevel=WARN
     timeout: 10
     max-size: 262144
-  - name: loon-YouTube_remove_ads_response-0e06084d
+  - name: YouTube去广告
     match: ^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$
     type: response
     require-body: true
@@ -565,7 +565,7 @@ http:
     argument: '{"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}'
     timeout: 10
     max-size: 262144
-  - name: loon-YouTube_remove_ads_request-a8704cad
+  - name: YouTube · 请求初始化
     match: ^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*
     type: request
     require-body: true
@@ -573,7 +573,7 @@ http:
     argument: '{"captionLang":"off"}'
     timeout: 10
     max-size: 262144
-  - name: loon-YouTube_remove_ads_request-a8704cad
+  - name: YouTube · 请求日志事件
     match: ^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event
     type: request
     require-body: true
@@ -581,82 +581,97 @@ http:
     argument: '{"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}'
     timeout: 10
     max-size: 262144
-  - name: loon-Amap_remove_ads-19b1882f
+  - name: 高德地图 · 开屏广告
     match: ^https:\/\/m5\.amap\.com\/ws\/valueadded\/alimama\/splash_screen\?
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-Taobao_remove_ads-9d853d73
+  - name: 淘宝 · 开屏广告
     match: ^https:\/\/guide-acs\.m\.taobao\.com\/gw\/mtop\.taobao\.(cloudvideo\.video\.query|wireless\.home\.splash\.awesome\.get)
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-Taobao_remove_ads-9d853d73
+  - name: 淘宝 · 开屏广告
     match: ^https:\/\/poplayer\.template\.alibaba\.com\/\w+\.json
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-Weibo_remove_ads-dc0eef05
+  - name: 微博 · 开屏广告 preload
     match: ^https:\/\/bootpreload\.uve\.weibo\.com\/v[12]\/ad\/preload
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-Weibo_remove_ads-dc0eef05
+  - name: 微博 · 开屏广告 sdkad
     match: ^https:\/\/sdkapp\.uve\.weibo\.com\/interface\/sdk\/sdkad\.php
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-Weibo_remove_ads-dc0eef05
+  - name: 微博 · 开屏广告 wbapplua
     match: ^https:\/\/wbapp\.uve\.weibo\.com\/(?:preload\/get_ad|wbapplua\/wbpullad\.lua)
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-RedPaper_remove_ads-a29fbc10
+  - name: 小红书 · 开屏广告 config
     match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/system_service\/config\?
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-RedPaper_remove_ads-a29fbc10
+  - name: 小红书 · 开屏广告 splash_config
     match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v2\/system_service\/splash_config
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
-  - name: loon-freshippo-806c7be0
+  - name: 盒马净化
     match: ^https?:\/\/acs(\.|-)m\.(taobao|freshippo)\.com\/gw\/mtop\.wdk\.render\.query(?>indexpage|mypage|tabfeedstream)
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
 script-providers:
-  loon-response.bundle-a0309086:
+  Apple天气增强 · 天气可用性响应:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-response.bundle-a0309086-eea5c91be5b3.js
     interval: 86400
-  loon-YouTube_remove_ads_response-0e06084d:
+  Apple天气增强 · 天气响应:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-response.bundle-a0309086-eea5c91be5b3.js
+    interval: 86400
+  YouTube去广告:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_response-0e06084d-73cbae3c9cb3.js
     interval: 86400
-  loon-YouTube_remove_ads_request-a8704cad:
+  YouTube · 请求初始化:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
     interval: 86400
-  loon-Amap_remove_ads-19b1882f:
+  YouTube · 请求日志事件:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-YouTube_remove_ads_request-a8704cad-e2f1fa1dbe0f.js
+    interval: 86400
+  高德地图 · 开屏广告:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Amap_remove_ads-19b1882f-76e3bf8ee849.js
     interval: 86400
-  loon-Taobao_remove_ads-9d853d73:
+  淘宝 · 开屏广告:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Taobao_remove_ads-9d853d73-24f6ebcb82bb.js
     interval: 86400
-  loon-Weibo_remove_ads-dc0eef05:
+  微博 · 开屏广告 preload:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
     interval: 86400
-  loon-RedPaper_remove_ads-a29fbc10:
+  微博 · 开屏广告 sdkad:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
+    interval: 86400
+  微博 · 开屏广告 wbapplua:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-Weibo_remove_ads-dc0eef05-4cda91c9eed0.js
+    interval: 86400
+  小红书 · 开屏广告 config:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-RedPaper_remove_ads-a29fbc10-28ad765cdf21.js
     interval: 86400
-  loon-freshippo-806c7be0:
+  小红书 · 开屏广告 splash_config:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-RedPaper_remove_ads-a29fbc10-28ad765cdf21.js
+    interval: 86400
+  盒马净化:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/loon-freshippo-806c7be0-d2de6f9ff0b8.js
     interval: 86400

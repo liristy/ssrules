@@ -51,7 +51,8 @@ assert.ok(merged.http.mitm.slice(firstPositive).every(host => !host.startsWith('
 assert.deepEqual(merged['script-providers'][providerName], customProvider);
 assert.deepEqual(merged.http.script.at(-1), customScript);
 for (const script of merged.http.script.slice(0, -1)) {
-  assert.ok(script.name.startsWith('ssrules-'));
+  const original = patch.http.script.find(row => row.type === script.type && row.match === script.match);
+  assert.equal(script.name, original.name === providerName ? providerName + '（广告净化）' : original.name);
   assert.ok(merged['script-providers'][script.name]);
 }
 assert.equal(merged.desc, undefined);
@@ -59,6 +60,18 @@ assert.equal(merged.date, undefined);
 const once = input.$content;
 await context.operator(input);
 assert.equal(input.$content, once, 'same override must not duplicate entries');
+const clean = {...base, http: {}, 'script-providers': {}};
+const cleanMerged = await context.main(clean);
+assert.deepEqual(JSON.parse(JSON.stringify(cleanMerged.http.script)), patch.http.script, 'readable names must survive merging');
+const sameProvider = {...clean, 'script-providers': patch['script-providers']};
+const sameMerged = await context.main(sameProvider);
+assert.deepEqual(JSON.parse(JSON.stringify(sameMerged['script-providers'])), patch['script-providers'], 'identical providers must reuse names');
+const occupied = {...base, 'script-providers': {
+  ...base['script-providers'], [providerName + '（广告净化）']: customProvider,
+}};
+const occupiedMerged = await context.main(occupied);
+assert.ok(occupiedMerged.http.script.some(row => row.name === providerName + '（广告净化 2）'));
+assert.deepEqual(JSON.parse(JSON.stringify(await context.main(occupiedMerged))), JSON.parse(JSON.stringify(occupiedMerged)), 'collision suffix must remain stable');
 for (const bad of ['<html>error</html>', '{}', JSON.stringify({...patch, rules: ['MATCH,DIRECT']})]) {
   downloaded = bad;
   await assert.rejects(context.operator(input));
@@ -68,4 +81,4 @@ failDownload = true;
 await assert.rejects(context.operator(input));
 assert.equal(input.$content, once);
 await assert.rejects(context.operator([]));
-console.log('Sub-Store merge OK: real override, original settings/certificate preserved, rules ordered, references namespaced, duplicates removed, failed downloads leave input unchanged.');
+console.log('Sub-Store merge OK: readable names retained, collisions resolved, original settings/certificate preserved, rules ordered, duplicates removed, failed downloads leave input unchanged.');

@@ -1,7 +1,6 @@
 // Sub-Store 文件处理脚本：放在 stash_override.js 之后。
 // 生成订阅时读取最新去广告配置；Stash 中不要再叠加同一份广告覆写。
 const STASH_ADS_URL = 'https://raw.githubusercontent.com/liristy/ssrules/main/stash_plugins.stoverride';
-const STASH_ADS_NAMESPACE = 'ssrules-';
 const STASH_ADS_HTTP_FIELDS = ['mitm', 'url-rewrite', 'header-rewrite', 'body-rewrite', 'mock', 'script'];
 
 function stashAdsObject(value) {
@@ -61,20 +60,30 @@ async function main(config) {
     throw new Error('去广告覆写的脚本提供者格式不正确。');
   }
 
-  // 为导入的脚本加固定前缀，避免覆盖用户自己的同名脚本。
-  const incomingProviders = {};
+  // 保留可读名称；仅在同名脚本内容不同时添加后缀，保护用户原有脚本。
+  const existingProviders = config['script-providers'] || {};
+  const incomingProviders = Object.create(null);
+  const providerNames = new Map();
+  const reservedNames = new Set(Object.keys(patch['script-providers'] || {}));
   for (const [name, provider] of Object.entries(patch['script-providers'] || {})) {
     if (!stashAdsObject(provider) || typeof provider.url !== 'string' || !provider.url.startsWith('https://')) {
       throw new Error('去广告脚本缺少有效的远程地址：' + name);
     }
-    incomingProviders[STASH_ADS_NAMESPACE + name] = provider;
+    let resolved = name, suffix = 1;
+    while ((Object.hasOwn(existingProviders, resolved) && stashAdsKey(existingProviders[resolved]) !== stashAdsKey(provider))
+      || Object.hasOwn(incomingProviders, resolved) || (resolved !== name && reservedNames.has(resolved))) {
+      resolved = name + (suffix === 1 ? '（广告净化）' : '（广告净化 ' + suffix + '）');
+      suffix++;
+    }
+    incomingProviders[resolved] = provider;
+    providerNames.set(name, resolved);
   }
   const incomingScripts = (patch.http.script || []).map(entry => {
     if (typeof entry.name !== 'string' || typeof entry.match !== 'string' || !['request', 'response'].includes(entry.type)) {
       throw new Error('去广告脚本触发规则格式不正确。');
     }
-    const name = STASH_ADS_NAMESPACE + entry.name;
-    if (!incomingProviders[name]) throw new Error('去广告脚本引用缺失：' + entry.name);
+    const name = providerNames.get(entry.name);
+    if (!name) throw new Error('去广告脚本引用缺失：' + entry.name);
     return {...entry, name};
   });
 

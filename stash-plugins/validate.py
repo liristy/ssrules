@@ -58,7 +58,7 @@ assert not re.search(dqd_match, 'https://www.dongqiudi.com/articles')
 assert not any('dongqiudi' in row['match'] or 'dongdianqiu' in row['match'] for row in core['http']['script'])
 assert {'app.bilibili.com', 'acs-m.freshippo.com', 'acs.m.taobao.com'} <= set(core['http']['mitm'])
 assert not any('bilibili' in row['name'].lower() for row in core['http']['script'])
-assert sum('freshippo' in row['name'] for row in core['http']['script']) == 1
+assert sum('盒马' in row['name'] for row in core['http']['script']) == 1
 bili_rule = next(row for row in core['http']['body-rewrite'] if 'bilibili' in row)
 bili_match, bili_action, bili_expression = bili_rule.split(maxsplit=2)
 assert bili_action == 'response-jq'
@@ -164,7 +164,8 @@ assert len(core['http'].get('body-rewrite', [])) <= 5
 assert not any('HUPU' in name or '12306' in name for name in providers)
 assert sum('weatherkit' in row['match'] for row in scripts) == 2
 assert sum('YouTube' in row['name'] for row in scripts) == 3
-assert sum('Weibo' in row['name'] for row in scripts) == 3
+assert sum('微博' in row['name'] for row in scripts) == 3
+assert all(not name.startswith(('loon-', 'ssrules-')) for name in providers)
 for entry in scripts:
     assert entry['timeout'] <= 10
     if entry.get('require-body'):
@@ -175,10 +176,13 @@ for name, provider in providers.items():
     filename = provider['url'][len(RUNTIME_URL):]
     assert '/' not in filename and '\\' not in filename
     runtime = ROOT / 'runtime' / filename
-    assert runtime.read_text(encoding='utf-8') == data['script-providers'][name]['payload']
+    original_name = filename.rsplit('-', 1)[0]
+    assert runtime.read_text(encoding='utf-8') == data['script-providers'][original_name]['payload']
 def script_identity(entry):
-    return json.dumps({key: value for key, value in entry.items() if key not in ('timeout', 'max-size')}, sort_keys=True)
+    return json.dumps({key: value for key, value in entry.items() if key not in ('name', 'timeout', 'max-size')}, sort_keys=True)
 assert [script_identity(row) for row in scripts] == [script_identity(row) for row in selected('script')]
+for published, original in zip(scripts, selected('script')):
+    assert providers[published['name']]['url'].rsplit('/', 1)[1].rsplit('-', 1)[0] == original['name']
 assert len(scripts) == len({script_identity(row) for row in scripts})
 (ROOT / 'validation-input.json').write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
 subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)

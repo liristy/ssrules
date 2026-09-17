@@ -4,7 +4,7 @@
   "counts": {
     "plugins": 23,
     "rules": 457,
-    "providers": 8,
+    "providers": 13,
     "mitm": 40,
     "url-rewrite": 26,
     "body-rewrite": 2,

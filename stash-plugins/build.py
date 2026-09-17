@@ -196,6 +196,7 @@ class Builder:
         self.shadowed_rules = []
         self.plugin_entries = {}
         self.plugin_names = {}
+        self.script_labels = {}
 
     def note(self, message):
         self.notes.append({'source': self.source, 'line': self.line, 'message': message})
@@ -317,7 +318,14 @@ class Builder:
             digest = sha256(payload.encode()).hexdigest()[:12]
             runtime_name = name + '-' + digest + '.js'
             runtime_files[runtime_name] = payload
-            core['script-providers'][name] = {'url': RUNTIME_URL + runtime_name, 'interval': 86400}
+            provider = {'url': RUNTIME_URL + runtime_name, 'interval': 86400}
+            label = self.script_labels[(name, entry['type'], entry['match'])]
+            display_name, suffix = label, 2
+            while display_name in core['script-providers'] and core['script-providers'][display_name] != provider:
+                display_name = f'{label} ({suffix})'
+                suffix += 1
+            entry['name'] = display_name
+            core['script-providers'][display_name] = provider
         assert len(core['http']['script']) <= 80, 'Script bindings exceeded the size budget'
         runtime_dir = ROOT / 'runtime'
         runtime_dir.mkdir(exist_ok=True)
@@ -383,6 +391,12 @@ class Builder:
             self.note('保留源插件默认关闭状态：' + options.get('tag', pattern))
             return
         entry = {'name': self.provider(options['script-path']), 'match': pattern, 'type': kind}
+        title = self.plugin_names.get(self.source, Path(self.source).stem)
+        tag = unquote(options.get('tag', '')).strip()
+        app = re.sub(r'去广告$', '', title)
+        function = re.sub(r'^移除', '', tag).removeprefix(app).strip()
+        label = title if not tag or tag in title else f'{app} · {function or tag}'
+        self.script_labels.setdefault((entry['name'], kind, pattern), label)
         for old, new in [('requires-body','require-body'), ('binary-body-mode','binary-mode')]:
             if old in options:
                 entry[new] = options[old] == 'true'
