@@ -2,22 +2,22 @@
   "date": "2026-09-17",
   "profile": "splash-youtube-weather",
   "counts": {
-    "plugins": 22,
-    "rules": 456,
+    "plugins": 23,
+    "rules": 457,
     "providers": 8,
-    "mitm": 39,
-    "url-rewrite": 25,
+    "mitm": 40,
+    "url-rewrite": 26,
     "body-rewrite": 2,
     "mock": 1,
     "script": 14
   },
   "source_counts": {
-    "plugins": 22,
-    "rules": 477,
+    "plugins": 23,
+    "rules": 478,
     "providers": 10,
     "force-http-engine": 1,
-    "mitm": 125,
-    "url-rewrite": 213,
+    "mitm": 126,
+    "url-rewrite": 214,
     "header-rewrite": 0,
     "body-rewrite": 74,
     "mock": 1,
@@ -407,6 +407,11 @@
       "file": "Hema_remove_ads.lpx",
       "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
       "sha256": "5e48f54fb1a7546dcfb0f779fffcedc68b316dee83ed10ef629d88a94d6ba2ea"
+    },
+    {
+      "file": "Dongqiudi_splash.lpx",
+      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+      "sha256": "99bab2f241bcb7f85cec34cb216e9722755c0aed2e9245f74ddea6c9c6ac83e7"
     }
   ],
   "adjustments": [

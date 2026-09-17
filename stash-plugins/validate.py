@@ -48,6 +48,14 @@ for suffix in ['launch_v2', 'launch_v2?screen=1', 'real_time_launch_v2?screen=1'
 for suffix in ['app_float_layer', 'banners_v3/app_topstory_banner', 'answer/123/bottom-v2', 'launch_v2_extra']:
     assert not re.search(ZHIHU_SPLASH, 'https://api.zhihu.com/commercial_api/' + suffix)
 assert not any('zhihu' in row['match'] for row in core['http']['script'])
+assert 'DOMAIN-KEYWORD,apimg.qunliao.info,REJECT' in core['rules']
+assert 'ap.dongdianqiu.com' in core['http']['mitm']
+dqd_rule = next(row for row in core['http']['url-rewrite'] if 'dongdianqiu' in row)
+dqd_match, dqd_target, dqd_action = dqd_rule.split()
+assert (dqd_target, dqd_action) == ('-', 'reject')
+assert re.search(dqd_match, 'https://ap.dongdianqiu.com/plat/v4?platform=ios')
+assert not re.search(dqd_match, 'https://www.dongqiudi.com/articles')
+assert not any('dongqiudi' in row['match'] or 'dongdianqiu' in row['match'] for row in core['http']['script'])
 assert {'app.bilibili.com', 'acs-m.freshippo.com', 'acs.m.taobao.com'} <= set(core['http']['mitm'])
 assert not any('bilibili' in row['name'].lower() for row in core['http']['script'])
 assert sum('freshippo' in row['name'] for row in core['http']['script']) == 1
@@ -174,6 +182,7 @@ assert [script_identity(row) for row in scripts] == [script_identity(row) for ro
 assert len(scripts) == len({script_identity(row) for row in scripts})
 (ROOT / 'validation-input.json').write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
 subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)
+subprocess.run(['node', str(ROOT / 'test_substore.mjs')], input=json.dumps(core, ensure_ascii=False), encoding='utf-8', check=True)
 print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
 print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
 print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')

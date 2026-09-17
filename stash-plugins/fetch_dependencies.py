@@ -56,7 +56,8 @@ def extract_plugin(text, entry):
         output.append('[' + section.title() + ']')
         for pattern in patterns:
             rows = [line for line in available.get(section, [])
-                    if line.split()[1 if section == 'script' else 0] == pattern]
+                    if (re.sub(r'\s*,\s*', ',', line) if section == 'rule'
+                        else line.split()[1 if section == 'script' else 0]) == pattern]
             if len(rows) != 1:
                 raise ValueError('Selected aggregate entry changed: ' + pattern)
             output.append(rows[0])

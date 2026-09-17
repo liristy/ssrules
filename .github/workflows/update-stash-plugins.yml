@@ -55,6 +55,7 @@ jobs:
           name: stash-plugins
           path: |
             stash_plugins.stoverride
+            stash_plugins.js
             stash-plugins/report.json
             stash-plugins/runtime/
           if-no-files-found: error

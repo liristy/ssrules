@@ -1,0 +1,8 @@
+#!name=懂球帝开屏去广告
+# Extracted from: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin
+[Rule]
+DOMAIN-KEYWORD,apimg.qunliao.info, REJECT
+[Rewrite]
+^https?:\/\/ap\.dongdianqiu\.com\/plat\/v4 reject
+[MitM]
+hostname=ap.dongdianqiu.com

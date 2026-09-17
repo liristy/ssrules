@@ -461,6 +461,7 @@ rules:
 - DOMAIN-SUFFIX,uve.weibo.com,DIRECT
 - DOMAIN,huodong.weibo.cn,REJECT
 - DOMAIN-SUFFIX,biz.weibo.com,REJECT
+- DOMAIN-KEYWORD,apimg.qunliao.info,REJECT
 http:
   mitm:
   - -gateway.icloud.com
@@ -502,6 +503,7 @@ http:
   - api.zhihu.com
   - app.bilibili.com
   - acs-m.freshippo.com
+  - ap.dongdianqiu.com
   url-rewrite:
   - ^https?:\/\/(www.)?(g|google)\.cn https://www.google.com 307
   - ^https?:\/\/(ditu|maps).google\.cn https://maps.google.com 307
@@ -528,6 +530,7 @@ http:
   - ^https:\/\/acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlecommerce\.splash\.ads\/ - reject-dict
   - ^https:\/\/api\.ys7\.com\/api\/ads - reject
   - ^https:\/\/api\.zhihu\.com\/commercial_api\/(?:launch_v2|real_time_launch_v2)(?:\?|/|$) - reject-dict
+  - ^https?:\/\/ap\.dongdianqiu\.com\/plat\/v4 - reject
   body-rewrite:
   - ^https:\/\/ad\.12306\.cn\/ad\/ser\/getAdList$ response-json-del materialsList advertParam
   - ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(list|show|event\/list2)\? response-jq .data |= with_entries(if .key | IN("show",

@@ -100,16 +100,19 @@ class RefreshTests(unittest.TestCase):
 
     def test_extra_excerpt_downloads_only_selected_script_dependencies(self):
         extra = {'file': 'Extra.lpx', 'name': 'Selected app', 'url': 'https://test.invalid/aggregate.plugin',
-                 'select': {'script': [r'^https://selected\.test/']}, 'mitm': ['selected.test']}
+                 'select': {'script': [r'^https://selected\.test/'], 'rule': ['DOMAIN,ads.selected.test,REJECT']}, 'mitm': ['selected.test']}
         (self.root / 'extra-plugins.json').write_text(json.dumps([extra]), encoding='utf-8')
         self.resources[extra['url']] = (
             '[Script]\nhttp-response ^https://selected\\.test/ script-path=https://test.invalid/selected.js, requires-body=true\n'
-            'http-response ^https://unrelated.test/ script-path=https://test.invalid/unrelated.js\n').encode()
+            'http-response ^https://unrelated.test/ script-path=https://test.invalid/unrelated.js\n'
+            '[Rule]\nDOMAIN, ads.selected.test, REJECT\nDOMAIN, other.test, REJECT\n').encode()
         self.resources['https://test.invalid/selected.js'] = b'$done({});\n'
         self.run_refresh()
         snapshot = (self.root / 'sources/Extra.lpx').read_text()
         self.assertIn('selected.js', snapshot)
         self.assertNotIn('unrelated', snapshot)
+        self.assertIn('DOMAIN, ads.selected.test, REJECT', snapshot)
+        self.assertNotIn('other.test', snapshot)
         manifest = json.loads((self.root / 'dependencies.json').read_text())
         self.assertIn('https://test.invalid/selected.js', manifest)
         self.assertNotIn('https://test.invalid/unrelated.js', manifest)

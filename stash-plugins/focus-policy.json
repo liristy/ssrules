@@ -124,6 +124,12 @@
         "^https?:\\/\\/(ditu|maps).google\\.cn"
       ],
       "script": []
+    },
+    "Dongqiudi_splash.lpx": {
+      "rewrite": [
+        "^https?:\\/\\/ap\\.dongdianqiu\\.com\\/plat\\/v4"
+      ],
+      "script": []
     }
   }
 }
