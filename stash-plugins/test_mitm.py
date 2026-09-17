@@ -8,6 +8,8 @@ class MitmNarrowingTests(unittest.TestCase):
         self.assertEqual(literal_url_hosts(r'^https:\/\/(?:info|m5)\.amap\.com\/ws/'),
                          ['info.amap.com', 'm5.amap.com'])
         self.assertEqual(literal_url_hosts(r'^https?://api\.weibo\.cn/2/'), ['api.weibo.cn'])
+        self.assertEqual(literal_url_hosts(r'^https://api\.(pinduoduo|yangkeduo)\.com/api/cappuccino/splash'),
+                         ['api.pinduoduo.com', 'api.yangkeduo.com'])
 
     def test_unknown_authority_is_preserved(self):
         for pattern in [r'^https://[\w-]+\.googlevideo\.com/', r'^https://api.weibo.cn/',

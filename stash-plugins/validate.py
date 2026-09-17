@@ -8,31 +8,36 @@ import yaml
 import jq
 from build import Builder, QUIC_RULES, requires_quic, sections, RUNTIME_URL, MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS
 from fetch_dependencies import enabled_plugins
-from fnmatch import fnmatchcase
+from focus import keep_entry
 
 ROOT = Path(__file__).resolve().parent
 core_path = ROOT.parent / 'stash_plugins.stoverride'
 core = yaml.safe_load(core_path.read_text(encoding='utf-8'))
 data = json.loads((ROOT / 'validation-input.json').read_text(encoding='utf-8'))
 report = json.loads((ROOT / 'report.json').read_text(encoding='utf-8'))
+locations = json.loads((ROOT / 'locations.json').read_text(encoding='utf-8'))
 config_text = (ROOT.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
 assert report['counts']['plugins'] == len(enabled_plugins(config_text))
 assert report['counts']['rules'] == len(core['rules'])
 assert report['source_counts']['rules'] == len(data['rules'])
-assert report['profile'] == 'combined'
+assert report['profile'] == 'splash-youtube-weather'
 assert not any(item['file'] == 'blockAds.plugin' or '/fmz200/' in item['url'] for item in report['sources'])
 assert not any('/fmz200/' in url for url in json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8')))
 assert set(core['http']) <= {'mitm', 'script', *NATIVE_HTTP_SECTIONS}
-assert core['rules'] == data['rules']
+def selected(section):
+    rows = data['rules'] if section == 'rules' else data['http'][section]
+    return [row for row, loc in zip(rows, locations.get(section, []))
+            if keep_entry(section, row, loc.rsplit(':', 1)[0])]
+
+assert core['rules'] == selected('rules')
 for key in NATIVE_HTTP_SECTIONS:
-    assert core['http'].get(key, []) == data['http'][key], key
+    assert core['http'].get(key, []) == selected(key), key
     assert report['counts'].get(key, 0) == len(core['http'].get(key, []))
-assert all(host in data['http']['mitm'] or any(not old.startswith('-') and fnmatchcase(host, old)
-           for old in data['http']['mitm']) for host in core['http']['mitm'])
 assert not {'*.amap.com', '*.weibo.cn', '*.weibo.com'} & set(core['http']['mitm'])
-assert {'m5.amap.com', 'info.amap.com', 'api.weibo.cn', 'sdkapp.uve.weibo.com'} <= set(core['http']['mitm'])
+assert {'m5.amap.com', 'sdkapp.uve.weibo.com'} <= set(core['http']['mitm'])
+assert not {'info.amap.com', 'api.weibo.cn', 'api.zhihu.com', 'mobile.12306.cn', 'rec.xiaohongshu.com'} & set(core['http']['mitm'])
 assert 'weatherkit.apple.com' in core['http']['mitm']
-assert 'api.xiachufang.com' in core['http']['mitm']
+assert 'api.xiachufang.com' not in core['http']['mitm']
 assert core_path.stat().st_size < 150_000
 assert core['rules'][:2] == QUIC_RULES
 exclusions = []
@@ -111,7 +116,7 @@ for section, rows in data['http'].items():
         assert len(rows) == len({json.dumps(row, sort_keys=True) for row in rows}), section
 assert any('response-jq .data.data |= map' in row for row in data['http']['body-rewrite'])
 youtube = next(row for row in data['http']['script'] if 'YouTube_remove_ads_response' in row['name'])
-assert json.loads(youtube['argument'])['captionLang'] == 'zh-Hans'
+assert json.loads(youtube['argument'])['captionLang'] == 'off'
 assert youtube['binary-mode'] is True
 weather = next(row for row in data['http']['script'] if 'weatherkit' in row['match'])
 assert 'Weather.Provider=ColorfulClouds' in weather['argument']
@@ -123,8 +128,13 @@ providers = core['script-providers']
 scripts = core['http']['script']
 assert report['counts']['script'] == len(scripts)
 assert report['counts']['providers'] == len(providers)
-assert 0 < len(scripts) <= 80
-assert set(providers) == {entry['name'] for entry in scripts} == set(data['script-providers'])
+assert 0 < len(scripts) <= 16
+assert set(providers) == {entry['name'] for entry in scripts}
+assert len(core['http'].get('body-rewrite', [])) <= 5
+assert not any('HUPU' in name or '12306' in name for name in providers)
+assert sum('weatherkit' in row['match'] for row in scripts) == 2
+assert sum('YouTube' in row['name'] for row in scripts) == 3
+assert sum('Weibo' in row['name'] for row in scripts) == 3
 for entry in scripts:
     assert entry['timeout'] <= 10
     if entry.get('require-body'):
@@ -138,11 +148,11 @@ for name, provider in providers.items():
     assert runtime.read_text(encoding='utf-8') == data['script-providers'][name]['payload']
 def script_identity(entry):
     return json.dumps({key: value for key, value in entry.items() if key not in ('timeout', 'max-size')}, sort_keys=True)
-assert [script_identity(row) for row in scripts] == [script_identity(row) for row in data['http']['script']]
+assert [script_identity(row) for row in scripts] == [script_identity(row) for row in selected('script')]
 assert len(scripts) == len({script_identity(row) for row in scripts})
 (ROOT / 'validation-input.json').write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
 subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)
 print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
 print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
 print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')
-print('Combined override: rules, rewrites and script bindings preserved; MITM narrowed within source scope; external providers and body limits verified; no forced HTTP engine or fmz200 aggregate.')
+print('Focused override: splash handlers, YouTube ad blocking and weather retained; internal UI/feed/watermark processing excluded; script/body limits and remote providers verified.')

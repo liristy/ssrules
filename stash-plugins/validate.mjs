@@ -42,3 +42,44 @@ for (const [operation, blocked] of [['com.cars.otsmobile.newHomePage.initData', 
   assert.equal(result === undefined, blocked);
 }
 console.log(`JavaScript syntax OK: ${Object.keys(providers).length} providers; ${config.http.script.length} script bindings; gzip adapters tested: ${gzipAdapters}; 12306 behavior OK.`);
+
+// Exercise the actual reduced upstream splash handlers, including Weibo's
+// non-JSON "OK" trailer and RedPaper's unrelated theme/store fields.
+async function splash(app, url, input, trailer = '') {
+  const payload = Object.entries(providers).find(([name]) => name.includes(`-${app}_remove_ads-`))?.[1].payload;
+  assert.ok(payload, app);
+  let calls = 0, output;
+  await vm.runInNewContext(payload, {
+    $request: {url}, $response: {body: JSON.stringify(input) + trailer},
+    $done: value => { calls++; output = value; }, console,
+  }, {timeout: 1000});
+  assert.equal(calls, 1, app);
+  assert.equal(typeof output?.body, 'string', app);
+  if (trailer) assert.ok(output.body.endsWith(trailer));
+  return JSON.parse(trailer ? output.body.slice(0, -trailer.length) : output.body);
+}
+let result = await splash('Weibo', 'https://sdkapp.uve.weibo.com/interface/sdk/sdkad.php',
+  {show_push_splash_ad: true, ads: [{displaytime: 5}], keep: 'unchanged'}, 'OK');
+assert.equal(result.show_push_splash_ad, false);
+assert.equal(result.ads[0].displaytime, 0);
+assert.equal(result.keep, 'unchanged');
+result = await splash('Weibo', 'https://bootpreload.uve.weibo.com/v2/ad/preload', {ads: [{display_duration: 5}]});
+assert.equal(result.ads[0].display_duration, 0);
+result = await splash('Weibo', 'https://wbapp.uve.weibo.com/preload/get_ad', {cached_ad: {ads: [{duration: 5}]}});
+assert.equal(result.cached_ad.ads[0].duration, 0);
+result = await splash('Amap', 'https://m5.amap.com/ws/valueadded/alimama/splash_screen',
+  {data: {ad: [{set: {setting: {display_time: 5}}, creative: [{}]}]}, keep: true});
+assert.equal(result.data.ad[0].set.setting.display_time, 0);
+assert.equal(result.keep, true);
+result = await splash('RedPaper', 'https://edith.xiaohongshu.com/api/sns/v1/system_service/config',
+  {data: {app_theme: 'keep', store: 'keep', splash: {}, loading_img: 'ad'}});
+assert.deepEqual(result, {data: {app_theme: 'keep', store: 'keep'}});
+result = await splash('RedPaper', 'https://edith.xiaohongshu.com/api/sns/v2/system_service/splash_config',
+  {data: {ads_groups: [{ads: [{}]}]}});
+assert.equal(result.data.ads_groups[0].start_time, 3818332800);
+assert.equal(result.data.ads_groups[0].ads[0].start_time, 3818332800);
+result = await splash('Taobao', 'https://guide-acs.m.taobao.com/gw/mtop.taobao.cloudvideo.video.query',
+  {data: {duration: '5', resources: ['ad'], caches: ['ad']}});
+assert.equal(result.data.duration, '0');
+assert.deepEqual(result.data.resources, []);
+console.log('Reduced splash JS fixtures OK: Weibo SDK/preload/cache, Amap, RedPaper config/splash, Taobao.');

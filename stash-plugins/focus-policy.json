@@ -1,0 +1,104 @@
+{
+  "description": "开屏去广告、YouTube 去广告和天气增强；保留通用网络拦截。未列入的 HTTP 功能不自动加入。",
+  "plugins": {
+    "12306_remove_ads.lpx": {
+      "rewrite": [
+        "^https:\\/\\/ad\\.12306\\.cn\\/ad\\/ser\\/getAdList$"
+      ],
+      "script": []
+    },
+    "Amap_remove_ads.lpx": {
+      "rewrite": [],
+      "script": [
+        "^https:\\/\\/m5\\.amap\\.com\\/ws\\/valueadded\\/alimama\\/splash_screen\\?"
+      ]
+    },
+    "AppleWeatherEnhancer.lpx": {
+      "rewrite": [],
+      "script": [
+        "^https?:\\/\\/weatherkit\\.apple\\.com\\/api\\/v1\\/availability\\/",
+        "^https?:\\/\\/weatherkit\\.apple\\.com\\/api\\/v2\\/weather\\/"
+      ]
+    },
+    "DingdongMaicai_remove_ads.lpx": {
+      "rewrite": [
+        "^https?:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/advert\\/"
+      ],
+      "script": []
+    },
+    "FC_Box_remove_ads.lpx": {
+      "rewrite": [
+        "^https:\\/\\/dsp\\.fcbox\\.com\\/adSearch\\/"
+      ],
+      "script": []
+    },
+    "FleaMarket_remove_ads.lpx": {
+      "rewrite": [
+        "^https:\\/\\/acs\\.m\\.goofish\\.com\\/gw\\/mtop\\.taobao\\.idlecommerce\\.splash\\.ads\\/"
+      ],
+      "script": []
+    },
+    "RedPaper_remove_ads.lpx": {
+      "rewrite": [],
+      "script": [
+        "^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v1\\/system_service\\/config\\?",
+        "^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v2\\/system_service\\/splash_config"
+      ]
+    },
+    "Remove_ads_by_keli.lpx": {
+      "rewrite": [
+        "^https?:\\/\\/api\\.m\\.mi\\.com\\/v\\d\\/app\\/start",
+        "^https?:\\/\\/api\\.jr\\.mi\\.com\\/jr\\/api\\/playScreen",
+        "^https:\\/\\/api-mifit-cn2\\.huami\\.com\\/discovery\\/mi\\/cards\\/startpage_ad",
+        "^https:\\/\\/api\\.(pinduoduo|yangkeduo)\\.com\\/api\\/cappuccino\\/splash",
+        "^https:\\/\\/acs\\.m\\.taobao\\.com\\/gw\\/mtop\\.taobao\\.idle\\.home\\.welcome",
+        "^https:\\/\\/client\\.app\\.coc\\.10086\\.cn\\/biz-orange\\/DN\\/init\\/startInit$",
+        "^https:\\/\\/cdke\\.youdao\\.com\\/course3\\/recommend\\/dict\\/startup",
+        "^https:\\/\\/qiye\\.gaoding\\.com\\/api\\/v3\\/oc\\/v2\\/delivery-pits\\/ios-splash\\/",
+        "^https:\\/\\/api\\.zcool\\.com\\.cn\\/v\\d\\.\\d\\.\\d/common\\/open-screen",
+        "^https:\\/\\/client-api-v2\\.oray\\.com\\/materials\\/SLCC_IOS_STARTUP",
+        "^https:\\/\\/app\\.10099\\.com\\.cn\\/contact-web\\/api\\/version\\/getFlashScreenPage",
+        "^https:\\/\\/api\\.xiangji\\.qq\\.com\\/splash$",
+        "^https:\\/\\/acs\\.m\\.taobao\\.com\\/gw\\/mtop\\.film\\.mtopadvertiseapi\\.queryloadingbanner\\/",
+        "^https?:\\/\\/m\\.client\\.10010\\.com\\/mobileService\\/customer\\/accountListData\\.htm"
+      ],
+      "script": []
+    },
+    "Taobao_remove_ads.lpx": {
+      "rewrite": [
+        "^https:\\/\\/acs\\.m\\.taobao\\.com\\/gw\\/mtop\\.fliggy\\.crm\\.screen\\.(allresource|predict)",
+        "^https:\\/\\/acs\\.m\\.taobao\\.com\\/gw\\/mtop\\.alimusic\\.common\\.mobileservice\\.startinit",
+        "^https:\\/\\/acs\\.m\\.taobao\\.com\\/gw\\/mtop\\.etao\\.noah\\.query\\/.+tao_splash",
+        "^https:\\/\\/acs\\.m\\.taobao\\.com\\/gw\\/mtop\\.taobao\\.idle\\.home\\.welcome"
+      ],
+      "script": [
+        "^https:\\/\\/guide-acs\\.m\\.taobao\\.com\\/gw\\/mtop\\.taobao\\.(cloudvideo\\.video\\.query|wireless\\.home\\.splash\\.awesome\\.get)",
+        "^https:\\/\\/poplayer\\.template\\.alibaba\\.com\\/\\w+\\.json"
+      ]
+    },
+    "VideoGo_remove_ads.lpx": {
+      "rewrite": [
+        "^https:\\/\\/api\\.ys7\\.com\\/api\\/ads"
+      ],
+      "script": []
+    },
+    "Weibo_remove_ads.lpx": {
+      "rewrite": [
+        "^https:\\/\\/bootrealtime\\.uve\\.weibo\\.com\\/v[23]\\/ad\\/realtime"
+      ],
+      "script": [
+        "^https:\\/\\/bootpreload\\.uve\\.weibo\\.com\\/v[12]\\/ad\\/preload",
+        "^https:\\/\\/sdkapp\\.uve\\.weibo\\.com\\/interface\\/sdk\\/sdkad\\.php",
+        "^https:\\/\\/wbapp\\.uve\\.weibo\\.com\\/(?:preload\\/get_ad|wbapplua\\/wbpullad\\.lua)"
+      ]
+    },
+    "YouTube_remove_ads.lpx": {
+      "rewrite": [],
+      "script": [
+        "^https:\\/\\/youtubei\\.googleapis\\.com\\/(youtubei\\/v1\\/(browse|next|player|search|reel\\/reel_watch_sequence|guide|account\\/get_setting|get_watch|log_event|config))(\\?(.*))?$",
+        "^https?:\\/\\/[\\w-]+\\.googlevideo\\.com\\/initplayback.+&ack.*",
+        "^https:\\/\\/youtubei\\.googleapis\\.com\\/youtubei\\/v1\\/log_event"
+      ]
+    }
+  }
+}

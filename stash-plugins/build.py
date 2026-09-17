@@ -11,6 +11,7 @@ import re
 import urllib.parse
 import yaml
 from fetch_dependencies import enabled_plugins, excluded_plugin
+from focus import keep_entry, trim_script, POLICY
 
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent
@@ -57,7 +58,7 @@ def literal_url_hosts(pattern):
     pending, hosts = [authority], []
     while pending:
         value = pending.pop()
-        group = re.search(r'\(\?:([a-zA-Z0-9|-]+)\)', value)
+        group = re.search(r'\((?:\?:)?([a-zA-Z0-9|-]+)\)', value)
         if group:
             pending.extend(value[:group.start()] + part + value[group.end():] for part in group[1].split('|'))
             if len(pending) + len(hosts) > 64:
@@ -263,21 +264,45 @@ class Builder:
         full = self.data
         # Build-time validation only. This file is ignored by Git and never imported.
         (ROOT / 'validation-input.json').write_text(json.dumps(full, ensure_ascii=False), encoding='utf-8')
+        selected = {}
+        for filename, expected in POLICY.items():
+            entries = self.plugin_entries.get(filename)
+            if entries is None:
+                continue  # Source plugin disabled by the user's Loon config.
+            for kind, patterns in expected.items():
+                keys = ('script',) if kind == 'script' else NATIVE_HTTP_SECTIONS
+                available = {row['match'] if isinstance(row, dict) else row.split()[0]
+                             for key in keys for row in entries.get(key, [])}
+                missing = set(patterns) - available
+                if missing:
+                    raise ValueError(f'Selected upstream endpoints changed in {filename}: {sorted(missing)}')
+        for section in ('rules', *NATIVE_HTTP_SECTIONS, 'script'):
+            rows = full['rules'] if section == 'rules' else full['http'][section]
+            selected[section] = [entry for entry, loc in zip(rows, self.locations.get(section, []))
+                                 if keep_entry(section, entry, loc.rsplit(':', 1)[0])]
         hosts = [host for host in full['http']['mitm'] if host.startswith('-')]
         for filename, entries in self.plugin_entries.items():
-            narrowed = narrow_mitm(entries)
+            focused = {key: [row for row in value if keep_entry(key, row, filename)]
+                       for key, value in entries.items() if key != 'mitm'}
+            focused['mitm'] = entries.get('mitm', [])
+            patterns = [row['match'] if isinstance(row, dict) else row.split()[0]
+                        for key in (*NATIVE_HTTP_SECTIONS, 'script') for row in focused.get(key, [])]
+            if not patterns:
+                continue
+            resolved = [literal_url_hosts(pattern) for pattern in patterns]
+            narrowed = sorted({host for group in resolved for host in group}) if all(group is not None for group in resolved) else narrow_mitm(focused)
             hosts.extend(narrowed)
             if narrowed != entries.get('mitm', []):
-                self.notes.append({'source': filename, 'message': '将可完整枚举的 MITM 通配域名收窄为实际规则接口。', 'before': entries['mitm'], 'after': narrowed})
+                self.notes.append({'source': filename, 'message': '按保留的 HTTP 接口重新生成 MITM 列表。', 'before': entries['mitm'], 'after': narrowed})
         core = {
             'name': '广告净化',
-            'desc': '应用去广告、隐私拦截、QUIC 屏蔽与天气增强。',
+            'desc': '开屏去广告、YouTube 去广告、天气增强与 QUIC 屏蔽。',
             'date': full['date'],
-            'rules': list(full['rules']),
+            'rules': selected['rules'],
             'http': {
                 'mitm': list(dict.fromkeys(hosts)),
-                **{key: list(full['http'][key]) for key in NATIVE_HTTP_SECTIONS if full['http'][key]},
-                'script': [dict(entry) for entry in full['http']['script']],
+                **{key: selected[key] for key in NATIVE_HTTP_SECTIONS if selected[key]},
+                'script': [dict(entry) for entry in selected['script']],
             },
             'script-providers': {},
         }
@@ -317,6 +342,7 @@ class Builder:
         providers = self.data['script-providers']
         if name not in providers:
             script = (ROOT / entry['file']).read_text(encoding='utf-8-sig')
+            script = trim_script(url, script)
             # Surge's abort result is not a Stash response field.
             script = script.replace('$done({abort:!0})', '$done()')
             prefix = '// Original source: ' + url + '\n'
@@ -472,6 +498,8 @@ class Builder:
             for self.line, line in parts.get('argument', []):
                 key, choices = line.split('=', 1)
                 self.defaults[key.strip()] = scalar(choices.split(',')[1])
+            if filename == 'YouTube_remove_ads.lpx':
+                self.defaults['captionLang'] = 'off'
             for section, rows in parts.items():
                 for self.line, line in rows:
                     if section == 'argument':
@@ -509,7 +537,7 @@ class Builder:
         self.export_combined()
         counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': len(self.data['script-providers']), **{key: len(value) for key, value in self.data['http'].items()}}
         excluded = [line.split(',', 1)[0].strip() for _, line in config.get('plugin', []) if excluded_plugin(line.split(',', 1)[0].strip())]
-        report = {'date': self.data['date'], 'profile': 'combined', 'counts': counts, 'source_counts': source_counts, 'addons': [], 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
+        report = {'date': self.data['date'], 'profile': 'splash-youtube-weather', 'counts': counts, 'source_counts': source_counts, 'addons': [], 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
         (ROOT / 'report.json').write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
         (ROOT / 'locations.json').write_text(json.dumps(self.locations, ensure_ascii=False), encoding='utf-8')
         header = '# 自动生成：python stash-plugins/build.py\n# 拦截、重写和脚本已合并；只需导入此覆写，脚本代码通过远程地址加载。\n# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。\n'

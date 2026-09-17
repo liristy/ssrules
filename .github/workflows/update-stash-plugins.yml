@@ -44,7 +44,7 @@ jobs:
       - name: Download current plugins and all dependencies
         run: python stash-plugins/fetch_dependencies.py --refresh
 
-      - name: Build and validate combined override
+      - name: Build and validate splash, YouTube and weather override
         run: |
           python stash-plugins/build.py
           python stash-plugins/validate.py

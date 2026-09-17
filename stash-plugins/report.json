@@ -1,15 +1,15 @@
 {
   "date": "2026-09-16",
-  "profile": "combined",
+  "profile": "splash-youtube-weather",
   "counts": {
     "plugins": 20,
-    "rules": 477,
-    "providers": 9,
-    "mitm": 132,
-    "url-rewrite": 213,
-    "body-rewrite": 73,
+    "rules": 456,
+    "providers": 7,
+    "mitm": 35,
+    "url-rewrite": 22,
+    "body-rewrite": 1,
     "mock": 1,
-    "script": 58
+    "script": 13
   },
   "source_counts": {
     "plugins": 20,
@@ -406,36 +406,198 @@
       "message": "移除重复的 reject-dict 动作。"
     },
     {
+      "source": "12306_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "ad.12306.cn",
+        "mobile.12306.cn"
+      ],
+      "after": [
+        "ad.12306.cn"
+      ]
+    },
+    {
+      "source": "DingdongMaicai_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "119.29.29.*",
+        "maicai.api.ddxq.mobi",
+        "user.api.ddxq.mobi"
+      ],
+      "after": [
+        "maicai.api.ddxq.mobi"
+      ]
+    },
+    {
+      "source": "FC_Box_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "consumer.fcbox.com",
+        "dsp.fcbox.com"
+      ],
+      "after": [
+        "dsp.fcbox.com"
+      ]
+    },
+    {
       "source": "Amap_remove_ads.lpx",
-      "message": "将可完整枚举的 MITM 通配域名收窄为实际规则接口。",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
       "before": [
         "*.amap.com"
       ],
       "after": [
-        "ai.amap.com",
-        "info.amap.com",
-        "m5-zb.amap.com",
-        "m5.amap.com",
-        "oss.amap.com",
-        "sns.amap.com"
+        "m5.amap.com"
+      ]
+    },
+    {
+      "source": "Remove_ads_by_keli.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "api.zcool.com.cn",
+        "acs.m.goofish.com",
+        "acs.m.taobao.com",
+        "api-access.pangolin-sdk-toutiao*.com",
+        "api-access.pangolin-sdk-toutiao.com",
+        "api-mifit*.huami.com",
+        "api-mifit-cn2.huami.com",
+        "api-mifit.huami.com",
+        "api-overmind.youdao.com",
+        "api.ahmobile.cn",
+        "api.angkeduo.com",
+        "api.jr.mi.com",
+        "api.m.mi.com",
+        "api.pinduoduo.com",
+        "api.wfdata.club",
+        "apiwz.midukanshu.com",
+        "app.zhoudamozi.com",
+        "cdke.youdao.com",
+        "conf-darwin.xycdn.com",
+        "dict.youdao.com",
+        "ecard.shenzhentong.com",
+        "ether-pack.pangolin-sdk-toutiao.com",
+        "gromore.pangolin-sdk-toutiao.com",
+        "gw.alicdn.com",
+        "gw.chuangkit.com",
+        "hfapp-service.qweather.net",
+        "home.mi.com",
+        "home.umetrip.com",
+        "img.allahall.com",
+        "img.dailmo.com",
+        "iyes.youku.com",
+        "lfd?-analytics.bytescm.com",
+        "lfd?-cdn-tos.bytescm.com",
+        "m.qianbao.qq.com",
+        "mercury-gateway.ixiaochuan.cn",
+        "mob.mddcloud.com.cn",
+        "mobads-pre-config.cdn.bcebos.com",
+        "p0.pipi.cn",
+        "qiye.gaoding.com",
+        "sdk1xyajs.data.kuiniuca.com",
+        "sfd?-fe-tos.pglstatp-toutiao.com",
+        "sfo.mddcloud.com.cn",
+        "shopapi.io.mi.com",
+        "shealthyapi.senssun.com",
+        "t-dsp.pinduoduo.com",
+        "toblog.ctobsnssdk.com",
+        "tower.ubixioe.com",
+        "umerp.umetrip.com",
+        "us.l.qq.com",
+        "lanfanapp.com",
+        "api.xiachufang.com",
+        "api.xiangji.qq.com",
+        "video-dsp.pddpic.com",
+        "images.pinduoduo.com",
+        "client.app.coc.10086.cn",
+        "cdn.cmgadx.com",
+        "qadx.qinlinad.com",
+        "watch.iot.mi.com",
+        "cdn.web.chelaile.net.cn",
+        "d.socdm.com",
+        "m.client.10010.com",
+        "cmds.omesoft.com",
+        "api.fenxianglife.com"
+      ],
+      "after": [
+        "acs.m.taobao.com",
+        "api-mifit-cn2.huami.com",
+        "api.jr.mi.com",
+        "api.m.mi.com",
+        "api.pinduoduo.com",
+        "api.xiangji.qq.com",
+        "api.yangkeduo.com",
+        "api.zcool.com.cn",
+        "app.10099.com.cn",
+        "cdke.youdao.com",
+        "client-api-v2.oray.com",
+        "client.app.coc.10086.cn",
+        "m.client.10010.com",
+        "qiye.gaoding.com"
+      ]
+    },
+    {
+      "source": "Taobao_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "acs.m.taobao.com",
+        "heic.alicdn.com",
+        "guide-acs.m.taobao.com",
+        "poplayer.template.alibaba.com"
+      ],
+      "after": [
+        "acs.m.taobao.com",
+        "guide-acs.m.taobao.com",
+        "poplayer.template.alibaba.com"
       ]
     },
     {
       "source": "Weibo_remove_ads.lpx",
-      "message": "将可完整枚举的 MITM 通配域名收窄为实际规则接口。",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
       "before": [
         "*.weibo.cn",
         "*.weibo.com",
         "weibo.com"
       ],
       "after": [
-        "api.weibo.cn",
         "bootpreload.uve.weibo.com",
         "bootrealtime.uve.weibo.com",
-        "card.weibo.com",
         "sdkapp.uve.weibo.com",
-        "wbapp.uve.weibo.com",
-        "weibo.com"
+        "wbapp.uve.weibo.com"
+      ]
+    },
+    {
+      "source": "FleaMarket_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "acs.m.goofish.com",
+        "g-acs.m.goofish.com"
+      ],
+      "after": [
+        "acs.m.goofish.com"
+      ]
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "ci.xiaohongshu.com",
+        "edith.xiaohongshu.com",
+        "rec.xiaohongshu.com",
+        "so.xiaohongshu.com",
+        "www.xiaohongshu.com"
+      ],
+      "after": [
+        "edith.xiaohongshu.com"
+      ]
+    },
+    {
+      "source": "VideoGo_remove_ads.lpx",
+      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
+      "before": [
+        "api.ys7.com",
+        "i.ys7.com"
+      ],
+      "after": [
+        "api.ys7.com"
       ]
     }
   ]
