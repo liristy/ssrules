@@ -30,6 +30,8 @@
 
 `stash_override.js` 先执行，`stash_plugins.js` 后执行。它们是 Sub-Store **文件处理脚本**，处理 `$content`，不是节点操作脚本。
 
+Mihomo 分流优先使用上游提供的 `behavior: domain` 规则集，减少 `classical` 规模；需要补充关键词、IP、进程等规则时，使用上游配套的补充集合，避免再叠加包含同一批域名的完整 `classical` 集合。先核实实际文件与覆盖范围；上游没有 domain 版本时保留必要的 classical 规则，不直接修改 behavior 导致格式不兼容或遗漏规则。
+
 QUIC / UDP 443 由 **`stash_override.js`** 管理，位置是现有业务分流、国内直连之后，首条 `MATCH` / `FINAL` 之前。不要在广告覆写里重新前置全局 QUIC 拦截。当前这两条规则只处理兜底前尚未匹配的流量；不能描述为“所有代理连接都会屏蔽 QUIC”。用户已实测全局前置拦截会造成小红书打开和刷新缓慢。
 
 ## 广告维护流程

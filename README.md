@@ -29,6 +29,8 @@
 
 按所用客户端选择对应主配置，并补齐自己的节点或订阅。策略组中的节点名称、筛选条件及网络参数是个人配置，使用前需按自己的环境调整。Loon 插件不等同于 Stash 广告产物：后者会经过功能筛选和语法转换。
 
+Mihomo 的 Google、TikTok 分流使用 blackmatrix7 规则集，均可独立选择策略，默认使用 AUTO；策略组与匹配规则中，Google 位于 Apple 前，TikTok 位于 Emby 前。
+
 ### Stash 与 Sub-Store
 
 完整配置的处理顺序是：

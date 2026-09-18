@@ -129,6 +129,15 @@ proxy-groups:
       - DIRECT
     icon: >-
       https://raw.githubusercontent.com/Orz-3/mini/master/Color/Global.png
+  - name: Google
+    type: select
+    proxies:
+      - AUTO
+      - Verizon
+      - PROXY
+      - DIRECT
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/Google.png
   - name: Apple
     type: select
     proxies:
@@ -164,6 +173,15 @@ proxy-groups:
       - PROXY
     icon: >-
       https://raw.githubusercontent.com/Orz-3/mini/refs/heads/master/Color/Paypal.png
+  - name: TikTok
+    type: select
+    proxies:
+      - AUTO
+      - Verizon
+      - PROXY
+      - DIRECT
+    icon: >-
+      https://raw.githubusercontent.com/Orz-3/mini/master/Color/TikTok.png
   - name: Emby
     type: select
     proxies:
@@ -230,6 +248,14 @@ rule-providers:
     url: >-
       https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/BlockRevise.yaml
     path: ./ruleset/BlockRevise.yaml
+  TikTok:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml
+    path: ./ruleset/TikTok.yaml
   Emby:
     behavior: classical
     interval: 86400
@@ -238,6 +264,14 @@ rule-providers:
     url: >-
       https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Emby.yaml
     path: ./ruleset/Emby.yaml
+  Google:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.yaml
+    path: ./ruleset/Google.yaml
   Apple:
     behavior: classical
     interval: 86400
@@ -418,8 +452,10 @@ rules:
   - RULE-SET,Download,      DIRECT
   - RULE-SET,PayPal,        PayPal
   - RULE-SET,OpenAI,        OpenAI
+  - RULE-SET,TikTok,        TikTok
   - RULE-SET,Emby,          Emby
   - RULE-SET,Game,          Game
+  - RULE-SET,Google,        Google
   - RULE-SET,Apple_Domain,  Apple
   - RULE-SET,Apple,         Apple
   - RULE-SET,Microsoft,     Microsoft
