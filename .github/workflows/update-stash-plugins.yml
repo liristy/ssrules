@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -49,12 +49,20 @@ jobs:
           python stash-plugins/build.py
           python stash-plugins/validate.py
 
+      - name: Verify hand-maintained configuration was not changed
+        run: |
+          if ! git diff --quiet -- loon_config.conf mihomo_config.yaml stash_override.js stash_plugins.js Rule stash-plugins/build.py stash-plugins/fetch_dependencies.py stash-plugins/focus.py stash-plugins/focus-policy.json stash-plugins/extra-plugins.json; then
+            echo 'Build unexpectedly modified hand-maintained configuration or code.' >&2
+            exit 1
+          fi
+
       - name: Upload validated override
         uses: actions/upload-artifact@v7
         with:
           name: stash-plugins
           path: |
             stash_plugins.stoverride
+            stash_override.js
             stash_plugins.js
             stash-plugins/report.json
             stash-plugins/runtime/
@@ -64,7 +72,6 @@ jobs:
       - name: Commit changed snapshots and generated files
         run: |
           git add -- stash_plugins.stoverride stash-plugins/sources stash-plugins/scripts stash-plugins/runtime stash-plugins/dependencies.json stash-plugins/refresh.json stash-plugins/report.json stash-plugins/locations.json
-          git add -u -- stash-plugins
           if git diff --cached --quiet; then
             echo 'No plugin changes.' >> "$GITHUB_STEP_SUMMARY"
             exit 0

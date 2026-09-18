@@ -93,6 +93,38 @@ for (const prefix of ['loon-', 'ssrules-loon-']) {
 }
 assert.equal(context.stashAdsScriptName('loon-UnknownApp-1234abcd'), 'UnknownApp');
 assert.equal(context.stashAdsScriptName('自定义脚本'), '自定义脚本');
+// Exercise the actual two-script pipeline: main routing owns QUIC, and even a
+// cached advertising override must not prepend its historical QUIC rules.
+const legacyQuic = ['PROTOCOL,QUIC,REJECT,no-track', 'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track'];
+const previousScopedQuic = [
+  'AND,((PROTOCOL,QUIC),(NOT,((GEOIP,CN)))),REJECT,no-track',
+  'AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((GEOIP,CN)))),REJECT,no-track',
+];
+const overrideContext = vm.createContext({ProxyUtils: context.ProxyUtils});
+vm.runInContext(fs.readFileSync(new URL('../stash_override.js', import.meta.url), 'utf8'), overrideContext);
+const routes = ['DOMAIN,private.example,DIRECT', 'DOMAIN,proxy.example,Proxy', 'GEOIP,CN,DIRECT', 'MATCH,Proxy'];
+for (const previous of [[], legacyQuic, previousScopedQuic, legacyQuic.map(rule => rule.replace(',no-track', ''))]) {
+  const source = {...clean, rules: [...previous, ...routes]};
+  const transformed = JSON.parse(JSON.stringify(await overrideContext.main(structuredClone(source))));
+  assert.deepEqual(transformed.rules, [...routes.slice(0, -1), ...legacyQuic, routes.at(-1)]);
+  assert.deepEqual(JSON.parse(JSON.stringify(await overrideContext.main(structuredClone(transformed)))), transformed);
+}
+for (const fallback of ['FINAL,Proxy', null]) {
+  const source = {...clean, rules: [...routes.slice(0, -1), ...(fallback ? [fallback] : [])]};
+  const transformed = JSON.parse(JSON.stringify(await overrideContext.main(structuredClone(source))));
+  assert.deepEqual(transformed.rules, [...routes.slice(0, -1), ...legacyQuic, ...(fallback ? [fallback] : [])]);
+}
+for (const cached of [patch, ...[legacyQuic, previousScopedQuic].map(rules => ({...patch, rules: [...rules, ...patch.rules]}))]) {
+  downloaded = JSON.stringify(cached);
+  const transformed = await overrideContext.main(structuredClone({...clean, rules: [...legacyQuic, ...routes]}));
+  const migrated = JSON.parse(JSON.stringify(await context.main(transformed)));
+  assert.deepEqual(migrated.rules.slice(0, patch.rules.length), patch.rules);
+  assert.deepEqual(migrated.rules.slice(patch.rules.length), [...routes.slice(0, -1), ...legacyQuic, routes.at(-1)]);
+  assert.ok(legacyQuic.every(rule => migrated.rules.filter(row => row === rule).length === 1));
+  assert.ok(previousScopedQuic.every(rule => !migrated.rules.includes(rule)));
+  assert.deepEqual(JSON.parse(JSON.stringify(await context.main(migrated))), migrated);
+}
+
 downloaded = JSON.stringify(patch);
 for (const bad of ['<html>error</html>', '{}', JSON.stringify({...patch, rules: ['MATCH,DIRECT']})]) {
   downloaded = bad;

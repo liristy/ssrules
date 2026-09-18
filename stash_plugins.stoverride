@@ -2,11 +2,9 @@
 # 拦截、重写和脚本已合并；只需导入此覆写，脚本代码通过远程地址加载。
 # HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
-desc: 开屏去广告、YouTube 去广告、天气增强与 QUIC 屏蔽。
+desc: 开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。
 date: '2026-09-17'
 rules:
-- PROTOCOL,QUIC,REJECT,no-track
-- AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track
 - DOMAIN-KEYWORD,httpdns,REJECT
 - DOMAIN-KEYWORD,httpsdns,REJECT
 - DOMAIN,dns2.q2cdn.com,REJECT

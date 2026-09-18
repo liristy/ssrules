@@ -6,7 +6,7 @@ import re
 import subprocess
 import yaml
 import jq
-from build import Builder, QUIC_RULES, requires_quic, sections, RUNTIME_URL, MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS
+from build import Builder, LEGACY_QUIC_RULES, requires_quic, sections, RUNTIME_URL, MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS
 from fetch_dependencies import selected_plugins, extra_plugins
 from focus import keep_entry, ZHIHU_SPLASH
 
@@ -69,7 +69,18 @@ assert jq.compile(bili_expression).input({'code': 0, 'data': {'show': [1], 'even
 assert 'weatherkit.apple.com' in core['http']['mitm']
 assert 'api.xiachufang.com' not in core['http']['mitm']
 assert core_path.stat().st_size < 150_000
-assert core['rules'][:2] == QUIC_RULES
+assert not set(LEGACY_QUIC_RULES) & set(core['rules'])
+assert not any('QUIC' in rule for rule in core['rules'])
+# Dingdong uses native splash interception; do not import shopping/feed cleanup.
+dingdong = [row for row in core['http']['url-rewrite'] if 'ddxq' in row]
+assert dingdong == [r'^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/ - reject']
+assert 'maicai.api.ddxq.mobi' in core['http']['mitm']
+assert 'user.api.ddxq.mobi' not in core['http']['mitm']
+for scheme in ['http', 'https']:
+    assert re.search(dingdong[0].split()[0], scheme + '://maicai.api.ddxq.mobi/advert/start?city=1')
+for path in ['homeApi/newDetails', 'order/getRecommend', 'search/hotKeyword']:
+    assert not re.search(dingdong[0].split()[0], 'https://maicai.api.ddxq.mobi/' + path)
+assert not any('ddxq' in row['match'] for row in core['http']['script'])
 exclusions = []
 for _, line in sections(config_text).get('mitm', []):
     if line.lower().startswith('hostname'):
@@ -80,8 +91,8 @@ assert core['http']['mitm'][:len(exclusions)] == exclusions
 assert 'ca' not in data['http'] and 'ca-passphrase' not in data['http']
 assert 'proxy-groups' not in data and 'dns' not in data
 assert not any(rule.startswith(('MATCH,', 'FINAL,')) for rule in data['rules'])
-assert data['rules'][:2] == QUIC_RULES
-assert not any(requires_quic(rule.rsplit(',', 1)[0]) for rule in data['rules'][2:])
+assert not set(LEGACY_QUIC_RULES) & set(data['rules'])
+assert not any(requires_quic(rule.rsplit(',', 1)[0]) for rule in data['rules'])
 # A DIRECT exception must survive before a broader blocking rule. Conversely,
 # a later exception already hidden by that blocking rule must not change routing.
 fixture = [

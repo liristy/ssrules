@@ -3,7 +3,7 @@
   "profile": "splash-youtube-weather",
   "counts": {
     "plugins": 23,
-    "rules": 457,
+    "rules": 455,
     "providers": 13,
     "mitm": 40,
     "url-rewrite": 26,
@@ -13,7 +13,7 @@
   },
   "source_counts": {
     "plugins": 23,
-    "rules": 478,
+    "rules": 476,
     "providers": 10,
     "force-http-engine": 1,
     "mitm": 126,

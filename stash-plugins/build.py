@@ -16,7 +16,7 @@ from focus import keep_entry, trim_script, POLICY, ZHIHU_COMMERCIAL, ZHIHU_SPLAS
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent
 OUTPUT = PROJECT / 'stash_plugins.stoverride'
-QUIC_RULES = [
+LEGACY_QUIC_RULES = [
     'PROTOCOL,QUIC,REJECT,no-track',
     'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track',
 ]
@@ -179,7 +179,7 @@ class Builder:
         self.dependencies = json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8'))
         self.data = {
             'name': '广告净化',
-            'desc': '应用去广告、隐私拦截、QUIC 屏蔽与天气增强。',
+            'desc': '应用去广告、隐私拦截与天气增强。',
             'date': '2026-09-16',
             'rules': [],
             'http': {'force-http-engine': ['*:80'], 'mitm': [], 'url-rewrite': [], 'header-rewrite': [], 'body-rewrite': [], 'mock': [], 'script': []},
@@ -297,7 +297,7 @@ class Builder:
                 self.notes.append({'source': filename, 'message': '按保留的 HTTP 接口重新生成 MITM 列表。', 'before': entries['mitm'], 'after': narrowed})
         core = {
             'name': '广告净化',
-            'desc': '开屏去广告、YouTube 去广告、天气增强与 QUIC 屏蔽。',
+            'desc': '开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。',
             'date': full['date'],
             'rules': selected['rules'],
             'http': {
@@ -496,7 +496,9 @@ class Builder:
 
     def build(self):
         self.source = 'user:QUIC'
-        for self.line, rule in enumerate(QUIC_RULES, 1):
+        # Consolidate upstream QUIC blocks with temporary sentinels, then remove
+        # them: the main config transformer now owns QUIC routing and ordering.
+        for self.line, rule in enumerate(LEGACY_QUIC_RULES, 1):
             self.add('rules', rule)
         config_text = (PROJECT / 'loon_config.conf').read_text(encoding='utf-8-sig')
         config = sections(config_text)
@@ -543,6 +545,9 @@ class Builder:
                     else:
                         raise ValueError('Unrecognized section: ' + section)
         self.deduplicate_rules()
+        # Advertising overrides must not prepend QUIC blocks to the main routes.
+        self.data['rules'] = self.data['rules'][len(LEGACY_QUIC_RULES):]
+        self.locations['rules'] = self.locations['rules'][len(LEGACY_QUIC_RULES):]
         # Keep the user's existing Loon MITM exclusions before positive hosts.
         exclusions = []
         for _, line in config.get('mitm', []):

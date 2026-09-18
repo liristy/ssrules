@@ -1,3 +1,13 @@
+const STASH_QUIC_RULES = [
+  'PROTOCOL,QUIC,REJECT,no-track',
+  'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track',
+];
+const STASH_PREVIOUS_QUIC_RULES = [
+  ...STASH_QUIC_RULES,
+  'AND,((PROTOCOL,QUIC),(NOT,((GEOIP,CN)))),REJECT,no-track',
+  'AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((GEOIP,CN)))),REJECT,no-track',
+];
+
 async function main(config) {
   if (!config || !Array.isArray(config.rules) || !Array.isArray(config['proxy-groups'])) {
     throw new Error('请先合并 mihomo_config.yaml，再执行 Stash 覆写。');
@@ -114,6 +124,13 @@ async function main(config) {
     }
     return [renamed];
   });
+  // 7. QUIC 由主配置统一管理：现有分流优先，最后在兜底前拦截。
+  // 清除本项目旧版前置/带 CN 条件的规则，避免重复或抢先拦截国内直连。
+  const quicKey = rule => rule.replace(/\s+/g, '').replace(/,no-track$/, '');
+  const previousQuic = new Set(STASH_PREVIOUS_QUIC_RULES.map(quicKey));
+  config.rules = config.rules.filter(rule => !previousQuic.has(quicKey(rule)));
+  const fallback = config.rules.findIndex(rule => /^(MATCH|FINAL)\s*,/.test(rule.trim()));
+  config.rules.splice(fallback < 0 ? config.rules.length : fallback, 0, ...STASH_QUIC_RULES);
   return config;
 }
 

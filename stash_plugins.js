@@ -2,6 +2,12 @@
 // 生成订阅时读取最新去广告配置；Stash 中不要再叠加同一份广告覆写。
 const STASH_ADS_URL = 'https://raw.githubusercontent.com/liristy/ssrules/main/stash_plugins.stoverride';
 const STASH_ADS_HTTP_FIELDS = ['mitm', 'url-rewrite', 'header-rewrite', 'body-rewrite', 'mock', 'script'];
+const STASH_ADS_OLD_QUIC = [
+  'PROTOCOL,QUIC,REJECT,no-track',
+  'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track',
+  'AND,((PROTOCOL,QUIC),(NOT,((GEOIP,CN)))),REJECT,no-track',
+  'AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((GEOIP,CN)))),REJECT,no-track',
+];
 
 function stashAdsObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -105,8 +111,11 @@ async function main(config) {
     return {...entry, name};
   });
 
-  // 与 Stash 覆写一致：广告规则优先，原配置的规则和兜底规则排在后面。
-  const result = {...config, rules: stashAdsMergeRows(patch.rules, config.rules)};
+  // 广告规则优先；主配置中 QUIC 的位置由 stash_override.js 决定，不在此重排。
+  const ruleKey = rule => rule.replace(/\s+/g, '').replace(/,no-track$/, '');
+  const oldQuic = new Set(STASH_ADS_OLD_QUIC.map(ruleKey));
+  const incomingRules = patch.rules.filter(rule => !oldQuic.has(ruleKey(rule)));
+  const result = {...config, rules: stashAdsMergeRows(incomingRules, config.rules)};
   const http = {...(config.http || {})};
   for (const field of STASH_ADS_HTTP_FIELDS) {
     if (patch.http[field] === undefined) continue;
