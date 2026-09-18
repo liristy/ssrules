@@ -1,5 +1,6 @@
 """Reviewed HTTP allowlist and extraction of upstream splash-only JS branches."""
 import json
+import re
 from pathlib import Path
 
 POLICY = json.loads(Path(__file__).with_name('focus-policy.json').read_text(encoding='utf-8'))['plugins']
@@ -28,6 +29,21 @@ def between(text, start, end):
 
 def trim_script(url, script):
     """Extract fresh upstream branches each build; fail on structural changes."""
+    if url == 'https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js':
+        # Only placement 0007 is the splash; leave other placements untouched.
+        branches = re.findall(r'"0007"===\w+\.placementNo\?\'([^\']+)\'', script)
+        if len(branches) != 1:
+            raise ValueError('12306 splash branch changed; review required')
+        response = json.loads(branches[0])
+        if not isinstance(response.get('materialsList'), list) or 'skipTime' not in response.get('advertParam', {}):
+            raise ValueError('12306 splash response changed; review required')
+        return ('// Splash response from kokoryh/Script, selected via fmz200/wool_scripts.\n'
+                'let request;\n'
+                'try { request = JSON.parse($request.body); } catch (_) { $done({}); return; }\n'
+                'if (request && request.placementNo === "0007") {\n'
+                '  $done({response: {status: 200, headers: {"Content-Type": "application/json"}, body: '
+                + json.dumps(branches[0], ensure_ascii=False) + '}});\n'
+                '} else { $done({}); }\n')
     if url.endswith('/Amap_remove_ads.js'):
         body = between(script, '} else if (url.includes("/valueadded/alimama/splash_screen")) {', '\n}\n\n$done')
         return 'const obj = JSON.parse($response.body);\n' + body + '\n$done({body: JSON.stringify(obj)});\n'

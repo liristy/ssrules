@@ -100,6 +100,7 @@ class RefreshTests(unittest.TestCase):
 
     def test_extra_excerpt_downloads_only_selected_script_dependencies(self):
         extra = {'file': 'Extra.lpx', 'name': 'Selected app', 'url': 'https://test.invalid/aggregate.plugin',
+                 'author': 'Original author', 'license_url': 'https://test.invalid/LICENSE',
                  'select': {'script': [r'^https://selected\.test/'], 'rule': ['DOMAIN,ads.selected.test,REJECT']}, 'mitm': ['selected.test']}
         (self.root / 'extra-plugins.json').write_text(json.dumps([extra]), encoding='utf-8')
         self.resources[extra['url']] = (
@@ -110,6 +111,8 @@ class RefreshTests(unittest.TestCase):
         self.run_refresh()
         snapshot = (self.root / 'sources/Extra.lpx').read_text()
         self.assertIn('selected.js', snapshot)
+        self.assertIn('#!author=Original author', snapshot)
+        self.assertIn('https://test.invalid/LICENSE', snapshot)
         self.assertNotIn('unrelated', snapshot)
         self.assertIn('DOMAIN, ads.selected.test, REJECT', snapshot)
         self.assertNotIn('other.test', snapshot)

@@ -1,0 +1,10 @@
+#!name=12306开屏去广告
+# Extracted from: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin
+#!author=奶思[https://github.com/fmz200], kokoryh[https://github.com/kokoryh/Script]
+# Aggregate license (dependencies retain their own terms): https://github.com/fmz200/wool_scripts/blob/main/LICENSE
+[Argument]
+12306_enable = switch,true,false
+[Script]
+http-request ^https?:\/\/ad\.12306\.cn\/ad\/ser\/getAdList script-path=https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js, requires-body=true, timeout=60, tag=12306, enable={12306_enable}
+[MitM]
+hostname=ad.12306.cn

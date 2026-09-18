@@ -3,7 +3,7 @@
 # HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
 desc: 开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。
-date: '2026-09-17'
+date: '2026-09-19'
 rules:
 - DOMAIN-KEYWORD,httpdns,REJECT
 - DOMAIN-KEYWORD,httpsdns,REJECT
@@ -467,7 +467,6 @@ http:
   - -weather-data.apple.com
   - -buy.itunes.apple.com
   - -ios.chat.openai.com
-  - ad.12306.cn
   - weatherkit.apple.com
   - www.google.cn
   - '*.googlevideo.com'
@@ -502,6 +501,9 @@ http:
   - app.bilibili.com
   - acs-m.freshippo.com
   - ap.dongdianqiu.com
+  - ad.12306.cn
+  - ma-adx.ctrip.com
+  - res.kfc.com.cn
   url-rewrite:
   - ^https?:\/\/(www.)?(g|google)\.cn https://www.google.com 307
   - ^https?:\/\/(ditu|maps).google\.cn https://maps.google.com 307
@@ -529,8 +531,10 @@ http:
   - ^https:\/\/api\.ys7\.com\/api\/ads - reject
   - ^https:\/\/api\.zhihu\.com\/commercial_api\/(?:launch_v2|real_time_launch_v2)(?:\?|/|$) - reject-dict
   - ^https?:\/\/ap\.dongdianqiu\.com\/plat\/v4 - reject
+  - ^https?:\/\/ma-adx\.ctrip\.com\/_ma\.gif - reject
+  - ^https?:\/\/res\.kfc\.com\.cn\/CRM\/kfcad\/apphome5\/apphome - reject-200
+  - ^https?:\/\/res\.kfc\.com\.cn\/CRM\/kfcad\/apphome6\/\w+\.json\? - reject-dict
   body-rewrite:
-  - ^https:\/\/ad\.12306\.cn\/ad\/ser\/getAdList$ response-json-del materialsList advertParam
   - ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(list|show|event\/list2)\? response-jq .data |= with_entries(if .key | IN("show",
     "event_list") then .value = [] else . end)
   mock:
@@ -633,6 +637,12 @@ http:
     require-body: true
     timeout: 10
     max-size: 262144
+  - name: 12306开屏去广告
+    match: ^https?:\/\/ad\.12306\.cn\/ad\/ser\/getAdList
+    type: request
+    require-body: true
+    timeout: 10
+    max-size: 262144
 script-providers:
   Apple天气增强 · 天气可用性响应:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/response.bundle-a0309086-eea5c91be5b3.js
@@ -672,4 +682,7 @@ script-providers:
     interval: 86400
   盒马净化:
     url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/freshippo-806c7be0-d2de6f9ff0b8.js
+    interval: 86400
+  12306开屏去广告:
+    url: https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/12306-53e74386-e5ee8d6e6381.js
     interval: 86400

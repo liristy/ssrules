@@ -81,6 +81,30 @@ for scheme in ['http', 'https']:
 for path in ['homeApi/newDetails', 'order/getRecommend', 'search/hotKeyword']:
     assert not re.search(dingdong[0].split()[0], 'https://maicai.api.ddxq.mobi/' + path)
 assert not any('ddxq' in row['match'] for row in core['http']['script'])
+# Keep travel/food app handling confined to the reviewed advertising endpoints.
+assert {'ad.12306.cn', 'ma-adx.ctrip.com', 'res.kfc.com.cn'} <= set(core['http']['mitm'])
+assert 'm.ctrip.com' not in core['http']['mitm']
+rail = [row for row in core['http']['script'] if '12306' in row['match']]
+assert len(rail) == 1 and rail[0]['type'] == 'request' and rail[0]['require-body']
+assert not any('12306' in row for row in core['http'].get('body-rewrite', []))
+for scheme in ['http', 'https']:
+    for suffix in ['', '?version=1']:
+        assert re.search(rail[0]['match'], scheme + '://ad.12306.cn/ad/ser/getAdList' + suffix)
+assert not re.search(rail[0]['match'], 'https://mobile.12306.cn/otsmobile/app/mgs/mgw.htm')
+for token, urls, excluded in [
+    ('ctrip', ['https://ma-adx.ctrip.com/_ma.gif?scene=splash'],
+     ['https://m.ctrip.com/restapi/soa2/13916/json/tripAds', 'https://m.ctrip.com/restapi/soa2/10000/json/search']),
+    ('kfc', ['https://res.kfc.com.cn/CRM/kfcad/apphome5/apphome.json',
+             'https://res.kfc.com.cn/CRM/kfcad/apphome6/launch.json?v=1'],
+     ['https://res.kfc.com.cn/advertisement/banner.png', 'https://res.kfc.com.cn/CRM/order/create']),
+]:
+    rows = [row for row in core['http']['url-rewrite'] if token in row]
+    assert len(rows) == len(urls)
+    for url in urls:
+        assert any(re.search(row.split()[0], url) for row in rows), url
+    for url in excluded:
+        assert not any(re.search(row.split()[0], url) for row in rows), url
+    assert not any(token in row['match'] for row in core['http']['script'])
 exclusions = []
 for _, line in sections(config_text).get('mitm', []):
     if line.lower().startswith('hostname'):
@@ -172,7 +196,8 @@ assert report['counts']['providers'] == len(providers)
 assert 0 < len(scripts) <= 16
 assert set(providers) == {entry['name'] for entry in scripts}
 assert len(core['http'].get('body-rewrite', [])) <= 5
-assert not any('HUPU' in name or '12306' in name for name in providers)
+assert not any('HUPU' in name for name in providers)
+assert sum('12306' in name for name in providers) == 1
 assert sum('weatherkit' in row['match'] for row in scripts) == 2
 assert sum('YouTube' in row['name'] for row in scripts) == 3
 assert sum('微博' in row['name'] for row in scripts) == 3

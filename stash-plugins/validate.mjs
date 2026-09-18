@@ -43,6 +43,28 @@ for (const [operation, blocked] of [['com.cars.otsmobile.newHomePage.initData', 
 }
 console.log(`JavaScript syntax OK: ${Object.keys(providers).length} providers; ${config.http.script.length} script bindings; gzip adapters tested: ${gzipAdapters}; 12306 behavior OK.`);
 
+// The published 12306 handler must answer only the splash placement and fail open.
+const railSplash = Object.values(providers).find(x => x.payload.includes('Original source: https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js'));
+assert.ok(railSplash);
+for (const body of ['{"placementNo":"0007"}', '{"placementNo":"G0054"}', '{"placementNo":"unknown"}', '{}', 'null', 'not-json', undefined]) {
+  let calls = 0, output;
+  await vm.runInNewContext(railSplash.payload, {
+    $request: {url: 'https://ad.12306.cn/ad/ser/getAdList?version=1', body},
+    $done: value => {calls++; output = value;}, console,
+  }, {timeout: 1000});
+  assert.equal(calls, 1);
+  if (body === '{"placementNo":"0007"}') {
+    assert.equal(output.response.status, 200);
+    assert.equal(output.response.headers['Content-Type'], 'application/json');
+    const result = JSON.parse(output.response.body);
+    assert.equal(result.advertParam.skipTime, 1);
+    assert.deepEqual(result.materialsList, [{billMaterialsId: '255', filePath: 'h', creativeType: 1}]);
+  } else {
+    assert.equal(JSON.stringify(output), '{}', 'non-splash or malformed requests must pass through');
+  }
+}
+console.log('12306 splash response and non-splash/malformed request passthrough OK.');
+
 // Exercise the actual reduced upstream splash handlers, including Weibo's
 // non-JSON "OK" trailer and RedPaper's unrelated theme/store fields.
 async function splash(app, url, input, trailer = '') {

@@ -44,5 +44,54 @@
     "mitm": [
       "ap.dongdianqiu.com"
     ]
+  },
+  {
+    "file": "12306_splash.lpx",
+    "name": "12306开屏去广告",
+    "select": {
+      "script": [
+        "^https?:\\/\\/ad\\.12306\\.cn\\/ad\\/ser\\/getAdList"
+      ]
+    },
+    "arguments": [
+      "12306_enable = switch,true,false"
+    ],
+    "mitm": [
+      "ad.12306.cn"
+    ],
+    "author": "奶思[https://github.com/fmz200], kokoryh[https://github.com/kokoryh/Script]",
+    "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "license_url": "https://github.com/fmz200/wool_scripts/blob/main/LICENSE"
+  },
+  {
+    "file": "Ctrip_splash.lpx",
+    "name": "携程开屏去广告",
+    "select": {
+      "rewrite": [
+        "^https?:\\/\\/ma-adx\\.ctrip\\.com\\/_ma\\.gif"
+      ]
+    },
+    "mitm": [
+      "ma-adx.ctrip.com"
+    ],
+    "author": "奶思[https://github.com/fmz200]",
+    "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "license_url": "https://github.com/fmz200/wool_scripts/blob/main/LICENSE"
+  },
+  {
+    "file": "KFC_splash.lpx",
+    "name": "肯德基开屏去广告",
+    "select": {
+      "rewrite": [
+        "^https?:\\/\\/res\\.kfc\\.com\\.cn\\/CRM\\/kfcad\\/apphome5\\/apphome",
+        "^https?:\\/\\/res\\.kfc\\.com\\.cn\\/CRM\\/kfcad\\/apphome6\\/\\w+\\.json\\?"
+      ]
+    },
+    "mitm": [
+      "res.kfc.com.cn"
+    ],
+    "author": "奶思[https://github.com/fmz200]",
+    "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "license_url": "https://github.com/fmz200/wool_scripts/blob/main/LICENSE"
   }
 ]

@@ -53,7 +53,7 @@ Mihomo 的 Google、TikTok 分流使用 blackmatrix7 规则集，均可独立选
 
 ## 去广告资源
 
-提供应用开屏去广告、YouTube 去广告、通用广告拦截和苹果天气增强等功能。详细配置见 [广告净化说明](stash-plugins/README.md)。
+提供应用开屏去广告（含 12306、携程、肯德基）、YouTube 去广告、通用广告拦截和苹果天气增强等功能。详细配置见 [广告净化说明](stash-plugins/README.md)。
 
 去广告规则主要来自以下两个来源，具体脚本的作者与依赖以源文件署名为准：
 
@@ -100,6 +100,7 @@ python stash-plugins/validate.py
 - **资源整理与合集**：[可莉 / iKelee / luestr](https://github.com/luestr/ProxyResource)、[fmz200 / 奶思](https://github.com/fmz200/wool_scripts)。
 - **插件和脚本作者**：[RuCu6](https://github.com/RuCu6)、[zirawell](https://github.com/zirawell/R-Store)、[Maasea](https://github.com/Maasea)、[VirgilClyne](https://github.com/VirgilClyne)、[WordlessEcho](https://github.com/WordlessEcho)、[001ProMax](https://github.com/001ProMax)、[Choler](https://github.com/Choler)、[DivineEngine](https://github.com/DivineEngine)、[app2smile](https://github.com/app2smile)、[kelv1n1n](https://github.com/kelv1n1n)、[zmqcherish](https://github.com/zmqcherish)、[ZenmoFeiShi](https://github.com/ZenmoFeiShi)，以及上游署名的 **wish、小白脸** 等作者。
 - **天气增强项目**：[NSRingo / WeatherKit](https://github.com/NSRingo/WeatherKit) 及其作者、贡献者和依赖项目。
+- **12306 开屏脚本**：[kokoryh / Script](https://github.com/kokoryh/Script)，经 fmz200 合集引用，本仓库仅提取开屏分支。
 - **分流、广告规则与数据**：[blackmatrix7 / ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)、[Cats-Team / AdRules](https://github.com/Cats-Team/AdRules)、[Loyalsoldier / geoip](https://github.com/Loyalsoldier/geoip)、[MetaCubeX / meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 及其引用的数据提供者。
 - **工具与图标**：[Sub-Store](https://github.com/sub-store-org/Sub-Store)、[Orz-3 / mini](https://github.com/Orz-3/mini)、[luestr / IconResource](https://github.com/luestr/IconResource)、[101arrowz / fflate](https://github.com/101arrowz/fflate)，以及 Loon、Stash、Mihomo、Python、Node.js、PyYAML、jq 等项目的维护者。
 

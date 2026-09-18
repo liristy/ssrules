@@ -1,0 +1,8 @@
+#!name=携程开屏去广告
+# Extracted from: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin
+#!author=奶思[https://github.com/fmz200]
+# Aggregate license (dependencies retain their own terms): https://github.com/fmz200/wool_scripts/blob/main/LICENSE
+[Rewrite]
+^https?:\/\/ma-adx\.ctrip\.com\/_ma\.gif reject
+[MitM]
+hostname=ma-adx.ctrip.com

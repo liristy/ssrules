@@ -2,9 +2,7 @@
   "description": "开屏去广告、YouTube 去广告和天气增强；保留通用网络拦截。未列入的 HTTP 功能不自动加入。",
   "plugins": {
     "12306_remove_ads.lpx": {
-      "rewrite": [
-        "^https:\\/\\/ad\\.12306\\.cn\\/ad\\/ser\\/getAdList$"
-      ],
+      "rewrite": [],
       "script": []
     },
     "Amap_remove_ads.lpx": {
@@ -128,6 +126,25 @@
     "Dongqiudi_splash.lpx": {
       "rewrite": [
         "^https?:\\/\\/ap\\.dongdianqiu\\.com\\/plat\\/v4"
+      ],
+      "script": []
+    },
+    "12306_splash.lpx": {
+      "rewrite": [],
+      "script": [
+        "^https?:\\/\\/ad\\.12306\\.cn\\/ad\\/ser\\/getAdList"
+      ]
+    },
+    "Ctrip_splash.lpx": {
+      "rewrite": [
+        "^https?:\\/\\/ma-adx\\.ctrip\\.com\\/_ma\\.gif"
+      ],
+      "script": []
+    },
+    "KFC_splash.lpx": {
+      "rewrite": [
+        "^https?:\\/\\/res\\.kfc\\.com\\.cn\\/CRM\\/kfcad\\/apphome5\\/apphome",
+        "^https?:\\/\\/res\\.kfc\\.com\\.cn\\/CRM\\/kfcad\\/apphome6\\/\\w+\\.json\\?"
       ],
       "script": []
     }

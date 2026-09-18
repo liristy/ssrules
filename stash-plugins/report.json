@@ -1,27 +1,27 @@
 {
-  "date": "2026-09-17",
+  "date": "2026-09-19",
   "profile": "splash-youtube-weather",
   "counts": {
-    "plugins": 23,
+    "plugins": 26,
     "rules": 455,
-    "providers": 13,
-    "mitm": 40,
-    "url-rewrite": 26,
-    "body-rewrite": 2,
+    "providers": 14,
+    "mitm": 42,
+    "url-rewrite": 29,
+    "body-rewrite": 1,
     "mock": 1,
-    "script": 14
+    "script": 15
   },
   "source_counts": {
-    "plugins": 23,
+    "plugins": 26,
     "rules": 476,
-    "providers": 10,
+    "providers": 11,
     "force-http-engine": 1,
-    "mitm": 126,
-    "url-rewrite": 214,
+    "mitm": 128,
+    "url-rewrite": 217,
     "header-rewrite": 0,
     "body-rewrite": 74,
     "mock": 1,
-    "script": 59
+    "script": 60
   },
   "addons": [],
   "excluded_plugins": [
@@ -29,7 +29,7 @@
   ],
   "duplicates_removed": {
     "rules": 25,
-    "mitm": 8
+    "mitm": 9
   },
   "shadowed_rules_removed": [
     {
@@ -412,6 +412,21 @@
       "file": "Dongqiudi_splash.lpx",
       "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
       "sha256": "99bab2f241bcb7f85cec34cb216e9722755c0aed2e9245f74ddea6c9c6ac83e7"
+    },
+    {
+      "file": "12306_splash.lpx",
+      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+      "sha256": "d4a7c9bd3cedb9c236aa804e9363fb76c1c61f86ff602bd72191c4860caa3f33"
+    },
+    {
+      "file": "Ctrip_splash.lpx",
+      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+      "sha256": "7bd59513dcec37520552431fe4a8baf05e7499753f3aafa706ff01d6b3533e6d"
+    },
+    {
+      "file": "KFC_splash.lpx",
+      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+      "sha256": "7c2cf730f7c67d0bf56eaebf54b07d3ba3da42e32d8c8b6a2ab07407907ec7e2"
     }
   ],
   "adjustments": [
@@ -424,17 +439,6 @@
       "source": "Zhihu_remove_ads.lpx",
       "line": 16,
       "message": "移除重复的 reject-dict 动作。"
-    },
-    {
-      "source": "12306_remove_ads.lpx",
-      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
-      "before": [
-        "ad.12306.cn",
-        "mobile.12306.cn"
-      ],
-      "after": [
-        "ad.12306.cn"
-      ]
     },
     {
       "source": "DingdongMaicai_remove_ads.lpx",

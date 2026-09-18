@@ -50,6 +50,10 @@ def extract_plugin(text, entry):
         else:
             available.setdefault(section, []).append(line)
     output = ['#!name=' + entry['name'], '# Extracted from: ' + entry['url']]
+    if entry.get('author'):
+        output.append('#!author=' + entry['author'])
+    if entry.get('license_url'):
+        output.append('# Aggregate license (dependencies retain their own terms): ' + entry['license_url'])
     if entry.get('arguments'):
         output += ['[Argument]', *entry['arguments']]
     for section, patterns in entry['select'].items():
