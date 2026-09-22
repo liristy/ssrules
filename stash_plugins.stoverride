@@ -3,7 +3,7 @@
 # HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
 desc: 开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。
-date: '2026-09-19'
+date: '2026-09-21'
 rules:
 - DOMAIN-KEYWORD,httpdns,REJECT
 - DOMAIN-KEYWORD,httpsdns,REJECT
@@ -396,6 +396,7 @@ rules:
 - DOMAIN-SUFFIX,hzjizhun.com,REJECT
 - DOMAIN-SUFFIX,sogaha.cn,REJECT
 - DOMAIN,zxid-m.mobileservice.cn,REJECT
+- DOMAIN,xadsmartget.adgain.cn,REJECT
 - DOMAIN-SUFFIX,tradplusad.com,REJECT
 - DOMAIN-SUFFIX,fancyapi.com,REJECT
 - DOMAIN-SUFFIX,medproad.com,REJECT

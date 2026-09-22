@@ -1,9 +1,9 @@
 {
-  "date": "2026-09-19",
+  "date": "2026-09-21",
   "profile": "splash-youtube-weather",
   "counts": {
     "plugins": 26,
-    "rules": 455,
+    "rules": 456,
     "providers": 14,
     "mitm": 42,
     "url-rewrite": 29,
@@ -13,7 +13,7 @@
   },
   "source_counts": {
     "plugins": 26,
-    "rules": 476,
+    "rules": 477,
     "providers": 11,
     "force-http-engine": 1,
     "mitm": 128,
@@ -306,7 +306,7 @@
     {
       "file": "BlockAdvertisers.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/BlockAdvertisers.lpx",
-      "sha256": "6d6b6fdcbd5a4ce555e15b1a747417f13cf2dd6694d9dc5f19fb006d631c7733"
+      "sha256": "9db00868b972339f587c1ffb92f144888528338e382522104eb398703746d947"
     },
     {
       "file": "12306_remove_ads.lpx",
