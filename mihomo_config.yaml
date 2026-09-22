@@ -442,12 +442,12 @@ rule-providers:
 rules:
   - DOMAIN-KEYWORD,jyq.,    DIRECT
   - RULE-SET,Lan,           DIRECT
+  - RULE-SET,DirectRevise,  DIRECT
   - RULE-SET,Privacy_Domain,AdBlock
   - RULE-SET,Privacy,       AdBlock
   - RULE-SET,AdBlock,       AdBlock
   - RULE-SET,Hijacking,     AdBlock
   - RULE-SET,BlockRevise,   AdBlock
-  - RULE-SET,DirectRevise,  DIRECT
   - RULE-SET,Game_Download, DIRECT
   - RULE-SET,Download,      DIRECT
   - RULE-SET,PayPal,        PayPal
