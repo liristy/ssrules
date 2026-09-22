@@ -52,6 +52,11 @@ payload:
   - DOMAIN-SUFFIX,volcsiriusbd.com
   - DOMAIN-SUFFIX,bytefcdn.com
   - DOMAIN-SUFFIX,bytefcdnrd.com
+  - DOMAIN,mssdk.bytedance.com
+  - DOMAIN,vcs.zijieapi.com
+  - DOMAIN,i.snssdk.com
+  - DOMAIN,mcs.snssdk.com
+  - DOMAIN,snssdk.com
   - IP-CIDR,45.121.184.0/24
   - IP-CIDR,103.10.124.0/23
   - IP-CIDR,103.28.54.0/24
