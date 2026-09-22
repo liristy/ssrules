@@ -53,7 +53,7 @@ payload:
   - DOMAIN-SUFFIX,bytefcdn.com
   - DOMAIN-SUFFIX,bytefcdnrd.com
   - DOMAIN,mssdk.bytedance.com
-  - DOMAIN,vcs.zijieapi.com
+  - DOMAIN-SUFFIX,zijieapi.com
   - DOMAIN,i.snssdk.com
   - DOMAIN,mcs.snssdk.com
   - DOMAIN,snssdk.com
