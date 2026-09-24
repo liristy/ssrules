@@ -33,6 +33,8 @@ Mihomo 的 Google、TikTok 分流使用 blackmatrix7 规则集，均可独立选
 
 上游 DouYin 与 TikTok 集合都包含 `snssdk.com`。本仓库通过 `DirectRevise` 将该域及其子域（包括 `aweme.snssdk.com`、`is.snssdk.com`）设为直连，在 Mihomo 及其转换后的 Stash 配置中优先于 TikTok 分流；`isnssdk.com`、`tiktok.com` 等其他 TikTok 域名仍按原策略处理。
 
+TikTok 网页的 `mssdk.tiktokw.us` 在基础配置中设有精确例外，优先于 AdRules 等广告集合并交给 TikTok 策略，避免该请求被拦截；页面恢复情况需在客户端更新后验证。
+
 ### Stash 与 Sub-Store
 
 完整配置的处理顺序是：

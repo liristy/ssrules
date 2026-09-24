@@ -443,6 +443,8 @@ rules:
   - DOMAIN-KEYWORD,jyq.,    DIRECT
   - RULE-SET,Lan,           DIRECT
   - RULE-SET,DirectRevise,  DIRECT
+  # TikTok 网页兼容例外：该域名被 AdRules 拦截，保持与主站相同的出口。
+  - DOMAIN,mssdk.tiktokw.us,TikTok
   - RULE-SET,Privacy_Domain,AdBlock
   - RULE-SET,Privacy,       AdBlock
   - RULE-SET,AdBlock,       AdBlock
