@@ -56,7 +56,7 @@ payload:
   - DOMAIN-SUFFIX,zijieapi.com
   - DOMAIN,i.snssdk.com
   - DOMAIN,mcs.snssdk.com
-  - DOMAIN,snssdk.com
+  - DOMAIN-SUFFIX,snssdk.com
   - IP-CIDR,45.121.184.0/24
   - IP-CIDR,103.10.124.0/23
   - IP-CIDR,103.28.54.0/24

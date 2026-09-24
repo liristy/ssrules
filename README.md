@@ -31,6 +31,8 @@
 
 Mihomo 的 Google、TikTok 分流使用 blackmatrix7 规则集，均可独立选择策略，默认使用 AUTO；策略组与匹配规则中，Google 位于 Apple 前，TikTok 位于 Emby 前。
 
+上游 DouYin 与 TikTok 集合都包含 `snssdk.com`。本仓库通过 `DirectRevise` 将该域及其子域（包括 `aweme.snssdk.com`、`is.snssdk.com`）设为直连，在 Mihomo 及其转换后的 Stash 配置中优先于 TikTok 分流；`isnssdk.com`、`tiktok.com` 等其他 TikTok 域名仍按原策略处理。
+
 ### Stash 与 Sub-Store
 
 完整配置的处理顺序是：
