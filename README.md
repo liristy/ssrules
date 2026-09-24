@@ -29,11 +29,15 @@
 
 按所用客户端选择对应主配置，并补齐自己的节点或订阅。策略组中的节点名称、筛选条件及网络参数是个人配置，使用前需按自己的环境调整。Loon 插件不等同于 Stash 广告产物：后者会经过功能筛选和语法转换。
 
-Mihomo 的 Google、TikTok 分流使用 blackmatrix7 规则集，均可独立选择策略，默认使用 AUTO；策略组与匹配规则中，Google 位于 Apple 前，TikTok 位于 Emby 前。
+Mihomo 的 Google 使用 blackmatrix7 规则集，TikTok 使用本仓库维护的 [TikTok.yaml](Rule/yaml/TikTok.yaml)，两者均可独立选择策略，默认使用 AUTO；策略组与匹配规则中，Google 位于 Apple 前，TikTok 位于 Emby 前。
 
-上游 DouYin 与 TikTok 集合都包含 `snssdk.com`。本仓库通过 `DirectRevise` 将该域及其子域（包括 `aweme.snssdk.com`、`is.snssdk.com`）设为直连，在 Mihomo 及其转换后的 Stash 配置中优先于 TikTok 分流；`isnssdk.com`、`tiktok.com` 等其他 TikTok 域名仍按原策略处理。
+上游 DouYin 与 TikTok 集合都包含 `snssdk.com`。本仓库 TikTok 集合移除该重叠项，并通过 `DirectRevise` 将该域及其子域（包括 `aweme.snssdk.com`、`is.snssdk.com`）设为直连；`isnssdk.com`、`tiktok.com` 等其他 TikTok 域名仍按原策略处理。
 
 TikTok 网页的 `mssdk.tiktokw.us` 在基础配置中设有精确例外，优先于 AdRules 等广告集合并交给 TikTok 策略，避免该请求被拦截；页面恢复情况需在客户端更新后验证。
+
+本地 TikTok 集合基于 blackmatrix7，并按 [v2fly 的 TikTok 集合](https://github.com/v2fly/domain-list-community/blob/master/data/tiktok)补充 CDN 与登录静态资源域，保留关键词和进程匹配，使用 `behavior: classical`。具体条目和来源见文件注释，上游许可证保存在 [Rule/licenses/](Rule/licenses/)。后续维护直接修改该文件；现有广告定时构建不会自动刷新它。Mihomo 与转换后的 Stash 共用该集合，广告拦截及直连修正仍优先。
+
+主配置 `rules` 从上到下匹配，按以下层次排列：**本地访问与明确放行 → 广告拦截 → 下载直连 → 专属服务 → 通用补充 → 国外/国内集合 → IP 分流 → 兜底**。策略组在界面中的排列不影响匹配顺序。Google 优先于 Apple，厂商服务优先于综合 Game 集合；例如 `login.live.com` 交给 Microsoft。`DirectRevise` 是前置放行，`ProxyRevise` 则补充专属服务之后的通用代理，不能把两个修正集合视为同一优先级。
 
 ### Stash 与 Sub-Store
 
@@ -52,6 +56,8 @@ TikTok 网页的 `mssdk.tiktokw.us` 在基础配置中设有精确例外，优�
 两个 JS 都放在 Sub-Store 的**文件处理**中，不要放进节点操作。`stash_override.js` 处理 Stash 的主配置兼容、DNS、策略名及相关规则转换；`stash_plugins.js` 只负责广告资源的合并。
 
 也可以使用转换后的主配置，在 Stash 中单独导入 [广告覆写](https://raw.githubusercontent.com/liristy/ssrules/main/stash_plugins.stoverride)。广告已通过 `stash_plugins.js` 合入主配置时，不再重复叠加同一覆写。HTTPS 重写需要在设备上配置并信任自己的 MITM 证书；不要使用仓库或他人提供的证书私钥和口令。
+
+上述规则层次描述的是主配置。合并广告插件后，插件分流仍在主配置之前，因此主配置的放行例外不能覆盖插件中的前置拦截；遇到冲突须检查最终合并结果。Stash 的 QUIC 拦截仍位于业务分流、国内直连之后和兜底之前。
 
 更新脚本或构建文件后，需要重新生成配置并在客户端更新。未推送的本地改动不会出现在远程订阅中；Sub-Store 下载缓存也可能影响更新时间。
 

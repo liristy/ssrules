@@ -254,8 +254,8 @@ rule-providers:
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml
-    path: ./ruleset/TikTok.yaml
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/TikTok.yaml
+    path: ./ruleset/TikTok-local.yaml
   Emby:
     behavior: classical
     interval: 86400
@@ -440,35 +440,33 @@ rule-providers:
       https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Application_CN.yaml
     path: ./ruleset/Application_CN.yaml
 rules:
-  - DOMAIN-KEYWORD,jyq.,    DIRECT
-  - RULE-SET,Lan,           DIRECT
-  - RULE-SET,DirectRevise,  DIRECT
-  # TikTok 网页兼容例外：该域名被 AdRules 拦截，保持与主站相同的出口。
-  - DOMAIN,mssdk.tiktokw.us,TikTok
+  - DOMAIN-KEYWORD,jyq.,DIRECT
+  - RULE-SET,Lan,DIRECT
+  - RULE-SET,DirectRevise,DIRECT
+  - RULE-SET,BlockRevise,AdBlock
   - RULE-SET,Privacy_Domain,AdBlock
-  - RULE-SET,Privacy,       AdBlock
-  - RULE-SET,AdBlock,       AdBlock
-  - RULE-SET,Hijacking,     AdBlock
-  - RULE-SET,BlockRevise,   AdBlock
-  - RULE-SET,Game_Download, DIRECT
-  - RULE-SET,Download,      DIRECT
-  - RULE-SET,PayPal,        PayPal
-  - RULE-SET,OpenAI,        OpenAI
-  - RULE-SET,TikTok,        TikTok
-  - RULE-SET,Emby,          Emby
-  - RULE-SET,Game,          Game
-  - RULE-SET,Google,        Google
-  - RULE-SET,Apple_Domain,  Apple
-  - RULE-SET,Apple,         Apple
-  - RULE-SET,Microsoft,     Microsoft
-  - RULE-SET,ProxyRevise,   GLOBAL
+  - RULE-SET,Privacy,AdBlock
+  - RULE-SET,AdBlock,AdBlock
+  - RULE-SET,Hijacking,AdBlock
+  - RULE-SET,Game_Download,DIRECT
+  - RULE-SET,Download,DIRECT
+  - RULE-SET,PayPal,PayPal
+  - RULE-SET,OpenAI,OpenAI
+  - RULE-SET,TikTok,TikTok
+  - RULE-SET,Emby,Emby
+  - RULE-SET,Google,Google
+  - RULE-SET,Apple_Domain,Apple
+  - RULE-SET,Apple,Apple
+  - RULE-SET,Microsoft,Microsoft
+  - RULE-SET,Game,Game
+  - RULE-SET,ProxyRevise,GLOBAL
   - RULE-SET,Application_CN,DIRECT
-  - RULE-SET,Direct,        DIRECT
-  - RULE-SET,Global,        GLOBAL
-  - RULE-SET,Global_Domain, GLOBAL
-  - RULE-SET,China,         DIRECT
-  - RULE-SET,China_Domain,  DIRECT
-  - RULE-SET,Hijacking_DNS, GLOBAL
-  - RULE-SET,ChinaIP,       DIRECT
-  - GEOIP,CN,               DIRECT
-  - MATCH,                  FINAL
+  - RULE-SET,Direct,DIRECT
+  - RULE-SET,Global_Domain,GLOBAL
+  - RULE-SET,Global,GLOBAL
+  - RULE-SET,China_Domain,DIRECT
+  - RULE-SET,China,DIRECT
+  - RULE-SET,Hijacking_DNS,GLOBAL
+  - RULE-SET,ChinaIP,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,FINAL
