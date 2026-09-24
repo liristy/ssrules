@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-21",
+  "date": "2026-09-23",
   "profile": "splash-youtube-weather",
   "counts": {
     "plugins": 26,
@@ -13,7 +13,7 @@
   },
   "source_counts": {
     "plugins": 26,
-    "rules": 477,
+    "rules": 481,
     "providers": 11,
     "force-http-engine": 1,
     "mitm": 128,
@@ -99,181 +99,181 @@
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:110",
+      "source": "Block_HTTPDNS.lpx:116",
       "removed": "DOMAIN,httpdns.cctv.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:112",
+      "source": "Block_HTTPDNS.lpx:118",
       "removed": "DOMAIN,httpdns-browser.platform.dbankcloud.cn,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:113",
+      "source": "Block_HTTPDNS.lpx:119",
       "removed": "DOMAIN,httpdns.huaweicloud.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:114",
+      "source": "Block_HTTPDNS.lpx:120",
       "removed": "DOMAIN,httpdns.c.cdnhwc2.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:115",
+      "source": "Block_HTTPDNS.lpx:121",
       "removed": "DOMAIN,httpdns.platform.dbankcloud.cn,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:116",
+      "source": "Block_HTTPDNS.lpx:122",
       "removed": "DOMAIN,httpdns.platform.dbankcloud.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:117",
+      "source": "Block_HTTPDNS.lpx:123",
       "removed": "DOMAIN,httpdns1.cc.cdnhwc5.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:121",
+      "source": "Block_HTTPDNS.lpx:127",
       "removed": "DOMAIN,httpdns.baidu.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:122",
+      "source": "Block_HTTPDNS.lpx:128",
       "removed": "DOMAIN,httpsdns.baidu.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpsdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:123",
+      "source": "Block_HTTPDNS.lpx:129",
       "removed": "DOMAIN,httpdns.bcelive.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:124",
+      "source": "Block_HTTPDNS.lpx:130",
       "removed": "DOMAIN,httpdns.baidubce.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:128",
+      "source": "Block_HTTPDNS.lpx:134",
       "removed": "DOMAIN,httpdns.n.shifen.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:133",
+      "source": "Block_HTTPDNS.lpx:139",
       "removed": "DOMAIN,httpdns.ocloud.heytapmobi.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:134",
+      "source": "Block_HTTPDNS.lpx:140",
       "removed": "DOMAIN,httpdns.push.heytapmobi.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:148",
+      "source": "Block_HTTPDNS.lpx:154",
       "removed": "DOMAIN,httpdns.push.oppomobile.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:149",
+      "source": "Block_HTTPDNS.lpx:155",
       "removed": "DOMAIN,httpdns.ocloud.oppomobile.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:153",
+      "source": "Block_HTTPDNS.lpx:159",
       "removed": "DOMAIN,kuaishou.httpdns.pro,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:154",
+      "source": "Block_HTTPDNS.lpx:160",
       "removed": "DOMAIN,httpdns.kwd.inkuai.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:158",
+      "source": "Block_HTTPDNS.lpx:164",
       "removed": "DOMAIN,httpdns.meituan.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:159",
+      "source": "Block_HTTPDNS.lpx:165",
       "removed": "DOMAIN,httpdnsmultiapi.meituan.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:160",
+      "source": "Block_HTTPDNS.lpx:166",
       "removed": "DOMAIN,httpdnsmultiapivip.meituan.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:163",
+      "source": "Block_HTTPDNS.lpx:169",
       "removed": "DOMAIN,httpdns.music.163.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:164",
+      "source": "Block_HTTPDNS.lpx:170",
       "removed": "DOMAIN,httpdns.n.netease.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:165",
+      "source": "Block_HTTPDNS.lpx:171",
       "removed": "DOMAIN,httpdns-sdk.n.netease.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:166",
+      "source": "Block_HTTPDNS.lpx:172",
       "removed": "DOMAIN,httpdns.yunxindns.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:167",
+      "source": "Block_HTTPDNS.lpx:173",
       "removed": "DOMAIN,lofter.httpdns.c.163.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:168",
+      "source": "Block_HTTPDNS.lpx:174",
       "removed": "DOMAIN,music.httpdns.c.163.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:175",
+      "source": "Block_HTTPDNS.lpx:181",
       "removed": "DOMAIN,httpdns.zybang.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:177",
+      "source": "Block_HTTPDNS.lpx:183",
       "removed": "DOMAIN,httpdns.calorietech.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
     },
     {
-      "source": "Block_HTTPDNS.lpx:205",
+      "source": "Block_HTTPDNS.lpx:211",
       "removed": "DOMAIN,httpdns.immomo.com,REJECT",
       "retained": "DOMAIN-KEYWORD,httpdns,REJECT",
       "reason": "匹配范围已被前面的域名规则完全覆盖"
@@ -301,12 +301,12 @@
     {
       "file": "Block_HTTPDNS.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Block_HTTPDNS.lpx",
-      "sha256": "7a5d20ce59992eed1c17733f223964daf9879a69fe59cfad70e473a9d90f39f8"
+      "sha256": "9188792b75211e21e31b6767440723b7109bf4dd513a95ad886b2f6ec4ed6685"
     },
     {
       "file": "BlockAdvertisers.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/BlockAdvertisers.lpx",
-      "sha256": "9db00868b972339f587c1ffb92f144888528338e382522104eb398703746d947"
+      "sha256": "7b220be28c0cd88bc6feac313c6d64416e2a4ed76c63047a86ad14e3f53aaa3c"
     },
     {
       "file": "12306_remove_ads.lpx",
