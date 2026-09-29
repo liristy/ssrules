@@ -3,7 +3,7 @@
 # HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
 desc: 开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。
-date: '2026-09-23'
+date: '2026-09-29'
 rules:
 - DOMAIN-KEYWORD,httpdns,REJECT
 - DOMAIN-KEYWORD,httpsdns,REJECT
@@ -58,6 +58,10 @@ rules:
 - IP-CIDR,203.107.1.0/24,REJECT,no-resolve
 - DOMAIN,amdc.alipay.com,REJECT
 - DOMAIN,ucdc.upaas.quark.cn,REJECT
+- DOMAIN,xpis-xcdn.youku.com,REJECT
+- DOMAIN,pre-xpis-xcdn.youku.com,REJECT
+- DOMAIN,xpis-tel-xcdn.youku.com,REJECT
+- DOMAIN,xpis-mob-xcdn.youku.com,REJECT
 - DOMAIN,doh.ptqy.gitv.tv,REJECT
 - DOMAIN,dns.iqiyi.com,REJECT
 - DOMAIN,doh.iqiyi.com,REJECT
@@ -275,6 +279,7 @@ rules:
 - DOMAIN,opehs.tanx.com,REJECT
 - DOMAIN,beacon-api.aliyuncs.com,REJECT
 - DOMAIN,adash.man.aliyuncs.com,REJECT
+- DOMAIN,adashx.m.taobao.com,REJECT
 - DOMAIN,applog.uc.cn,REJECT
 - DOMAIN,atoken.m.taobao.com,REJECT
 - AND,((DOMAIN-KEYWORD,adash),(DOMAIN-SUFFIX,ut.taobao.com)),REJECT
@@ -454,7 +459,6 @@ rules:
 - IP-CIDR,122.229.8.47/32,REJECT,no-resolve
 - IP-CIDR,122.229.29.89/32,REJECT,no-resolve
 - DOMAIN,open-pixon.ads-pixiv.net,REJECT
-- DOMAIN,adashx.m.taobao.com,REJECT
 - DOMAIN,h-adashx.ut.taobao.com,REJECT
 - DOMAIN,ut.taobao.com,REJECT
 - DOMAIN-SUFFIX,uve.weibo.com,DIRECT
