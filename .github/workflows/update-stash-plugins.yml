@@ -1,6 +1,15 @@
 name: Update Stash plugins
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/update-stash-plugins.yml'
+      - 'stash-plugins/*.py'
+      - 'stash-plugins/*.mjs'
+      - 'stash-plugins/focus-policy.json'
+      - 'stash-plugins/extra-plugins.json'
+      - 'stash-plugins/requirements.txt'
   schedule:
     # UTC 00:23 = 北京时间每天 08:23
     - cron: '23 0 * * *'

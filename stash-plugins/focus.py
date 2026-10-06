@@ -15,6 +15,7 @@ def keep_entry(section, entry, source):
         return not any(token in entry for token in ('URL-REGEX,', 'USER-AGENT,', 'mallapi2.qinlinkeji.com', 'mall-dsp2.qinlinkeji.com'))
     kind = 'script' if section == 'script' else 'rewrite'
     pattern = entry['match'] if isinstance(entry, dict) else entry.split()[0]
+    pattern = pattern.removeprefix('(?i)')
     return pattern in POLICY.get(source, {}).get(kind, [])
 
 

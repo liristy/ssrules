@@ -31,6 +31,7 @@ def needs_http(rule):
 
 def literal_url_hosts(pattern):
     """Prove a finite host list for simple anchored URL patterns; otherwise abstain."""
+    pattern = pattern.removeprefix('(?i)')
     depth, in_class, escaped = 0, False, False
     for char in pattern:
         if escaped:
@@ -272,7 +273,7 @@ class Builder:
                 continue  # Source plugin disabled by the user's Loon config.
             for kind, patterns in expected.items():
                 keys = ('script',) if kind == 'script' else NATIVE_HTTP_SECTIONS
-                available = {row['match'] if isinstance(row, dict) else row.split()[0]
+                available = {(row['match'] if isinstance(row, dict) else row.split()[0]).removeprefix('(?i)')
                              for key in keys for row in entries.get(key, [])}
                 missing = set(patterns) - available
                 if missing:
@@ -432,6 +433,59 @@ class Builder:
             self.add('rules', line)
 
     def rewrite(self, line):
+        if line.startswith(('request if ', 'response if ')):
+            conditional = re.fullmatch(
+                r'(request|response) if \$\{url\} ~= /((?:\\.|[^/])*)/([a-z]*) then (.+)', line)
+            if not conditional:
+                raise ValueError(f'Ambiguous conditional rewrite at {self.source}:{self.line}: {line}')
+            kind, pattern, flags, action = conditional.groups()
+            selected_pattern = ZHIHU_SPLASH if self.source == 'Zhihu_remove_ads.lpx' and pattern == ZHIHU_COMMERCIAL else pattern
+            selected_kind = 'script' if action.startswith('script(') else 'rewrite'
+            selected = selected_pattern in POLICY.get(self.source, {}).get(selected_kind, [])
+            if flags not in ('', 'i'):
+                raise ValueError(f'Unsupported regex flags at {self.source}:{self.line}: {flags}')
+            target = ('(?i)' if flags == 'i' else '') + pattern
+            reject = re.fullmatch(r'(reject(?:_dict|_array|_img)?)[(](200|404)[)]', action)
+            redirect = re.fullmatch(r'redirect[(](302|307),\s*"([^"\s]+)"[)]', action)
+            script = re.fullmatch(r'script[(]"(https?://[^"\s]+)"(?:,\s*(\{.*\}))?[)](?: with (.+))?', action)
+            jq_action = re.fullmatch(r'(request|response)[.]json[.]jq[(]"(.*)"[)]', action)
+            mock = re.fullmatch(r'response[.]body[.]mock[(]"json",\s*"(.*)"[)]', action)
+            if reject and kind == 'request':
+                name, status = reject.groups()
+                if name != 'reject' and status != '200':
+                    raise ValueError('Unsupported reject status: ' + line)
+                name = name.replace('_', '-')
+                if name == 'reject' and status == '200':
+                    name = 'reject-200'
+                return self.rewrite(target + ' ' + name)
+            if redirect and kind == 'request':
+                return self.rewrite(target + ' ' + redirect[1] + ' ' + redirect[2])
+            if script:
+                url, argument, options = script.groups()
+                options = (options or '').replace('requires_body=', 'requires-body=').replace('binary_body_mode=', 'binary-body-mode=').replace('max_size=', 'max-size=')
+                options = re.sub(r'\$\{([^}]+)\}', r'{\1}', options)
+                legacy = f'http-{kind} {target} script-path={url}'
+                if options:
+                    legacy += ', ' + options
+                if argument:
+                    names = re.findall(r'\$\{([^}]+)\}', argument)
+                    if not names:
+                        raise ValueError('Unsupported script argument: ' + line)
+                    legacy += ', argument="' + '&'.join('{' + name + '}' for name in names) + '"'
+                return self.script(legacy)
+            if jq_action and jq_action[1] == kind:
+                expression = jq_action[2].replace(r'\"', '"')
+                return self.rewrite(target + f' {kind}-body-json-jq ' + expression)
+            if mock and kind == 'response':
+                body = mock[1].replace(r'\"', '"')
+                json.loads(body)
+                self.add('mock', {'match': target, 'status-code': 200, 'text': body,
+                                  'headers': {'Content-Type': 'application/json'}})
+                return
+            if not selected:
+                self.note('跳过未纳入发布范围的上游条件重写：' + pattern)
+                return
+            raise ValueError(f'Unsupported selected conditional rewrite at {self.source}:{self.line}: {line}')
         if r'res\.kfc\.com.\cn' in line:
             line = line.replace(r'res\.kfc\.com.\cn', r'res\.kfc\.com\.cn')
             self.note('修复肯德基域名正则中的无效 \\c 转义。')
@@ -441,8 +495,8 @@ class Builder:
                 line += ', requires-body=true'
             return self.script(line)
         pattern, action, *tail = line.split(maxsplit=2)
-        if self.source == 'Zhihu_remove_ads.lpx' and pattern == ZHIHU_COMMERCIAL:
-            pattern = ZHIHU_SPLASH
+        if self.source == 'Zhihu_remove_ads.lpx' and pattern.removeprefix('(?i)') == ZHIHU_COMMERCIAL:
+            pattern = ('(?i)' if pattern.startswith('(?i)') else '') + ZHIHU_SPLASH
             self.note('知乎商业接口仅保留 launch_v2 / real_time_launch_v2 开屏拦截。')
         rest = tail[0] if tail else ''
         if action == '-':
@@ -492,7 +546,10 @@ class Builder:
                 entry['headers'] = {'Content-Type': 'application/json' if 'data-type=json' in rest else 'text/plain; charset=utf-8'}
             self.add('mock', entry)
         else:
-            raise ValueError('Unrecognized rewrite: ' + line)
+            if not keep_entry('url-rewrite', pattern, self.source):
+                self.note('跳过未纳入发布范围的未知上游重写：' + line)
+                return
+            raise ValueError(f'Unrecognized selected rewrite at {self.source}:{self.line}: {line}')
 
     def build(self):
         self.source = 'user:QUIC'

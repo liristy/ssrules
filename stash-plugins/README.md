@@ -69,7 +69,7 @@ YouTube 的可选字幕翻译设为 `off`，隐藏按钮选项保持关闭。复
 
 `focus-policy.json` 保存经过审核的开屏、YouTube 和天气 HTTP 接口清单（含上述六项例外）。每日构建更新这些接口的上游处理内容，新出现的其他应用内优化不会自动加入。接口或脚本结构发生不兼容变化时，构建失败并保留上次成功版本，等待调整清单或提取器。
 
-`focus.py` 负责接口筛选和开屏 JS 分支提取。未发布的完整源数据仅用于转换校验，仍保存在 `sources/`、`scripts/`；`validation-input.json` 被 Git 忽略，不是导入文件。`report.json` 的 `source_counts` 是全部源数据数量，`counts` 才是实际主文件数量。
+`focus.py` 负责接口筛选和开屏 JS 分支提取。构建兼容传统语法及 Loon 的 `request/response if ${url} ~= /…/i then …` 条件语法，保留大小写标志、拒绝响应状态、跳转目标、脚本参数与二进制正文选项；下载器同时识别 `script-path=` 和 `script("URL")` 依赖。未支持的重写先核对接口清单：明确未纳入发布范围的条目跳过并记录在 `report.json`，已选接口或无法识别匹配范围的条件重写仍报错，避免静默丢失已启用功能。支持转换的源数据用于转换校验，原始快照仍保存在 `sources/`、`scripts/`；`validation-input.json` 被 Git 忽略，不是导入文件。`report.json` 的 `source_counts` 是参与转换的源数据数量，`counts` 才是实际主文件数量。
 
 构建会检查筛选范围、引用、去重、QUIC、MITM 排除项、脚本大小限制与天气保留，并执行微博 SDK 的特殊 OK 尾缀、微博预加载/缓存、高德、小红书和淘宝开屏处理样例，以及 B 站开屏 jq、盒马页面处理和选定条目下载样例。
 

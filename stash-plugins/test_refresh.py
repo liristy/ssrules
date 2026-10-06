@@ -58,6 +58,16 @@ class RefreshTests(unittest.TestCase):
             self.run_refresh()
         self.assertEqual(self.snapshot(), previous)
 
+    def test_conditional_script_dependency_is_downloaded(self):
+        self.resources['https://test.invalid/demo.lpx'] = (
+            '[Script]\nresponse if ${url} ~= /^https:\\/\\/example.com\\//i then '
+            'script("https://test.invalid/app.js", {${enabled}}) with requires_body=true\n'
+        ).encode()
+        self.run_refresh()
+        manifest = json.loads((self.root / 'dependencies.json').read_text())
+        self.assertEqual((self.root / manifest['https://test.invalid/app.js']['file']).read_bytes(),
+                         self.resources['https://test.invalid/app.js'])
+
     def test_unchanged_refresh_preserves_date_and_files(self):
         self.run_refresh()
         path = self.root / 'refresh.json'

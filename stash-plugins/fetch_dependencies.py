@@ -168,7 +168,8 @@ def refresh_resources(*, root=ROOT, refresh=False):
         for line in text.splitlines():
             if not line.strip() or line.lstrip().startswith(('#', ';', '//')):
                 continue
-            for url in re.findall(r'script-path\s*=\s*(https?://[^,\s]+)', line):
+            for url in (re.findall(r'script-path\s*=\s*(https?://[^,\s]+)', line)
+                        + re.findall(r'\bscript\("(https?://[^"\s]+)"', line)):
                 name = sha256(url.encode()).hexdigest()[:12] + '-' + Path(urllib.parse.urlparse(url).path).name
                 relative = 'scripts/' + name
                 jobs[relative] = url

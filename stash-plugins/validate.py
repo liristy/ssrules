@@ -42,7 +42,7 @@ assert not {'*.amap.com', '*.weibo.cn', '*.weibo.com'} & set(core['http']['mitm'
 assert {'m5.amap.com', 'sdkapp.uve.weibo.com'} <= set(core['http']['mitm'])
 assert not {'info.amap.com', 'api.weibo.cn', 'mobile.12306.cn', 'rec.xiaohongshu.com'} & set(core['http']['mitm'])
 assert 'api.zhihu.com' in core['http']['mitm']
-assert ZHIHU_SPLASH + ' - reject-dict' in core['http']['url-rewrite']
+assert any(row.removeprefix('(?i)') == ZHIHU_SPLASH + ' - reject-dict' for row in core['http']['url-rewrite'])
 for suffix in ['launch_v2', 'launch_v2?screen=1', 'real_time_launch_v2?screen=1', 'launch_v2/']:
     assert re.search(ZHIHU_SPLASH, 'https://api.zhihu.com/commercial_api/' + suffix)
 for suffix in ['app_float_layer', 'banners_v3/app_topstory_banner', 'answer/123/bottom-v2', 'launch_v2_extra']:
@@ -73,7 +73,9 @@ assert not set(LEGACY_QUIC_RULES) & set(core['rules'])
 assert not any('QUIC' in rule for rule in core['rules'])
 # Dingdong uses native splash interception; do not import shopping/feed cleanup.
 dingdong = [row for row in core['http']['url-rewrite'] if 'ddxq' in row]
-assert dingdong == [r'^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/ - reject']
+assert len(dingdong) == 1
+assert dingdong[0].split()[0].removeprefix('(?i)') == r'^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/'
+assert dingdong[0].split()[1:] in [['-', 'reject'], ['-', 'reject-200']]
 assert 'maicai.api.ddxq.mobi' in core['http']['mitm']
 assert 'user.api.ddxq.mobi' not in core['http']['mitm']
 for scheme in ['http', 'https']:

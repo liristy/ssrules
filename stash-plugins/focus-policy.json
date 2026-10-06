@@ -53,7 +53,7 @@
         "^https:\\/\\/client\\.app\\.coc\\.10086\\.cn\\/biz-orange\\/DN\\/init\\/startInit$",
         "^https:\\/\\/cdke\\.youdao\\.com\\/course3\\/recommend\\/dict\\/startup",
         "^https:\\/\\/qiye\\.gaoding\\.com\\/api\\/v3\\/oc\\/v2\\/delivery-pits\\/ios-splash\\/",
-        "^https:\\/\\/api\\.zcool\\.com\\.cn\\/v\\d\\.\\d\\.\\d/common\\/open-screen",
+        "^https:\\/\\/api\\.zcool\\.com\\.cn\\/v\\d\\.\\d\\.\\d\\/common\\/open-screen",
         "^https:\\/\\/client-api-v2\\.oray\\.com\\/materials\\/SLCC_IOS_STARTUP",
         "^https:\\/\\/app\\.10099\\.com\\.cn\\/contact-web\\/api\\/version\\/getFlashScreenPage",
         "^https:\\/\\/api\\.xiangji\\.qq\\.com\\/splash$",
