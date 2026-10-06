@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-29",
+  "date": "2026-10-06",
   "profile": "splash-youtube-weather",
   "counts": {
     "plugins": 26,
@@ -19,7 +19,7 @@
     "mitm": 128,
     "url-rewrite": 221,
     "header-rewrite": 0,
-    "body-rewrite": 74,
+    "body-rewrite": 42,
     "mock": 1,
     "script": 60
   },
@@ -301,102 +301,102 @@
     {
       "file": "Block_HTTPDNS.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Block_HTTPDNS.lpx",
-      "sha256": "70327ba1e680f50d05fa3db152476ac7c6923ff34ac33177599cf1e21992191c"
+      "sha256": "1565be1f81faba0918f717a7ffe06340ac85db7e850a8059d636dec03c696a3a"
     },
     {
       "file": "BlockAdvertisers.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/BlockAdvertisers.lpx",
-      "sha256": "549748a3003c27de7af371d479f398df465dae695a7d1f9093251171ea1becb3"
+      "sha256": "2947d7df2ceb8addb9b06d7651465f8166d61ebd02ce1d889d562c62739266c4"
     },
     {
       "file": "12306_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/12306_remove_ads.lpx",
-      "sha256": "0963b641ca9229a8916c8be867a07cb334c894398bda1932bf3c2dc80c4416e7"
+      "sha256": "ffefab9b5c8108fa5080bd1fc66a9ccde6ed13ff22dc47d828988055e13bae9d"
     },
     {
       "file": "AppleWeatherEnhancer.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/AppleWeatherEnhancer.lpx",
-      "sha256": "95db407bdcc82da169d402760c8b2aa96352ca6911ba9d822c9ded0ec5e2646c"
+      "sha256": "a3562774f771d5762f048f8f193da83900a7eb752991393f6ba44b8d103d8fd9"
     },
     {
       "file": "Google.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Google.lpx",
-      "sha256": "100b82b0d62397fa3c197a83f36aefa53314081df0d793c46f4195c26f4bf01f"
+      "sha256": "e61f5138fa70598b139e60efffd74230f36710b36190e257a1d2b38bb3ec430b"
     },
     {
       "file": "YouTube_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/YouTube_remove_ads.lpx",
-      "sha256": "83485d8aeba184a1377e39c3866d7ea156d7aaf267ffcb3ab0c474ae4f757b9d"
+      "sha256": "0e5da80d8d79d58d854f33383053d76355e30cb0507cf89bc53330249ae1da7f"
     },
     {
       "file": "BaiduNetDisk_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/BaiduNetDisk_remove_ads.lpx",
-      "sha256": "da064a037fd4d05d50379829cb4914b19f6becf38cd142cc8ca8a2232c330cac"
+      "sha256": "c6e05423a0af766ea41e735949091eb8d42695efc77d7c22cc6f7f3fe7bca42c"
     },
     {
       "file": "Cainiao_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Cainiao_remove_ads.lpx",
-      "sha256": "a43b1ed6e372625af72818ebcc2f4f913c759544a984c2eac5647ab0d7601245"
+      "sha256": "43df4ff17af92aae48952d6898f86e66e80348cb603cdad095d5fc98f6ab4bd8"
     },
     {
       "file": "DiDi_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/DiDi_remove_ads.lpx",
-      "sha256": "1184e4c2a0f55e98411ca25812fc22407ee455e4cdcf295a7d9b23eb8199ca0f"
+      "sha256": "bc7385fe302ae697a08c3dbf345079548917b7f2e6cc2454431417a7a601b970"
     },
     {
       "file": "DingdongMaicai_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/DingdongMaicai_remove_ads.lpx",
-      "sha256": "691424af7e4591496d11501b8d87bbd472acd23d9ebd28c3087dc03829d388eb"
+      "sha256": "5622a7467a07224e9f9e7baf6b7e069405447e81debc09d4431ef3e48b80c711"
     },
     {
       "file": "FC_Box_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/FC_Box_remove_ads.lpx",
-      "sha256": "4cd96d522d1a1664290aaf34b6ebd0737852d8c433f97b6b93d2398e4d5de8e0"
+      "sha256": "cc2b383618290c77eb10b6d876100daf3179ce44489d997b600c4c7fe41c89b3"
     },
     {
       "file": "Amap_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Amap_remove_ads.lpx",
-      "sha256": "91c56d5230b2aeb8c1f48cd273d801372edeacadc0755a4559d0e224d56d05da"
+      "sha256": "36b1d2156c6d36511e324ac328a865f89695e5d93e959c7bca2d547b25578ef3"
     },
     {
       "file": "HUPU_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/HUPU_remove_ads.lpx",
-      "sha256": "ae13c4513bd252a8552c0eece61f9eb986f5917846fa2134e75d96a672d360d1"
+      "sha256": "b794ccc0a54393318941eaac22ac80826d7d4d631e1df363d7dd1ea9d484c361"
     },
     {
       "file": "Remove_ads_by_keli.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Remove_ads_by_keli.lpx",
-      "sha256": "a1e77054081ee0e575bf87570d0c602999112ecb741096ae4a93e80ab5c201e9"
+      "sha256": "3f79243904d9718c9ec760442b2a669c4bdfea65770e3e33f6aa3f293524b801"
     },
     {
       "file": "Taobao_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Taobao_remove_ads.lpx",
-      "sha256": "e90304a9a45d9450c5a9a3e6f39b9e0e5a0585c489ebb0003f84b830c8467605"
+      "sha256": "23f29f4b051c237b802a5b22a4fd9f7e7eb713a559e5f81ca94d8d6b6f4554cc"
     },
     {
       "file": "Weibo_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Weibo_remove_ads.lpx",
-      "sha256": "e006118602d67562547453facd5840342dbbbd5fbde83d0a1448934ecfb72ffb"
+      "sha256": "2d48b4f03df6341dedf6a44c1ba71953c9140e533a50dd43005100b51d7cc425"
     },
     {
       "file": "FleaMarket_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/FleaMarket_remove_ads.lpx",
-      "sha256": "57ad7d221b2c6887f7e9d46f9a29aba6ed8bb161adf4de827678cadaa8286435"
+      "sha256": "b8e2c9b5df750c060895472ca9b8308e1a84e4ed2b22ae0af18b97dbb2cd51c2"
     },
     {
       "file": "RedPaper_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/RedPaper_remove_ads.lpx",
-      "sha256": "54f8cbdb77c5064e3c93c4bbc7cd525ce42fceb055b41a5ea41727477b70d1da"
+      "sha256": "b782ea4f811702a80f853eae8bd3a3f7a33c8a3af833f5c54fba3d75a524f646"
     },
     {
       "file": "VideoGo_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/VideoGo_remove_ads.lpx",
-      "sha256": "0795faae1f56da5392d4c248ec237b1a8fd03b2a5a63edf35259797613836474"
+      "sha256": "a626fc8bf52a7acf8397b54c7892d6c224f3ca307b31ab885102019d27f89761"
     },
     {
       "file": "Zhihu_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Zhihu_remove_ads.lpx",
-      "sha256": "599012359f60f539be8fda94abad69e4991739838fbf63243ca35206a04083fe"
+      "sha256": "4f716d735fbb3a9edef05112eec6a6901b798d1aa2ad64dc0f64fb4819549e4a"
     },
     {
       "file": "Bilibili_splash.lpx",
@@ -431,9 +431,459 @@
   ],
   "adjustments": [
     {
+      "source": "12306_remove_ads.lpx",
+      "line": 17,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/ad\\.12306\\.cn\\/ad\\/ser\\/getAdList$"
+    },
+    {
+      "source": "12306_remove_ads.lpx",
+      "line": 21,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "AppleWeatherEnhancer.lpx",
+      "line": 31,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "AppleWeatherEnhancer.lpx",
+      "line": 33,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "YouTube_remove_ads.lpx",
+      "line": 21,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "YouTube_remove_ads.lpx",
+      "line": 23,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "YouTube_remove_ads.lpx",
+      "line": 25,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 22,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/conf\\.diditaxi\\.com\\.cn\\/homepage\\/v\\d\\/other\\/slow\\?"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 26,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/conf\\.diditaxi\\.com\\.cn\\/homepage\\/v\\d\\/other\\/fast\\?"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 33,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/conf\\.diditaxi\\.com\\.cn\\/homepage\\/v\\d\\/other\\/fast\\?"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 35,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.udache\\.com\\/gulfstream\\/porsche\\/v\\d\\/dache_homepage_layout\\?"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 61,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/htwkop\\.xiaojukeji\\.com(:443)?\\/gateway\\?api=hm\\.fa\\.querySellCardSummary"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 63,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/htwkop\\.xiaojukeji\\.com(:443)?\\/gateway\\?api=hm\\.fa\\.queryWelfareCenter"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 67,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/poi\\.map\\.xiaojukeji\\.com\\/mapapi\\/startinfo\\?api_version"
+    },
+    {
+      "source": "DiDi_remove_ads.lpx",
+      "line": 68,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/poi\\.map\\.xiaojukeji\\.com\\/mapapi\\/poiinfo\\?product_id"
+    },
+    {
+      "source": "DingdongMaicai_remove_ads.lpx",
+      "line": 41,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/homeApi\\/categoriesNewDetail\\?"
+    },
+    {
+      "source": "DingdongMaicai_remove_ads.lpx",
+      "line": 43,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/tool\\/getConfig\\?"
+    },
+    {
+      "source": "DingdongMaicai_remove_ads.lpx",
+      "line": 47,
+      "message": "跳过未纳入发布范围的上游条件重写：^https?:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/homeApi\\/newDetails\\?"
+    },
+    {
+      "source": "DingdongMaicai_remove_ads.lpx",
+      "line": 51,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/guide-service\\/productApi\\/productDetail\\/info\\?"
+    },
+    {
+      "source": "FC_Box_remove_ads.lpx",
+      "line": 25,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/consumer\\.fcbox\\.com\\/v1\\/dynamicConfig\\/findTabbarConfig\\/mainPage$"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 22,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/m5\\.amap\\.com\\/ws\\/shield\\/search_business\\/process\\/marketingOperationStructured\\?"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 23,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/m5\\.amap\\.com\\/ws\\/shield\\/search_poi\\/homepage\\?"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 37,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/m5-zb\\.amap\\.com\\/ws\\/sharedtrip\\/taxi\\/order_detail_car_tips\\?"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 40,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 41,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 42,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 43,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 44,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 45,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 46,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 47,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 48,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 49,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 50,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 51,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 52,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 53,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "HUPU_remove_ads.lpx",
+      "line": 24,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "HUPU_remove_ads.lpx",
+      "line": 25,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "HUPU_remove_ads.lpx",
+      "line": 26,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "HUPU_remove_ads.lpx",
+      "line": 27,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Remove_ads_by_keli.lpx",
+      "line": 163,
+      "message": "跳过未纳入发布范围的上游条件重写：^https?:\\/\\/cmds\\.omesoft\\.com\\/HypnotistWS\\.asmx"
+    },
+    {
+      "source": "Taobao_remove_ads.lpx",
+      "line": 35,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Taobao_remove_ads.lpx",
+      "line": 37,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 45,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 47,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 49,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 51,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 53,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 55,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 57,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 59,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 61,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 63,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 65,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 67,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 69,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 71,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 73,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 75,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 77,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 79,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 81,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Weibo_remove_ads.lpx",
+      "line": 83,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "FleaMarket_remove_ads.lpx",
+      "line": 48,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/acs\\.m\\.goofish\\.com\\/gw\\/mtop\\.taobao\\.idlehome\\.magic\\.home\\.page\\.list\\/"
+    },
+    {
+      "source": "FleaMarket_remove_ads.lpx",
+      "line": 52,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/g-acs\\.m\\.goofish\\.com\\/gw\\/mtop\\.taobao\\.idlemtopsearch\\.search\\/"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 25,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v1\\/search\\/banner_list$"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 26,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v1\\/search\\/hot_list$"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 27,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v4\\/search\\/hint"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 28,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v4\\/search\\/trending\\?"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 31,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 33,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 35,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 37,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 39,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 41,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 43,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 45,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 47,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 49,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 51,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "RedPaper_remove_ads.lpx",
+      "line": 53,
+      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
       "source": "Zhihu_remove_ads.lpx",
       "line": 18,
       "message": "知乎商业接口仅保留 launch_v2 / real_time_launch_v2 开屏拦截。"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 26,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/questions\\/\\d+\\/feeds\\?"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 30,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/comment_v\\d\\/(answers|pins)\\/\\d+\\/root_comment\\?"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 32,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/(api|page-info)(?:\\.zhihu)?\\.com\\/answers\\/v\\d\\/\\d+(?:\\?.*)?$"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 37,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/(articles|answers|pins)\\/v\\d\\/\\d+\\?"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 39,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/comment_v\\d\\/answers\\/\\d+\\/list-headers$"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 45,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/podcasts\\/hub\\/v\\d$"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 52,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/search_v\\d\\?"
+    },
+    {
+      "source": "Zhihu_remove_ads.lpx",
+      "line": 68,
+      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/people\\/self$"
     },
     {
       "source": "DingdongMaicai_remove_ads.lpx",

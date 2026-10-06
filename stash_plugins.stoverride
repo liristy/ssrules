@@ -3,7 +3,7 @@
 # HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
 desc: 开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。
-date: '2026-09-29'
+date: '2026-10-06'
 rules:
 - DOMAIN-KEYWORD,httpdns,REJECT
 - DOMAIN-KEYWORD,httpsdns,REJECT
@@ -510,31 +510,31 @@ http:
   - ma-adx.ctrip.com
   - res.kfc.com.cn
   url-rewrite:
-  - ^https?:\/\/(www.)?(g|google)\.cn https://www.google.com 307
-  - ^https?:\/\/(ditu|maps).google\.cn https://maps.google.com 307
-  - ^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/ - reject
-  - ^https:\/\/dsp\.fcbox\.com\/adSearch\/ - reject-dict
-  - ^https?:\/\/api\.m\.mi\.com\/v\d\/app\/start - reject-200
-  - ^https?:\/\/api\.jr\.mi\.com\/jr\/api\/playScreen - reject-200
-  - ^https:\/\/api-mifit-cn2\.huami\.com\/discovery\/mi\/cards\/startpage_ad - reject
-  - ^https:\/\/api\.(pinduoduo|yangkeduo)\.com\/api\/cappuccino\/splash - reject
-  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.taobao\.idle\.home\.welcome - reject
-  - ^https:\/\/client\.app\.coc\.10086\.cn\/biz-orange\/DN\/init\/startInit$ - reject
-  - ^https:\/\/cdke\.youdao\.com\/course3\/recommend\/dict\/startup - reject-dict
-  - ^https:\/\/qiye\.gaoding\.com\/api\/v3\/oc\/v2\/delivery-pits\/ios-splash\/ - reject-dict
-  - ^https:\/\/api\.zcool\.com\.cn\/v\d\.\d\.\d/common\/open-screen - reject-dict
-  - ^https:\/\/client-api-v2\.oray\.com\/materials\/SLCC_IOS_STARTUP - reject-dict
-  - ^https:\/\/app\.10099\.com\.cn\/contact-web\/api\/version\/getFlashScreenPage - reject
-  - ^https:\/\/api\.xiangji\.qq\.com\/splash$ - reject-dict
-  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.film\.mtopadvertiseapi\.queryloadingbanner\/ - reject-dict
-  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.fliggy\.crm\.screen\.(allresource|predict) - reject-dict
-  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.alimusic\.common\.mobileservice\.startinit - reject-dict
-  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.etao\.noah\.query\/.+tao_splash - reject-dict
-  - ^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.taobao\.idle\.home\.welcome - reject-dict
-  - ^https:\/\/bootrealtime\.uve\.weibo\.com\/v[23]\/ad\/realtime - reject-dict
-  - ^https:\/\/acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlecommerce\.splash\.ads\/ - reject-dict
-  - ^https:\/\/api\.ys7\.com\/api\/ads - reject
-  - ^https:\/\/api\.zhihu\.com\/commercial_api\/(?:launch_v2|real_time_launch_v2)(?:\?|/|$) - reject-dict
+  - (?i)^https?:\/\/(www.)?(g|google)\.cn https://www.google.com 307
+  - (?i)^https?:\/\/(ditu|maps).google\.cn https://maps.google.com 307
+  - (?i)^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/ - reject
+  - (?i)^https:\/\/dsp\.fcbox\.com\/adSearch\/ - reject-dict
+  - (?i)^https?:\/\/api\.m\.mi\.com\/v\d\/app\/start - reject-200
+  - (?i)^https?:\/\/api\.jr\.mi\.com\/jr\/api\/playScreen - reject-200
+  - (?i)^https:\/\/api-mifit-cn2\.huami\.com\/discovery\/mi\/cards\/startpage_ad - reject
+  - (?i)^https:\/\/api\.(pinduoduo|yangkeduo)\.com\/api\/cappuccino\/splash - reject
+  - (?i)^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.taobao\.idle\.home\.welcome - reject
+  - (?i)^https:\/\/client\.app\.coc\.10086\.cn\/biz-orange\/DN\/init\/startInit$ - reject
+  - (?i)^https:\/\/cdke\.youdao\.com\/course3\/recommend\/dict\/startup - reject-dict
+  - (?i)^https:\/\/qiye\.gaoding\.com\/api\/v3\/oc\/v2\/delivery-pits\/ios-splash\/ - reject-dict
+  - (?i)^https:\/\/api\.zcool\.com\.cn\/v\d\.\d\.\d\/common\/open-screen - reject-dict
+  - (?i)^https:\/\/client-api-v2\.oray\.com\/materials\/SLCC_IOS_STARTUP - reject-dict
+  - (?i)^https:\/\/app\.10099\.com\.cn\/contact-web\/api\/version\/getFlashScreenPage - reject
+  - (?i)^https:\/\/api\.xiangji\.qq\.com\/splash$ - reject-dict
+  - (?i)^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.film\.mtopadvertiseapi\.queryloadingbanner\/ - reject-dict
+  - (?i)^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.fliggy\.crm\.screen\.(allresource|predict) - reject-dict
+  - (?i)^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.alimusic\.common\.mobileservice\.startinit - reject-dict
+  - (?i)^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.etao\.noah\.query\/.+tao_splash - reject-dict
+  - (?i)^https:\/\/acs\.m\.taobao\.com\/gw\/mtop\.taobao\.idle\.home\.welcome - reject-dict
+  - (?i)^https:\/\/bootrealtime\.uve\.weibo\.com\/v[23]\/ad\/realtime - reject-dict
+  - (?i)^https:\/\/acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlecommerce\.splash\.ads\/ - reject-dict
+  - (?i)^https:\/\/api\.ys7\.com\/api\/ads - reject
+  - (?i)^https:\/\/api\.zhihu\.com\/commercial_api\/(?:launch_v2|real_time_launch_v2)(?:\?|/|$) - reject-dict
   - ^https?:\/\/ap\.dongdianqiu\.com\/plat\/v4 - reject
   - ^https?:\/\/ma-adx\.ctrip\.com\/_ma\.gif - reject
   - ^https?:\/\/res\.kfc\.com\.cn\/CRM\/kfcad\/apphome5\/apphome - reject-200
@@ -543,21 +543,21 @@ http:
   - ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(list|show|event\/list2)\? response-jq .data |= with_entries(if .key | IN("show",
     "event_list") then .value = [] else . end)
   mock:
-  - match: ^https?:\/\/m\.client\.10010\.com\/mobileService\/customer\/accountListData\.htm
+  - match: (?i)^https?:\/\/m\.client\.10010\.com\/mobileService\/customer\/accountListData\.htm
     status-code: 200
     text: '{"imgIndex":"0","adv":{"startup_adv":{"advCntList":[],"buttonList":[]}},"respCode":"0000"}'
     headers:
       Content-Type: application/json
   script:
   - name: Apple天气增强 · 天气可用性响应
-    match: ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\/
+    match: (?i)^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\/
     type: response
     require-body: true
     argument: Weather.Provider=ColorfulClouds&NextHour.Provider=ColorfulClouds&AirQuality.Calculate.Algorithm=EU_EAQI&API.ColorfulClouds.Token=&API.QWeather.Host=devapi.qweather.com&API.QWeather.Token=&API.WAQI.Token=&Storage=Argument&LogLevel=WARN
     timeout: 10
     max-size: 262144
   - name: Apple天气增强 · 天气响应
-    match: ^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/
+    match: (?i)^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/
     type: response
     require-body: true
     binary-mode: true
@@ -565,7 +565,7 @@ http:
     timeout: 10
     max-size: 262144
   - name: YouTube去广告
-    match: ^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$
+    match: (?i)^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$
     type: response
     require-body: true
     binary-mode: true
@@ -573,7 +573,7 @@ http:
     timeout: 10
     max-size: 262144
   - name: YouTube · 请求初始化
-    match: ^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*
+    match: (?i)^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*
     type: request
     require-body: true
     binary-mode: true
@@ -581,7 +581,7 @@ http:
     timeout: 10
     max-size: 262144
   - name: YouTube · 请求日志事件
-    match: ^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event
+    match: (?i)^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event
     type: request
     require-body: true
     binary-mode: true
@@ -589,49 +589,49 @@ http:
     timeout: 10
     max-size: 262144
   - name: 高德地图 · 开屏广告
-    match: ^https:\/\/m5\.amap\.com\/ws\/valueadded\/alimama\/splash_screen\?
+    match: (?i)^https:\/\/m5\.amap\.com\/ws\/valueadded\/alimama\/splash_screen\?
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
   - name: 淘宝 · 开屏广告
-    match: ^https:\/\/guide-acs\.m\.taobao\.com\/gw\/mtop\.taobao\.(cloudvideo\.video\.query|wireless\.home\.splash\.awesome\.get)
+    match: (?i)^https:\/\/guide-acs\.m\.taobao\.com\/gw\/mtop\.taobao\.(cloudvideo\.video\.query|wireless\.home\.splash\.awesome\.get)
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
   - name: 淘宝 · 开屏广告
-    match: ^https:\/\/poplayer\.template\.alibaba\.com\/\w+\.json
+    match: (?i)^https:\/\/poplayer\.template\.alibaba\.com\/\w+\.json
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
   - name: 微博 · 开屏广告 preload
-    match: ^https:\/\/bootpreload\.uve\.weibo\.com\/v[12]\/ad\/preload
+    match: (?i)^https:\/\/bootpreload\.uve\.weibo\.com\/v[12]\/ad\/preload
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
   - name: 微博 · 开屏广告 sdkad
-    match: ^https:\/\/sdkapp\.uve\.weibo\.com\/interface\/sdk\/sdkad\.php
+    match: (?i)^https:\/\/sdkapp\.uve\.weibo\.com\/interface\/sdk\/sdkad\.php
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
   - name: 微博 · 开屏广告 wbapplua
-    match: ^https:\/\/wbapp\.uve\.weibo\.com\/(?:preload\/get_ad|wbapplua\/wbpullad\.lua)
+    match: (?i)^https:\/\/wbapp\.uve\.weibo\.com\/(?:preload\/get_ad|wbapplua\/wbpullad\.lua)
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
   - name: 小红书 · 开屏广告 config
-    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/system_service\/config\?
+    match: (?i)^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/system_service\/config\?
     type: response
     require-body: true
     timeout: 10
     max-size: 262144
   - name: 小红书 · 开屏广告 splash_config
-    match: ^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v2\/system_service\/splash_config
+    match: (?i)^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v2\/system_service\/splash_config
     type: response
     require-body: true
     timeout: 10
