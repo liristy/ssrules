@@ -1,26 +1,26 @@
 {
-  "date": "2026-10-06",
+  "date": "2026-10-07",
   "profile": "splash-youtube-weather",
   "counts": {
-    "plugins": 26,
+    "plugins": 27,
     "rules": 460,
     "providers": 14,
-    "mitm": 42,
-    "url-rewrite": 29,
+    "mitm": 44,
+    "url-rewrite": 30,
     "body-rewrite": 1,
-    "mock": 1,
+    "mock": 2,
     "script": 15
   },
   "source_counts": {
-    "plugins": 26,
+    "plugins": 27,
     "rules": 485,
     "providers": 11,
     "force-http-engine": 1,
-    "mitm": 128,
-    "url-rewrite": 221,
+    "mitm": 130,
+    "url-rewrite": 222,
     "header-rewrite": 0,
     "body-rewrite": 42,
-    "mock": 1,
+    "mock": 2,
     "script": 60
   },
   "addons": [],
@@ -400,8 +400,8 @@
     },
     {
       "file": "Bilibili_splash.lpx",
-      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
-      "sha256": "ff0333cd8ed70e6973588c36f9dc86617097715a21461a5f6f155f657e2d7ae2"
+      "url": "https://kelee.one/Tool/Loon/Lpx/Bilibili_remove_ads.lpx",
+      "sha256": "ae2259efdc19c00a418362cc9dcc2d9fa8b47b4cc205268b27e90e505ae4548c"
     },
     {
       "file": "Hema_remove_ads.lpx",
@@ -427,6 +427,11 @@
       "file": "KFC_splash.lpx",
       "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
       "sha256": "7c2cf730f7c67d0bf56eaebf54b07d3ba3da42e32d8c8b6a2ab07407907ec7e2"
+    },
+    {
+      "file": "Umetrip_splash.lpx",
+      "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+      "sha256": "b28c0da47869224cb13ceac6b38b12d63184685082cd90d32a3ed925958bc8b2"
     }
   ],
   "adjustments": [

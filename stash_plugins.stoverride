@@ -3,7 +3,7 @@
 # HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。
 name: 广告净化
 desc: 开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。
-date: '2026-10-06'
+date: '2026-10-07'
 rules:
 - DOMAIN-KEYWORD,httpdns,REJECT
 - DOMAIN-KEYWORD,httpsdns,REJECT
@@ -509,6 +509,8 @@ http:
   - ad.12306.cn
   - ma-adx.ctrip.com
   - res.kfc.com.cn
+  - discardrp.umetrip.com
+  - startup.umetrip.com
   url-rewrite:
   - (?i)^https?:\/\/(www.)?(g|google)\.cn https://www.google.com 307
   - (?i)^https?:\/\/(ditu|maps).google\.cn https://maps.google.com 307
@@ -539,15 +541,21 @@ http:
   - ^https?:\/\/ma-adx\.ctrip\.com\/_ma\.gif - reject
   - ^https?:\/\/res\.kfc\.com\.cn\/CRM\/kfcad\/apphome5\/apphome - reject-200
   - ^https?:\/\/res\.kfc\.com\.cn\/CRM\/kfcad\/apphome6\/\w+\.json\? - reject-dict
+  - ^https?:\/\/(?:discardrp|startup)\.umetrip\.com\/gateway\/api\/umetrip\/native(?:\?|$) - reject
   body-rewrite:
-  - ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(list|show|event\/list2)\? response-jq .data |= with_entries(if .key | IN("show",
-    "event_list") then .value = [] else . end)
+  - (?i)^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:show|event\/list2)(?:\?|$) response-jq .data |= with_entries(if
+    .key | IN("show", "event_list") then .value = [] else . end)
   mock:
   - match: (?i)^https?:\/\/m\.client\.10010\.com\/mobileService\/customer\/accountListData\.htm
     status-code: 200
     text: '{"imgIndex":"0","adv":{"startup_adv":{"advCntList":[],"buttonList":[]}},"respCode":"0000"}'
     headers:
       Content-Type: application/json
+  - match: (?i)^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|brand\/list)(?:\?|$)
+    status-code: 200
+    text: '{"code":0,"message":"OK","ttl":1,"data":{"max_time":0,"min_interval":31536000,"pull_interval":31536000,"keep_ids":[],"show":[],"list":[{}],"splash_request_id":""}}'
+    headers:
+      Content-Type: text/plain; charset=utf-8
   script:
   - name: Apple天气增强 · 天气可用性响应
     match: (?i)^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\/

@@ -1,0 +1,8 @@
+#!name=航旅纵横开屏去广告
+# Extracted from: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin
+#!author=奶思[https://github.com/fmz200]
+# Aggregate license (dependencies retain their own terms): https://github.com/fmz200/wool_scripts/blob/main/LICENSE
+[Rewrite]
+^http?:\/\/(discardrp|startup)\.umetrip\.com\/gateway\/api\/umetrip\/native reject
+[MitM]
+hostname=discardrp.umetrip.com, startup.umetrip.com
