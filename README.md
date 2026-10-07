@@ -12,6 +12,7 @@
 | --- | --- |
 | [loon_config.conf](loon_config.conf) | Loon 主配置：DNS、策略组、远程分流与插件引用；也是广告构建读取的插件启用入口 |
 | [mihomo_config.yaml](mihomo_config.yaml) | Mihomo 基础配置：DNS、TUN、策略组及规则集合 |
+| [mihomo_ai_process.yaml](mihomo_ai_process.yaml) | 可选的桌面 AI 进程分流片段：Claude UDP 123、Claude Code 和 Codex |
 | [stash_override.js](stash_override.js) | Sub-Store 文件脚本：将基础配置转换为 Stash 配置 |
 | [stash_plugins.js](stash_plugins.js) | Sub-Store 文件脚本：将广告净化配置合并到主配置 |
 | [stash_plugins.stoverride](stash_plugins.stoverride) | 自动生成的 Stash 广告覆写；可以直接导入 Stash，也可作为上述合并脚本的数据源 |
@@ -32,6 +33,8 @@
 Mihomo 的 Google 使用 blackmatrix7 规则集，TikTok 使用本仓库维护的 [TikTok.yaml](Rule/yaml/TikTok.yaml)，两者均可独立选择策略，默认使用 AUTO；策略组与匹配规则中，Google 位于 Apple 前，TikTok 位于 Emby 前。
 
 Mihomo 的 `OpenAI` 策略组同时承接 OpenAI、Grok、Gemini 和 Claude，规则来源为 blackmatrix7。Gemini、Claude 使用上游独立的 classical 集合；Grok 使用从上游 `Proxy_Domain.yaml` 提取的 [域名子集](Rule/yaml/Grok.yaml)，后续手动核对上游更新。Gemini 优先于通用 Google 分流；通过 `stash_override.js` 转换后也会保留这些分流。更新主配置后，在 `OpenAI` 策略组选择相应节点。
+
+[桌面 AI 进程分流片段](mihomo_ai_process.yaml)需手动合并：追加其中的 `Claude` 策略组（已有同名组时保留原组），将 `rules` 插入主配置的 `RULE-SET,OpenAI,OpenAI` 前，并保持 `find-process-mode: strict`。Claude 与 Claude Code 进入 `Claude`，默认由该组转交 `OpenAI`；Codex 直接进入 `OpenAI`。保留前置本地访问、直连例外和广告拦截规则，不整体替换主配置数组。该片段适用于运行客户端的本机，按日志中的实际进程名匹配；旧 Node.js 安装需按独立路径调整，不启用通用 `node.exe` 分流。
 
 上游 DouYin 与 TikTok 集合都包含 `snssdk.com`。本仓库 TikTok 集合移除该重叠项，并通过 `DirectRevise` 将该域及其子域（包括 `aweme.snssdk.com`、`is.snssdk.com`）设为直连；`isnssdk.com`、`tiktok.com` 等其他 TikTok 域名仍按原策略处理。
 

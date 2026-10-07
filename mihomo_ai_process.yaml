@@ -1,0 +1,31 @@
+# Mihomo 桌面 AI 进程分流配置片段；与 mihomo_config.yaml 合并使用。
+# 将 proxy-groups 追加到原策略组，将 rules 插入 RULE-SET,OpenAI,OpenAI 前。
+# 不要用本文件的数组整体覆盖主配置；同名 Claude 策略组已存在时保留原组。
+# 依赖主配置已有的 OpenAI 策略组；默认 Claude 与 Codex 共用其节点选择。
+find-process-mode: strict
+
+proxy-groups:
+  - name: Claude
+    type: select
+    proxies:
+      - OpenAI
+
+rules:
+  # Claude 桌面客户端的 UDP 123 流量，保留指定组合规则。
+  - AND,((PROCESS-NAME,Claude.exe),(NETWORK,UDP),(DST-PORT,123)),Claude
+
+  # Claude 桌面客户端及 Claude Code 原生可执行文件。
+  - PROCESS-NAME,Claude.exe,Claude
+  - PROCESS-NAME,Claude,Claude
+  - PROCESS-NAME,claude.exe,Claude
+  - PROCESS-NAME,claude,Claude
+
+  # Codex 桌面客户端及 CLI 原生可执行文件。
+  - PROCESS-NAME,Codex.exe,OpenAI
+  - PROCESS-NAME,Codex,OpenAI
+  - PROCESS-NAME,codex.exe,OpenAI
+  - PROCESS-NAME,codex,OpenAI
+
+# 进程分流需在运行这些客户端的本机生效，并以 Mihomo 日志识别到的进程名为准。
+# 如旧安装方式显示为 node.exe/node，请使用 PROCESS-PATH 精确匹配独立路径；
+# 本片段不匹配整个 Node.js 运行时，避免其他 Node 程序也被分流。
