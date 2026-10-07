@@ -1,0 +1,16 @@
+# 桌面 AI 客户端进程规则；由主配置统一分流到 OpenAI。
+# 适用于运行客户端的本机，按 Mihomo 日志识别到的实际进程名匹配。
+# 不匹配通用 node.exe / node；旧 Node.js 安装需按独立路径补充 PROCESS-PATH。
+payload:
+  # Claude 桌面客户端的 UDP 123 流量。
+  - AND,((PROCESS-NAME,Claude.exe),(NETWORK,UDP),(DST-PORT,123))
+  # Claude 桌面端与 Claude Code 原生进程。
+  - PROCESS-NAME,Claude.exe
+  - PROCESS-NAME,Claude
+  - PROCESS-NAME,claude.exe
+  - PROCESS-NAME,claude
+  # Codex 桌面端与 CLI 原生进程。
+  - PROCESS-NAME,Codex.exe
+  - PROCESS-NAME,Codex
+  - PROCESS-NAME,codex.exe
+  - PROCESS-NAME,codex

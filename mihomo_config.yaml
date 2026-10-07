@@ -296,6 +296,14 @@ rule-providers:
     url: >-
       https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml
     path: ./ruleset/Microsoft.yaml
+  AI_Process:
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/AI_Process.yaml
+    path: ./ruleset/AI_Process.yaml
   OpenAI:
     behavior: classical
     interval: 86400
@@ -475,6 +483,7 @@ rules:
   - RULE-SET,Game_Download,DIRECT
   - RULE-SET,Download,DIRECT
   - RULE-SET,PayPal,PayPal
+  - RULE-SET,AI_Process,OpenAI
   - RULE-SET,OpenAI,OpenAI
   - RULE-SET,Grok,OpenAI
   - RULE-SET,Gemini,OpenAI
