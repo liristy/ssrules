@@ -31,7 +31,7 @@
 
 Mihomo 的 Google 使用 blackmatrix7 规则集，TikTok 使用本仓库维护的 [TikTok.yaml](Rule/yaml/TikTok.yaml)，两者均可独立选择策略，默认使用 AUTO；策略组与匹配规则中，Google 位于 Apple 前，TikTok 位于 Emby 前。
 
-Mihomo 的 `OpenAI` 策略组同时承接 OpenAI、Grok、Gemini 和 Claude。新增服务采用 MetaCubeX 的 `xai`、`google-gemini`、`anthropic` 域名集合，Gemini 优先于通用 Google 分流；通过 `stash_override.js` 转换后也会保留这些分流。更新主配置后，在 `OpenAI` 策略组选择相应节点。
+Mihomo 的 `OpenAI` 策略组同时承接 OpenAI、Grok、Gemini 和 Claude，规则来源为 blackmatrix7。Gemini、Claude 使用上游独立的 classical 集合；Grok 使用从上游 `Proxy_Domain.yaml` 提取的 [域名子集](Rule/yaml/Grok.yaml)，后续手动核对上游更新。Gemini 优先于通用 Google 分流；通过 `stash_override.js` 转换后也会保留这些分流。更新主配置后，在 `OpenAI` 策略组选择相应节点。
 
 上游 DouYin 与 TikTok 集合都包含 `snssdk.com`。本仓库 TikTok 集合移除该重叠项，并通过 `DirectRevise` 将该域及其子域（包括 `aweme.snssdk.com`、`is.snssdk.com`）设为直连；`isnssdk.com`、`tiktok.com` 等其他 TikTok 域名仍按原策略处理。
 

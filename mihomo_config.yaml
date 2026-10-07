@@ -310,24 +310,24 @@ rule-providers:
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/xai.yaml
-    path: ./ruleset/Grok.yaml
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Grok.yaml
+    path: ./ruleset/Grok-blackmatrix7.yaml
   Gemini:
-    behavior: domain
+    behavior: classical
     interval: 86400
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google-gemini.yaml
-    path: ./ruleset/Gemini.yaml
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini.yaml
+    path: ./ruleset/Gemini-blackmatrix7.yaml
   Claude:
-    behavior: domain
+    behavior: classical
     interval: 86400
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/anthropic.yaml
-    path: ./ruleset/Claude.yaml
+      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.yaml
+    path: ./ruleset/Claude-blackmatrix7.yaml
   Game:
     behavior: classical
     interval: 86400

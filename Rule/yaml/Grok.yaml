@@ -1,0 +1,7 @@
+# Grok 域名子集，来源：blackmatrix7 / ios_rule_script
+# https://github.com/blackmatrix7/ios_rule_script/blob/master/rule/Clash/Proxy/Proxy_Domain.yaml
+# 仅提取 Grok / xAI 域名，不导入整个通用代理集合；后续手动核对上游更新。
+payload:
+  - '+.grok.com'
+  - '+.grokipedia.com'
+  - '+.x.ai'
