@@ -2,15 +2,17 @@
   {
     "file": "Bilibili_splash.lpx",
     "name": "B站开屏去广告",
-    "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "url": "https://kelee.one/Tool/Loon/Lpx/Bilibili_remove_ads.lpx",
     "select": {
       "rewrite": [
-        "^https:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/(list|show|event\\/list2)\\?"
+        "^https:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/list\\?",
+        "^https:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/(show|event\\/list2)\\?"
       ]
     },
     "mitm": [
       "app.bilibili.com"
-    ]
+    ],
+    "author": "kokoryh[https://github.com/kokoryh]"
   },
   {
     "file": "Hema_remove_ads.lpx",
@@ -92,6 +94,22 @@
     ],
     "author": "奶思[https://github.com/fmz200]",
     "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "license_url": "https://github.com/fmz200/wool_scripts/blob/main/LICENSE"
+  },
+  {
+    "file": "Umetrip_splash.lpx",
+    "name": "航旅纵横开屏去广告",
+    "url": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin",
+    "select": {
+      "rewrite": [
+        "^http?:\\/\\/(discardrp|startup)\\.umetrip\\.com\\/gateway\\/api\\/umetrip\\/native"
+      ]
+    },
+    "mitm": [
+      "discardrp.umetrip.com",
+      "startup.umetrip.com"
+    ],
+    "author": "奶思[https://github.com/fmz200]",
     "license_url": "https://github.com/fmz200/wool_scripts/blob/main/LICENSE"
   }
 ]

@@ -62,10 +62,34 @@ assert sum('盒马' in row['name'] for row in core['http']['script']) == 1
 bili_rule = next(row for row in core['http']['body-rewrite'] if 'bilibili' in row)
 bili_match, bili_action, bili_expression = bili_rule.split(maxsplit=2)
 assert bili_action == 'response-jq'
-for endpoint in ['list', 'show', 'event/list2']:
+for endpoint in ['show', 'event/list2']:
     assert re.search(bili_match, 'https://app.bilibili.com/x/v2/splash/' + endpoint + '?appkey=test')
 assert not re.search(bili_match, 'https://app.bilibili.com/x/v2/feed/index?appkey=test')
 assert jq.compile(bili_expression).input({'code': 0, 'data': {'show': [1], 'event_list': [2], 'keep': 3}}).first() == {'code': 0, 'data': {'show': [], 'event_list': [], 'keep': 3}}
+bili_mock = next(row for row in core['http']['mock'] if 'bilibili' in row['match'])
+bili_data = json.loads(bili_mock['text'])
+assert bili_mock['status-code'] == 200 and bili_data['code'] == 0
+assert bili_data['data']['max_time'] == 0
+assert bili_data['data']['keep_ids'] == [] and bili_data['data']['show'] == []
+assert bili_data['data']['list'] == [{}]
+for scheme in ['http', 'https']:
+    for endpoint in ['list', 'brand/list']:
+        for suffix in ['', '?appkey=test']:
+            assert re.search(bili_mock['match'], scheme + '://app.bilibili.com/x/v2/splash/' + endpoint + suffix)
+for endpoint in ['list_extra', 'brand/list_extra', '../feed/index']:
+    assert not re.search(bili_mock['match'], 'https://app.bilibili.com/x/v2/splash/' + endpoint)
+umetrip = [row for row in core['http']['url-rewrite'] if 'umetrip' in row]
+assert len(umetrip) == 1 and umetrip[0].endswith(' - reject')
+umetrip_match = umetrip[0].split()[0]
+for scheme in ['http', 'https']:
+    for host in ['startup.umetrip.com', 'discardrp.umetrip.com']:
+        assert host in core['http']['mitm']
+        assert re.search(umetrip_match, scheme + '://' + host + '/gateway/api/umetrip/native?rpid=1000002')
+for url in ['https://home.umetrip.com/gateway/api/umetrip/native',
+            'https://startup.umetrip.com/gateway/api/umetrip/native_extra',
+            'https://startup.umetrip.com/gateway/api/umetrip/login']:
+    assert not re.search(umetrip_match, url)
+assert not {'home.umetrip.com', 'mbank5.jsbchina.cn'} & set(core['http']['mitm'])
 assert 'weatherkit.apple.com' in core['http']['mitm']
 assert 'api.xiachufang.com' not in core['http']['mitm']
 assert core_path.stat().st_size < 150_000

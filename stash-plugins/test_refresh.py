@@ -131,6 +131,19 @@ class RefreshTests(unittest.TestCase):
         self.assertNotIn('https://test.invalid/unrelated.js', manifest)
         self.assertFalse((self.root / 'sources/aggregate.plugin').exists())
 
+    def test_conditional_excerpt_selects_only_splash_without_script_dependencies(self):
+        extra = {'file': 'Splash.lpx', 'name': 'Splash', 'url': 'https://test.invalid/full.lpx',
+                 'select': {'rewrite': [r'^https:\/\/app\.test\/splash\?']}, 'mitm': ['app.test']}
+        source = ('[Rewrite]\nresponse if ${url} ~= /^https:\\/\\/app\\.test\\/splash\\?/i then '
+                  'response.body.mock("text", "{\\"code\\":0}", 200)\n'
+                  '[Script]\nresponse if ${url} ~= /^https:\\/\\/app\\.test\\/feed/i then '
+                  'script("https://test.invalid/unrelated.js")\n')
+        result = fetcher.extract_plugin(source, extra).decode()
+        self.assertIn('response.body.mock', result)
+        self.assertNotIn('unrelated.js', result)
+        with self.assertRaisesRegex(ValueError, 'Selected aggregate entry changed'):
+            fetcher.extract_plugin(source.replace('/splash', '/changed'), extra)
+
 
 if __name__ == '__main__':
     unittest.main()

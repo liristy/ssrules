@@ -2,11 +2,11 @@
 
 仓库整体用途、来源与致谢见 [仓库说明](../README.md)；后续查找去广告资源及修改文件的约定见 [AGENTS.md](../AGENTS.md)。
 
-只需导入项目根目录的 `stash_plugins.stoverride`。主文件保留开屏去广告（含 12306、携程、肯德基、叮咚买菜）、YouTube 去广告、苹果天气增强，以及盒马净化和通用广告平台网络拦截。QUIC 分流由主配置转换脚本 `stash_override.js` 管理。
+只需导入项目根目录的 `stash_plugins.stoverride`。主文件保留开屏去广告（含 B 站、航旅纵横、12306、携程、肯德基、叮咚买菜）、YouTube 去广告、苹果天气增强，以及盒马净化和通用广告平台网络拦截。QUIC 分流由主配置转换脚本 `stash_override.js` 管理。
 
 ## 当前范围
 
-主文件约 28 KB，包含 455 条分流规则、29 条 URL 拦截/跳转、1 条原生正文重写、1 条静态响应，以及 9 份 JavaScript 的 15 条触发规则。MITM 共 42 项，原有 5 条排除项优先。
+主文件约 28 KB，包含 460 条分流规则、30 条 URL 拦截/跳转、1 条原生正文重写、2 条静态响应，以及 9 份 JavaScript 的 15 条触发规则。MITM 共 44 项，原有 5 条排除项优先。
 
 | 应用 | JS 触发规则 | 保留功能 |
 |---|---:|---|
@@ -23,7 +23,11 @@
 
 叮咚买菜已包含 `maicai.api.ddxq.mobi/advert/` 开屏接口的原生请求拦截，以及该域名的 MITM 解密。它不需要 JavaScript，因此不计入上表的 JS 数量；不启用首页、搜索、订单推荐或“我的”页面净化。构建会检查开屏规则和解密域名是否保留。
 
-B 站开屏通过 1 条原生 jq 重写处理 `splash/list`、`splash/show` 和 `splash/event/list2`，不加载 B 站 JS。盒马包含应用内页面净化，功能范围不限于开屏去广告。
+B 站开屏改用可莉目录中署名 kokoryh 的 [Bilibili 插件](https://kelee.one/Tool/Loon/Lpx/Bilibili_remove_ads.lpx)的两条开屏处理：`splash/list` 返回上游的无广告响应（`max_time=0`、清空 `keep_ids` 和 `show`、`list=[{}]`），`splash/show`、`splash/event/list2` 用 jq 清空展示项。匹配兼容 HTTP/HTTPS、有无查询参数，并把列表处理限定扩展到同属开屏的 `splash/brand/list`；不加载 B 站 JS，也不启用信息流、评论、播放器或会员处理。旧版只清空 `show`、`event_list`，没有清除素材列表与缓存 ID；客户端已有广告缓存仍需更新配置后验证。盒马包含应用内页面净化，功能范围不限于开屏去广告。
+
+航旅纵横选取 [fmz200 合集](https://github.com/fmz200/wool_scripts/blob/main/Loon/plugin/blockAds.plugin)中 `discardrp/startup.umetrip.com/gateway/api/umetrip/native` 的原生请求拦截，修正上游 `http?` 只匹配 HTTP 的写法，使 HTTP/HTTPS 均能匹配，并限制接口边界。只解密这两个开屏域名，不导入通用 `home.umetrip.com` 脚本或处理航班、行程、登录接口，不增加 JS。
+
+江苏银行暂未启用：可莉目录未查到独立插件；fmz200 的 [江苏银行规则](https://github.com/fmz200/wool_scripts/blob/main/Loon/plugin/split/partJ/BankOfJiangsu.lpx)只提供整个 `mbank5.jsbchina.cn:443` 的拦截，并注明“可能导致登录验证码不显示”。该规则不能保证只影响开屏，需要实际开屏请求 URL 或脱敏请求记录后才能缩小匹配范围。以上新增处理通过静态和样例测试，尚未手机实测。
 
 微博信息流、评论区、搜索和个人主页净化，高德路线/首页推广处理，小红书去水印及信息流处理，虎扑与 12306 应用内脚本，以及闲鱼、知乎、滴滴等页面/正文净化已移除。12306 使用下述开屏专用处理。知乎保留 `commercial_api/launch_v2` 和 `commercial_api/real_time_launch_v2` 的原生开屏拦截及 `api.zhihu.com` 解密，不恢复信息流/回答页净化，也不添加 JS。
 
@@ -53,7 +57,7 @@ YouTube 的可选字幕翻译设为 `off`，隐藏按钮选项保持关闭。复
 
 ## 内存调整
 
-相较之前完整合并版，当前在开屏精简的基础上保留 B 站、盒马及上述应用处理：15 条 JS 触发规则、1 条原生正文重写、42 项 MITM。
+相较之前完整合并版，当前在开屏精简的基础上保留 B 站、盒马及上述应用处理：15 条 JS 触发规则、1 条原生正文重写、44 项 MITM。
 
 微博、高德、小红书的发布脚本只提取上游开屏处理分支，不再包含信息流、评论、导航净化和去水印逻辑。小红书整体配置只删除开屏相关字段，保留主题和商城字段。淘宝原脚本已是开屏处理，因此保留。
 
@@ -65,9 +69,9 @@ YouTube 的可选字幕翻译设为 `off`，隐藏按钮选项保持关闭。复
 
 ## 更新与筛选
 
-每日工作流 `.github/workflows/update-stash-plugins.yml` 在北京时间 08:23 运行，也支持手动运行。使用 Loon UA 下载源插件，继续排除 fmz200 综合插件的全量内容。`extra-plugins.json` 明确列出 B 站开屏、盒马、懂球帝、12306 开屏、携程和肯德基六项例外；每日只从合集提取指定条目，保存为六份小型源快照，仅下载盒马和 12306 所需的 JS，不导入其他 fmz200 规则或依赖。
+每日工作流 `.github/workflows/update-stash-plugins.yml` 在北京时间 08:23 运行，也支持手动运行。使用 Loon UA 下载源插件，继续排除 fmz200 综合插件的全量内容。`extra-plugins.json` 明确列出 B 站开屏、盒马、懂球帝、12306 开屏、携程、肯德基和航旅纵横七份选定片段。B 站片段从可莉插件提取，其他片段从 fmz200 合集提取；仅下载选定条目的依赖，不导入完整插件或合集。
 
-`focus-policy.json` 保存经过审核的开屏、YouTube 和天气 HTTP 接口清单（含上述六项例外）。每日构建更新这些接口的上游处理内容，新出现的其他应用内优化不会自动加入。接口或脚本结构发生不兼容变化时，构建失败并保留上次成功版本，等待调整清单或提取器。
+`focus-policy.json` 保存经过审核的开屏、YouTube 和天气 HTTP 接口清单（含上述七份片段）。每日构建更新这些接口的上游处理内容，新出现的其他应用内优化不会自动加入。接口或脚本结构发生不兼容变化时，构建失败并保留上次成功版本，等待调整清单或提取器。
 
 `focus.py` 负责接口筛选和开屏 JS 分支提取。构建兼容传统语法及 Loon 的 `request/response if ${url} ~= /…/i then …` 条件语法，保留大小写标志、拒绝响应状态、跳转目标、脚本参数与二进制正文选项；下载器同时识别 `script-path=` 和 `script("URL")` 依赖。未支持的重写先核对接口清单：明确未纳入发布范围的条目跳过并记录在 `report.json`，已选接口或无法识别匹配范围的条件重写仍报错，避免静默丢失已启用功能。支持转换的源数据用于转换校验，原始快照仍保存在 `sources/`、`scripts/`；`validation-input.json` 被 Git 忽略，不是导入文件。`report.json` 的 `source_counts` 是参与转换的源数据数量，`counts` 才是实际主文件数量。
 

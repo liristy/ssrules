@@ -89,6 +89,22 @@ class RewriteScopeTests(unittest.TestCase):
         builder.rewrite(prefix + r'response.json.jq("del(.ads) | .name = \"keep\"")')
         self.assertTrue(builder.data['http']['body-rewrite'][0].endswith('del(.ads) | .name = "keep"'))
 
+    def test_text_mock_with_explicit_200_keeps_upstream_cache_reset(self):
+        import json
+        builder = self.builder()
+        builder.source = 'Bilibili_splash.lpx'
+        pattern = r'^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/list\?'
+        builder.rewrite('response if ${url} ~= /' + pattern + '/i then '
+                        r'response.body.mock("text", "{\"code\":0,\"data\":{\"keep_ids\":[],\"list\":[{}],\"max_time\":0}}", 200)')
+        mock = builder.data['http']['mock'][0]
+        self.assertEqual(mock['status-code'], 200)
+        self.assertEqual(json.loads(mock['text'])['data']['keep_ids'], [])
+        self.assertTrue(keep_entry('mock', mock, builder.source))
+        import re
+        for suffix in ['', '?appkey=1']:
+            self.assertIsNotNone(re.search(mock['match'], 'https://app.bilibili.com/x/v2/splash/brand/list' + suffix))
+        self.assertIsNone(re.search(mock['match'], 'https://app.bilibili.com/x/v2/splash/list_extra'))
+
 
 if __name__ == '__main__':
     unittest.main()

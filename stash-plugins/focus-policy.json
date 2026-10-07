@@ -106,7 +106,8 @@
     },
     "Bilibili_splash.lpx": {
       "rewrite": [
-        "^https:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/(list|show|event\\/list2)\\?"
+        "^https?:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/(?:list|brand\\/list)(?:\\?|$)",
+        "^https?:\\/\\/app\\.bilibili\\.com\\/x\\/v2\\/splash\\/(?:show|event\\/list2)(?:\\?|$)"
       ],
       "script": []
     },
@@ -145,6 +146,12 @@
       "rewrite": [
         "^https?:\\/\\/res\\.kfc\\.com\\.cn\\/CRM\\/kfcad\\/apphome5\\/apphome",
         "^https?:\\/\\/res\\.kfc\\.com\\.cn\\/CRM\\/kfcad\\/apphome6\\/\\w+\\.json\\?"
+      ],
+      "script": []
+    },
+    "Umetrip_splash.lpx": {
+      "rewrite": [
+        "^https?:\\/\\/(?:discardrp|startup)\\.umetrip\\.com\\/gateway\\/api\\/umetrip\\/native(?:\\?|$)"
       ],
       "script": []
     }

@@ -11,7 +11,7 @@ import re
 import urllib.parse
 import yaml
 from fetch_dependencies import selected_plugins, excluded_plugin
-from focus import keep_entry, trim_script, POLICY, ZHIHU_COMMERCIAL, ZHIHU_SPLASH
+from focus import keep_entry, trim_script, POLICY, ZHIHU_COMMERCIAL, ZHIHU_SPLASH, splash_pattern
 
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent
@@ -439,6 +439,7 @@ class Builder:
             if not conditional:
                 raise ValueError(f'Ambiguous conditional rewrite at {self.source}:{self.line}: {line}')
             kind, pattern, flags, action = conditional.groups()
+            pattern = splash_pattern(self.source, pattern)
             selected_pattern = ZHIHU_SPLASH if self.source == 'Zhihu_remove_ads.lpx' and pattern == ZHIHU_COMMERCIAL else pattern
             selected_kind = 'script' if action.startswith('script(') else 'rewrite'
             selected = selected_pattern in POLICY.get(self.source, {}).get(selected_kind, [])
@@ -449,7 +450,7 @@ class Builder:
             redirect = re.fullmatch(r'redirect[(](302|307),\s*"([^"\s]+)"[)]', action)
             script = re.fullmatch(r'script[(]"(https?://[^"\s]+)"(?:,\s*(\{.*\}))?[)](?: with (.+))?', action)
             jq_action = re.fullmatch(r'(request|response)[.]json[.]jq[(]"(.*)"[)]', action)
-            mock = re.fullmatch(r'response[.]body[.]mock[(]"json",\s*"(.*)"[)]', action)
+            mock = re.fullmatch(r'response[.]body[.]mock[(]"(json|text)",\s*"(.*)"(?:,\s*(200))?[)]', action)
             if reject and kind == 'request':
                 name, status = reject.groups()
                 if name != 'reject' and status != '200':
@@ -477,10 +478,10 @@ class Builder:
                 expression = jq_action[2].replace(r'\"', '"')
                 return self.rewrite(target + f' {kind}-body-json-jq ' + expression)
             if mock and kind == 'response':
-                body = mock[1].replace(r'\"', '"')
+                body = mock[2].replace(r'\"', '"')
                 json.loads(body)
                 self.add('mock', {'match': target, 'status-code': 200, 'text': body,
-                                  'headers': {'Content-Type': 'application/json'}})
+                                  'headers': {'Content-Type': 'application/json' if mock[1] == 'json' else 'text/plain; charset=utf-8'}})
                 return
             if not selected:
                 self.note('跳过未纳入发布范围的上游条件重写：' + pattern)
@@ -495,6 +496,7 @@ class Builder:
                 line += ', requires-body=true'
             return self.script(line)
         pattern, action, *tail = line.split(maxsplit=2)
+        pattern = splash_pattern(self.source, pattern)
         if self.source == 'Zhihu_remove_ads.lpx' and pattern.removeprefix('(?i)') == ZHIHU_COMMERCIAL:
             pattern = ('(?i)' if pattern.startswith('(?i)') else '') + ZHIHU_SPLASH
             self.note('知乎商业接口仅保留 launch_v2 / real_time_launch_v2 开屏拦截。')

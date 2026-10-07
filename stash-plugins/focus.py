@@ -68,3 +68,20 @@ def trim_script(url, script):
                 'if (url.includes("/v1/ad/preload") || url.includes("/v2/ad/preload")) {' + splash + '\n'
                 '$done({body: JSON.stringify(obj)});\n}\n')
     return script
+
+
+def splash_pattern(source, pattern):
+    """Keep adapted matches confined to known splash endpoints."""
+    aliases = {
+        'Bilibili_splash.lpx': {
+            r'^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/list\?':
+                r'^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|brand\/list)(?:\?|$)',
+            r'^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(show|event\/list2)\?':
+                r'^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:show|event\/list2)(?:\?|$)',
+        },
+        'Umetrip_splash.lpx': {
+            r'^http?:\/\/(discardrp|startup)\.umetrip\.com\/gateway\/api\/umetrip\/native':
+                r'^https?:\/\/(?:discardrp|startup)\.umetrip\.com\/gateway\/api\/umetrip\/native(?:\?|$)',
+        },
+    }
+    return aliases.get(source, {}).get(pattern, pattern)

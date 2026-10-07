@@ -38,6 +38,15 @@ def selected_plugins(config, root=ROOT):
     return entries
 
 
+def entry_pattern(section, line):
+    if line.startswith(('request if ', 'response if ')):
+        match = re.fullmatch(r'(?:request|response) if \$\{url\} ~= /((?:\\.|[^/])*)/[a-z]* then .+', line)
+        if not match:
+            raise ValueError('Unrecognized conditional source entry: ' + line)
+        return match[1]
+    return re.sub(r'\s*,\s*', ',', line) if section == 'rule' else line.split()[1 if section == 'script' else 0]
+
+
 def extract_plugin(text, entry):
     """Persist only explicitly selected entries from a large aggregate."""
     available, section = {}, ''
@@ -60,8 +69,7 @@ def extract_plugin(text, entry):
         output.append('[' + section.title() + ']')
         for pattern in patterns:
             rows = [line for line in available.get(section, [])
-                    if (re.sub(r'\s*,\s*', ',', line) if section == 'rule'
-                        else line.split()[1 if section == 'script' else 0]) == pattern]
+                    if entry_pattern(section, line) == pattern]
             if len(rows) != 1:
                 raise ValueError('Selected aggregate entry changed: ' + pattern)
             output.append(rows[0])
