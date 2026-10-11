@@ -1,0 +1,4 @@
+# Claude 域名补充：上游 blackmatrix7 Claude.yaml 未覆盖 claude.com。
+# 已有 claude.ai / anthropic.com 由上游集合维护，此处仅补充缺失域名。
+payload:
+  - '+.claude.com'

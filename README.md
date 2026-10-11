@@ -31,7 +31,7 @@
 
 Mihomo 的 Google 使用 blackmatrix7 规则集，TikTok 使用本仓库维护的 [TikTok.yaml](Rule/yaml/TikTok.yaml)，两者均可独立选择策略，默认使用 AUTO；策略组与匹配规则中，Google 位于 Apple 前，TikTok 位于 Emby 前。
 
-Mihomo 的 `OpenAI` 策略组同时承接 OpenAI、Grok、Gemini 和 Claude，规则来源为 blackmatrix7。Gemini、Claude 使用上游独立的 classical 集合；Grok 使用从上游 `Proxy_Domain.yaml` 提取的 [域名子集](Rule/yaml/Grok.yaml)，后续手动核对上游更新。Gemini 优先于通用 Google 分流；通过 `stash_override.js` 转换后也会保留这些分流。更新主配置后，在 `OpenAI` 策略组选择相应节点。
+Mihomo 的 `OpenAI` 策略组同时承接 OpenAI、Grok、Gemini 和 Claude，规则来源为 blackmatrix7。Gemini、Claude 使用上游独立的 classical 集合，Claude 另通过 [域名补充](Rule/yaml/Claude_Extra.yaml)覆盖 `claude.com` 及其子域；Grok 使用从上游 `Proxy_Domain.yaml` 提取的 [域名子集](Rule/yaml/Grok.yaml)，后续手动核对上游更新。Gemini 优先于通用 Google 分流；通过 `stash_override.js` 转换后也会保留这些分流。更新主配置后，在 `OpenAI` 策略组选择相应节点。
 
 [桌面 AI 进程规则](Rule/yaml/AI_Process.yaml)由主配置以 `AI_Process` classical 集合引用，统一进入 `OpenAI` 策略组，包含 Claude UDP 123 组合规则、Claude Code 和 Codex 的原生进程名。保持 `find-process-mode: strict`，更新主配置即可加载；规则适用于运行客户端的本机，按日志识别到的实际进程名匹配。旧 Node.js 安装需按独立路径补充 `PROCESS-PATH`，不启用通用 `node.exe` 分流。
 

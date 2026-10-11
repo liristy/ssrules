@@ -328,6 +328,14 @@ rule-providers:
     url: >-
       https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini.yaml
     path: ./ruleset/Gemini-blackmatrix7.yaml
+  Claude_Extra:
+    behavior: domain
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Claude_Extra.yaml
+    path: ./ruleset/Claude_Extra.yaml
   Claude:
     behavior: classical
     interval: 86400
@@ -487,6 +495,7 @@ rules:
   - RULE-SET,OpenAI,OpenAI
   - RULE-SET,Grok,OpenAI
   - RULE-SET,Gemini,OpenAI
+  - RULE-SET,Claude_Extra,OpenAI
   - RULE-SET,Claude,OpenAI
   - RULE-SET,TikTok,TikTok
   - RULE-SET,Emby,Emby
