@@ -504,9 +504,6 @@ rules:
   - RULE-SET,Apple,Apple
   - RULE-SET,Microsoft,Microsoft
   - RULE-SET,Game,Game
-  # Steam Cloud 必须先于 ProxyRevise(GLOBAL) 匹配，才能使用 Game 策略组
-  - DOMAIN,steamcloud-hkg.oss-accelerate.aliyuncs.com,Game
-  - DOMAIN,steamcloud-sgp.oss-accelerate.aliyuncs.com,Game
   - RULE-SET,ProxyRevise,GLOBAL
   - RULE-SET,Application_CN,DIRECT
   - RULE-SET,Direct,DIRECT
