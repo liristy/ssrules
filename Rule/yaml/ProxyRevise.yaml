@@ -6,5 +6,7 @@ payload:
   - DOMAIN-SUFFIX,sciencedirect.com
   - DOMAIN-SUFFIX,googleapis.com
   - DOMAIN-SUFFIX,anyrouter.top
-  - IP-CIDR,154.26.176.130/8
-  - IP-CIDR,152.53.54.223/8
+  # Steam Cloud 存储域名；主配置在 ProxyRevise 通用 GLOBAL 规则前指定 Game 例外
+  - DOMAIN,steamcloud-hkg.oss-accelerate.aliyuncs.com
+  - DOMAIN,steamcloud-sgp.oss-accelerate.aliyuncs.com
+  - IP-CIDR,179.255.121.114/8
