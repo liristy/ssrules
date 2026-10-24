@@ -50,14 +50,8 @@ jobs:
       - name: Test refresh and failure handling
         run: python -m unittest discover -s stash-plugins -p 'test_*.py'
 
-      - name: Download plugins and dependencies
-        run: |
-          if [ "$GITHUB_REF_NAME" = "dev" ]; then
-            # Dev runs use checked-in snapshots for reproducible full-coverage testing.
-            python stash-plugins/fetch_dependencies.py
-          else
-            python stash-plugins/fetch_dependencies.py --refresh
-          fi
+      - name: Refresh upstream plugin and script sources
+        run: python stash-plugins/fetch_dependencies.py --refresh
 
       - name: Build and validate Stash override
         run: |
