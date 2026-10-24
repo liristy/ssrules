@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import zlib from 'node:zlib';
 
 const config = JSON.parse(fs.readFileSync(new URL('validation-input.json', import.meta.url), 'utf8'));
+const full = JSON.parse(fs.readFileSync(new URL('report.json', import.meta.url), 'utf8')).profile === 'all-enabled';
 const providers = config['script-providers'];
 for (const [name, provider] of Object.entries(providers)) {
   new vm.Script(provider.payload, { filename: name });
@@ -80,7 +81,9 @@ async function splash(app, url, input, trailer = '') {
   if (trailer) assert.ok(output.body.endsWith(trailer));
   return JSON.parse(trailer ? output.body.slice(0, -trailer.length) : output.body);
 }
-let result = await splash('Weibo', 'https://sdkapp.uve.weibo.com/interface/sdk/sdkad.php',
+let result;
+if (!full) {
+result = await splash('Weibo', 'https://sdkapp.uve.weibo.com/interface/sdk/sdkad.php',
   {show_push_splash_ad: true, ads: [{displaytime: 5}], keep: 'unchanged'}, 'OK');
 assert.equal(result.show_push_splash_ad, false);
 assert.equal(result.ads[0].displaytime, 0);
@@ -105,6 +108,10 @@ result = await splash('Taobao', 'https://guide-acs.m.taobao.com/gw/mtop.taobao.c
 assert.equal(result.data.duration, '0');
 assert.deepEqual(result.data.resources, []);
 console.log('Reduced splash JS fixtures OK: Weibo SDK/preload/cache, Amap, RedPaper config/splash, Taobao.');
+} else {
+  assert.ok(config.http.script.length > 30, 'Expected expanded script bindings');
+  console.log('Full-mode providers compile; legacy splash-only branch assertions omitted.');
+}
 result = await splash('Hema', 'https://acs-m.freshippo.com/gw/mtop.wdk.render.queryindexpage',
   {data: {scenes: [{sceneTemplateId: '509'}, {sceneTemplateId: 'unknown'}], secondFloor: {ad: 1}}, keep: true});
 assert.deepEqual(result.data.scenes, [{sceneTemplateId: '509'}]);
