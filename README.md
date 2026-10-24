@@ -55,25 +55,23 @@ Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集
 
 **dev 分支插件全量覆写**：导入当前 Loon `[Plugin]` 中全部已启用插件（包含 fmz200 的完整 `blockAds.plugin`），以及 `extra-plugins.json` 中的完整 Bilibili 插件。**不再按应用或接口精选，不使用开屏白名单和脚本裁剪。**保留原始 HTTP 重写、脚本、完整 MITM 域名及参数，进行 Stash 兼容转换；仅对重复或前序完全覆盖的规则去重。旧版全局 QUIC 兜底仍交给 `stash_override.js`，而插件中针对特定应用的 QUIC 规则保留。最新有效产物（2026-10-25）：22 份插件、2,617 条分流、1,520 条 URL 重写、173 条正文重写、265 条脚本触发、991 项 MITM。全量规则可能增大内存开销和误拦截概率，建议先在设备上测试，`main` 保持原有精简版。
 
-dev 覆写地址：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride`；dev 文件处理脚本：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.js`。此分支的运行脚本同样引用 `dev/stash-plugins/runtime/`，与 `main` 保持隔离。以下以 `main` 为例的原始使用说明仍保留用于对比。
+**dev 推荐直接使用** `https://raw.githubusercontent.com/liristy/ssrules/dev/stash_override.js`：此文件现在同时完成 Mihomo → Stash 配置转换和完整插件合并，会在生成时下载 `dev/stash_plugins.stoverride`，无需再叠加 `stash_plugins.js`。直接导入 Stash 的独立覆写仍是 `https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride`。全部运行脚本引用 `dev/stash-plugins/runtime/`，与 `main` 保持隔离。
 
-完整配置的处理顺序是：
+dev 完整配置的处理顺序是：
 
 ```text
 节点或订阅 + mihomo_config.yaml
                 ↓
-        stash_override.js
+      stash_override.js
+    （主配置转换 + 全量插件自动合并）
                 ↓
-    stash_plugins.js（需要合并广告净化时）
-                ↓
-       生成完整配置并由 Stash 更新
+       Stash 更新完整配置
 ```
 
-两个 JS 都放在 Sub-Store 的**文件处理**中，不要放进节点操作。`stash_override.js` 处理 Stash 的主配置兼容、DNS、策略名及相关规则转换；`stash_plugins.js` 只负责广告资源的合并。
+在 Sub-Store **文件处理**中只需添加 `dev/stash_override.js` 一项，不能放到节点操作。它保留原 DNS、策略、基础规则和证书，将完整插件分流、MITM、HTTP 重写、脚本与远程提供者并入最终配置。旧的 `stash_plugins.js` 留作兼容独立合并方案；连续运行经过幂等校验，但会重复下载和解析完整覆写，建议移除第二步。
 
-也可以使用转换后的主配置，在 Stash 中单独导入 [广告覆写](https://raw.githubusercontent.com/liristy/ssrules/main/stash_plugins.stoverride)。广告已通过 `stash_plugins.js` 合入主配置时，不再重复叠加同一覆写。HTTPS 重写需要在设备上配置并信任自己的 MITM 证书；不要使用仓库或他人提供的证书私钥和口令。
-
-上述规则层次描述的是主配置。合并广告插件后，插件分流仍在主配置之前，因此主配置的放行例外不能覆盖插件中的前置拦截；遇到冲突须检查最终合并结果。Stash 的 QUIC 拦截仍位于业务分流、国内直连之后和兜底之前。
+如果不使用一体化 `stash_override.js`，也可以在 Stash 单独导入 [dev 全量广告覆写](https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride)，但不要同时在完整配置中再导入一份。HTTPS 重写需要正确配置并信任自己的 MITM 证书，不能使用仓库或他人提供的证书私钥和口令。
+上述规则层次描述的是主配置。加入全量插件后，插件分流在主配置之前，因此主配置的放行例外可能被插件中的前置拦截覆盖；遇到冲突须检查生成后的最终规则顺序。主配置的通用 QUIC 拦截位于现有业务分流、国内直连之后与兜底之前；插件的特定应用 QUIC 规则保留。
 
 更新脚本或构建文件后，需要重新生成配置并在客户端更新。未推送的本地改动不会出现在远程订阅中；Sub-Store 下载缓存也可能影响更新时间。
 
