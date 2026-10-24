@@ -187,6 +187,14 @@ def refresh_resources(*, root=ROOT, refresh=False):
                 if relative in plugin_jobs or (relative in jobs and jobs[relative] != url):
                     raise ValueError('Dependency snapshot filename collision: ' + relative)
                 jobs[relative] = url
+            # Modern Loon plugins can reference jq sources via the conditional
+            # response.json.jq_file("URL") action, not only legacy jq-path.
+            for url in re.findall(r'\b(?:request|response)\.json\.jq_file\("(https?://[^"\s]+)"\)', line):
+                name = sha256(url.encode()).hexdigest()[:12] + '-' + Path(urllib.parse.urlparse(url).path).name
+                relative = 'sources/' + name
+                if relative in plugin_jobs or (relative in jobs and jobs[relative] != url):
+                    raise ValueError('External jq dependency path collision: ' + relative)
+                jobs[relative] = url
     jobs.update(FIXED)
     snapshots.update(fetch_batch(jobs, root=root, refresh=refresh))
     dependencies = {
