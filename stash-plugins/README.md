@@ -25,15 +25,20 @@
 
 构建会完整下载最新插件源、JS、jq/mock 依赖、语法适配并生成 `runtime/`；无法转换或验证不通过时直接中止发布，不会悄悄回退为精选版。与历史版本相比，构建还加入 Bilibili 的二进制响应、gRPC 头部操作适配；脚本自身的业务行为保留上游版本，使用 Stash 兼容包装。
 
-`dev` 仅测试/发布到 `dev` 路径，链接：
+dev 一体化使用方法：在 Sub-Store 的**文件处理**中只使用以下一份脚本，它同时完成基础配置转换和完整插件导入：
+
+```text
+https://raw.githubusercontent.com/liristy/ssrules/dev/stash_override.js
+```
+
+如果只需要 Stash 独立广告覆写，或者使用旧的第二步合并脚本，对应地址为：
 
 ```text
 https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride
 https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.js
 ```
 
-直接在 Stash 导入第一条覆写链接，或在 Sub-Store 文件处理流程中用第二条脚本合并；**两种方式不要重复启用**。HTTPS 规则需在设备上启用并信任个人 MITM 证书。全量导入不代表每款应用都真机验证，约 400 KiB 的主覆写及 265 条脚本触发会明显增加客户端开销，应用也可能出现误拦截。建议先使用测试设备。
-
+**不要将一体化完整配置和独立覆写同时加载**。旧 `stash_plugins.js` 保留兼容；虽然重复执行的幂等性经过测试，仍会重复下载和解析约 400 KiB 的覆写，建议只保留 `stash_override.js`。两个 JS 的共同合并逻辑已纳入源码同步检查。HTTPS 重写需在设备上启用并信任自己的 MITM 证书。全量导入不代表每款应用都已经真机验证，较大的规则及脚本量会明显增加客户端开销，建议先使用测试设备。
 `main` 保持原精简方案。以下是精简版的历史说明，仅用于溯源和比较，**不适用于当前 `dev` 的筛选范围**。
 
 ## 原精简版范围（main 分支历史记录）
