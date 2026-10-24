@@ -5,6 +5,16 @@ import assert from 'node:assert/strict';
 
 const patch = JSON.parse(fs.readFileSync(0, 'utf8'));
 const code = fs.readFileSync(new URL('../stash_plugins.js', import.meta.url), 'utf8');
+const unifiedCode = fs.readFileSync(new URL('../stash_override.js', import.meta.url), 'utf8');
+const syncStart = '// BEGIN synced full-plugin merger (from stash_plugins.js)\n';
+const syncEnd = '// END synced full-plugin merger\n';
+const normalizeMerger = code.split('async function operator(input) {')[0]
+  .replace(/^\/\/ Sub-Store 文件处理脚本:[^\n]*\n\/\/ 生成订阅时读取[^\n]*\n/, '')
+  .trimEnd()
+  .replace('async function main(config) {', 'async function stashMergeAllPlugins(config) {');
+assert.ok(unifiedCode.includes(syncStart) && unifiedCode.includes(syncEnd), 'unified script merger markers missing');
+assert.equal(unifiedCode.split(syncStart)[1].split(syncEnd)[0].trimEnd(), normalizeMerger,
+  'stash_override.js inline merger must stay in sync with stash_plugins.js');
 let downloaded = JSON.stringify(patch), failDownload = false;
 const context = vm.createContext({ProxyUtils: {
   yaml: {safeLoad: JSON.parse, safeDump: JSON.stringify},
@@ -101,7 +111,7 @@ const previousScopedQuic = [
   'AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((GEOIP,CN)))),REJECT,no-track',
 ];
 const overrideContext = vm.createContext({ProxyUtils: context.ProxyUtils});
-vm.runInContext(fs.readFileSync(new URL('../stash_override.js', import.meta.url), 'utf8'), overrideContext);
+vm.runInContext(unifiedCode, overrideContext);
 const routes = ['DOMAIN,private.example,DIRECT', 'DOMAIN,proxy.example,Proxy', 'GEOIP,CN,DIRECT', 'MATCH,Proxy'];
 for (const previous of [[], legacyQuic, previousScopedQuic, legacyQuic.map(rule => rule.replace(',no-track', ''))]) {
   const source = {...clean, rules: [...previous, ...routes]};
@@ -125,6 +135,33 @@ for (const cached of [patch, ...[legacyQuic, previousScopedQuic].map(rules => ({
   assert.deepEqual(JSON.parse(JSON.stringify(await context.main(migrated))), migrated);
 }
 
+// The dev stash_override.js must be a complete ONE-SCRIPT pipeline. It
+// converts the Mihomo base config, then imports the entire (unfiltered) patch.
+downloaded = JSON.stringify(patch);
+const unifiedBase = {...clean, rules: [...legacyQuic, ...routes]};
+const unifiedInput = {$content: JSON.stringify(unifiedBase), $files: ['untouched']};
+const unifiedOutput = await overrideContext.operator(unifiedInput);
+assert.equal(unifiedOutput, unifiedInput);
+assert.deepEqual(unifiedOutput.$files, ['untouched']);
+const convertedBase = await overrideContext.main(structuredClone(unifiedBase));
+const expectedFull = await context.main(convertedBase);
+const unifiedFull = JSON.parse(unifiedOutput.$content);
+assert.deepEqual(unifiedFull, JSON.parse(JSON.stringify(expectedFull)),
+  'one-shot Stash conversion must match the original two-script pipeline');
+assert.ok(unifiedFull.rules.length >= patch.rules.length, 'unified script lost full rule coverage');
+assert.equal(unifiedFull.http.script.length, patch.http.script.length,
+  'unified script must include every upstream script binding');
+assert.ok(Object.keys(unifiedFull['script-providers']).length >= Object.keys(patch['script-providers']).length);
+const singlePass = unifiedInput.$content;
+await overrideContext.operator(unifiedInput);
+assert.equal(unifiedInput.$content, singlePass, 'unified processing must be idempotent');
+await context.operator(unifiedInput);
+assert.equal(unifiedInput.$content, singlePass,
+  'retained stash_plugins.js must not double-apply the full override');
+downloaded = '<html>bad response</html>';
+await assert.rejects(overrideContext.operator(unifiedInput));
+assert.equal(unifiedInput.$content, singlePass, 'failed full import must leave input intact');
+
 downloaded = JSON.stringify(patch);
 for (const bad of ['<html>error</html>', '{}', JSON.stringify({...patch, rules: ['MATCH,DIRECT']})]) {
   downloaded = bad;
@@ -136,3 +173,4 @@ await assert.rejects(context.operator(input));
 assert.equal(input.$content, once);
 await assert.rejects(context.operator([]));
 console.log('Sub-Store merge OK: readable names retained, collisions resolved, original settings/certificate preserved, rules ordered, duplicates removed, failed downloads leave input unchanged.');
+console.log('Unified stash_override.js verified: full plugin import, one-script/two-script parity, idempotence, URL sync and fail-safe behavior.');
