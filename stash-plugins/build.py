@@ -515,6 +515,21 @@ class Builder:
                     raise ValueError('Unsupported whitespace/empty body replacement: ' + action)
                 self.add('body-rewrite', f'{target} {kind}-replace-regex {raw_match} {replacement}')
                 return
+            jq_file_action = re.fullmatch(r'(request|response)\.json\.jq_file\("(https?://[^"\s]+)"\)', action)
+            if jq_file_action and jq_file_action[1] == kind:
+                url = jq_file_action[2]
+                filename = sha256(url.encode()).hexdigest()[:12] + '-' + Path(urllib.parse.urlparse(url).path).name
+                jq_source = ROOT / 'sources' / filename
+                if not jq_source.is_file():
+                    raise ValueError(f'External jq file was not refreshed: {url}')
+                jq_lines = jq_source.read_text(encoding='utf-8-sig').splitlines()
+                expression = ' '.join(line.strip() for line in jq_lines
+                                      if line.strip() and not line.lstrip().startswith('#'))
+                if not expression:
+                    raise ValueError('Downloaded external jq file was empty: ' + url)
+                self.add('body-rewrite', f'{target} {kind}-jq {expression}')
+                self.note('已内嵌最新外部 jq 文件：' + url)
+                return
             if jq_action and jq_action[1] == kind:
                 expression = jq_action[2].replace(r'\"', '"')
                 return self.rewrite(target + f' {kind}-body-json-jq ' + expression)
