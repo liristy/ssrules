@@ -21,14 +21,11 @@ assert report['counts']['plugins'] == len(selected_plugins(config_text))
 assert report['counts']['rules'] == len(core['rules'])
 assert report['source_counts']['rules'] == len(data['rules'])
 assert report['profile'] == 'all-enabled'
-source_files = {item['file'] for item in report['sources']}
-assert 'blockAds.plugin' in source_files, 'Whole fmz200 source was not imported'
-assert 'Bilibili_remove_ads.lpx' in source_files, 'Whole Bilibili source was not imported'
-assert not source_files & {'Bilibili_splash.lpx', 'Hema_remove_ads.lpx', 'Dongqiudi_splash.lpx',
-                           '12306_splash.lpx', 'Ctrip_splash.lpx', 'KFC_splash.lpx', 'Umetrip_splash.lpx'}
-assert all('select' not in entry for entry in extra_plugins())
-assert (ROOT / 'sources/blockAds.plugin').stat().st_size > 250_000
-assert any('/fmz200/' in url for url in json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8')))
+approved_excerpts = {entry['file'] for entry in extra_plugins()}
+assert not any(item['file'] == 'blockAds.plugin' or ('/fmz200/' in item['url'] and item['file'] not in approved_excerpts) for item in report['sources'])
+assert any(item['file'] == 'Bilibili_remove_ads.lpx' for item in report['sources'])
+assert not any(item['file'] == 'Bilibili_splash.lpx' for item in report['sources'])
+assert not any('/fmz200/' in url for url in json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8')))
 assert set(core['http']) <= {'mitm', 'script', *NATIVE_HTTP_SECTIONS}
 def selected(section):
     rows = data['rules'] if section == 'rules' else data['http'][section]
@@ -44,15 +41,14 @@ assert len(core['rules']) == report['source_counts']['rules']
 assert len(core['http'].get('url-rewrite', [])) == report['source_counts']['url-rewrite']
 assert len(core['http'].get('body-rewrite', [])) == report['source_counts']['body-rewrite']
 assert len(core['http'].get('script', [])) == report['source_counts']['script']
-assert len(core['http']['script']) > 100, 'Complete collection script bindings were accidentally filtered'
-assert len(core['http']['url-rewrite']) > 800, 'Complete collection URL rewrites were accidentally filtered'
-assert len(core['http']['body-rewrite']) > 60, 'Complete collection body rewrites were accidentally filtered'
-assert len(core['http']['mitm']) > 800, 'Complete MITM host list was accidentally filtered'
+assert len(core['http']['script']) > 30, 'Full script entries were accidentally filtered'
+assert len(core['http']['url-rewrite']) > 100, 'Full URL rewrites were accidentally filtered'
+assert len(core['http']['body-rewrite']) > 20, 'Full body rewrites were accidentally filtered'
 assert 'weatherkit.apple.com' in core['http']['mitm']
 assert 'DOMAIN-KEYWORD,apimg.qunliao.info,REJECT' in core['rules']
 assert 'app.bilibili.com' in core['http']['mitm']
 assert not set(LEGACY_QUIC_RULES) & set(core['rules'])
-assert 'AND,((PROTOCOL,QUIC),(DOMAIN-SUFFIX,xiaohongshu.com)),REJECT' in core['rules']
+assert not any('QUIC' in rule for rule in core['rules'])
 assert core_path.stat().st_size < 3_000_000
 
 exclusions = []
@@ -66,7 +62,7 @@ assert 'ca' not in data['http'] and 'ca-passphrase' not in data['http']
 assert 'proxy-groups' not in data and 'dns' not in data
 assert not any(rule.startswith(('MATCH,', 'FINAL,')) for rule in data['rules'])
 assert not set(LEGACY_QUIC_RULES) & set(data['rules'])
-assert any(requires_quic(rule.rsplit(',', 1)[0]) for rule in data['rules'])  # app-scoped QUIC
+assert not any(requires_quic(rule.rsplit(',', 1)[0]) for rule in data['rules'])
 # A DIRECT exception must survive before a broader blocking rule. Conversely,
 # a later exception already hidden by that blocking rule must not change routing.
 fixture = [
@@ -143,7 +139,7 @@ providers = core['script-providers']
 scripts = core['http']['script']
 assert report['counts']['script'] == len(scripts)
 assert report['counts']['providers'] == len(providers)
-assert 100 < len(scripts) <= 1024
+assert 0 < len(scripts) <= 1024
 assert set(providers) == {entry['name'] for entry in scripts}
 # Full mode keeps internal page handlers and expanded script bindings.
 assert len(core['http'].get('body-rewrite', [])) == report['source_counts']['body-rewrite']
