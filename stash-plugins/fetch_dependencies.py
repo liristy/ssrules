@@ -26,10 +26,8 @@ def extra_plugins(root=ROOT):
     entries = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
     for entry in entries:
         filename = entry['file']
-        if Path(filename).name != filename or not filename.endswith(('.lpx', '.plugin')):
+        if Path(filename).name != filename or not filename.endswith('.lpx'):
             raise ValueError('Invalid extra plugin filename: ' + filename)
-        if entry.get('select') or 'arguments' in entry or 'mitm' in entry:
-            raise ValueError('Full-import mode rejects curated extras: ' + filename)
     return entries
 
 
@@ -40,10 +38,48 @@ def selected_plugins(config, root=ROOT):
     return entries
 
 
+def entry_pattern(section, line):
+    if line.startswith(('request if ', 'response if ')):
+        match = re.fullmatch(r'(?:request|response) if \$\{url\} ~= /((?:\\.|[^/])*)/[a-z]* then .+', line)
+        if not match:
+            raise ValueError('Unrecognized conditional source entry: ' + line)
+        return match[1]
+    return re.sub(r'\s*,\s*', ',', line) if section == 'rule' else line.split()[1 if section == 'script' else 0]
+
+
+def extract_plugin(text, entry):
+    """Persist only explicitly selected entries from a large aggregate."""
+    available, section = {}, ''
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith(('#', ';', '//')):
+            continue
+        if line.startswith('[') and line.endswith(']'):
+            section = line[1:-1].lower()
+        else:
+            available.setdefault(section, []).append(line)
+    output = ['#!name=' + entry['name'], '# Extracted from: ' + entry['url']]
+    if entry.get('author'):
+        output.append('#!author=' + entry['author'])
+    if entry.get('license_url'):
+        output.append('# Aggregate license (dependencies retain their own terms): ' + entry['license_url'])
+    if entry.get('arguments'):
+        output += ['[Argument]', *entry['arguments']]
+    for section, patterns in entry['select'].items():
+        output.append('[' + section.title() + ']')
+        for pattern in patterns:
+            rows = [line for line in available.get(section, [])
+                    if entry_pattern(section, line) == pattern]
+            if len(rows) != 1:
+                raise ValueError('Selected aggregate entry changed: ' + pattern)
+            output.append(rows[0])
+    output += ['[MitM]', 'hostname=' + ', '.join(entry['mitm'])]
+    return ('\n'.join(output) + '\n').encode()
+
+
 def excluded_plugin(url):
-    # Full import: the enabled fmz200/blockAds.plugin is an ordinary plugin,
-    # not a special excluded aggregate. Kept for callers in older tests.
-    return False
+    parsed = urllib.parse.urlparse(url)
+    return parsed.netloc.lower() in ('github.com', 'raw.githubusercontent.com') and parsed.path.lower().startswith('/fmz200/')
 
 
 def enabled_plugins(config):
@@ -62,6 +98,8 @@ def enabled_plugins(config):
         url = line.split(',', 1)[0].strip()
         parsed = urllib.parse.urlparse(url)
         name = Path(parsed.path).name
+        if excluded_plugin(url):
+            continue
         if parsed.scheme != 'https' or not name.endswith(('.lpx', '.plugin')):
             raise ValueError('Unsupported plugin URL: ' + url)
         if name in names:
@@ -115,10 +153,27 @@ def atomic_write(path, data):
 def refresh_resources(*, root=ROOT, refresh=False):
     config = (root.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
     plugins = selected_plugins(config, root)
-    # Download every selected plugin as a whole, including blockAds.plugin.
-    # Never synthesize a shortened Loon plugin from an allowlist.
-    plugin_jobs = {'sources/' + name: url for url, name in plugins}
+    extras = extra_plugins(root)
+    extra_names = {entry['file'] for entry in extras}
+    plugin_jobs = {'sources/' + name: url for url, name in plugins if name not in extra_names}
     snapshots = fetch_batch(plugin_jobs, root=root, refresh=refresh)
+    aggregates = {}
+    for entry in extras:
+        relative = 'sources/' + entry['file']
+        plugin_jobs[relative] = entry['url']
+        cached = root / relative
+        if 'select' not in entry:
+            # Explicitly selected standalone plugins: download the COMPLETE file.
+            snapshots[relative] = (download(entry['url'])
+                                   if refresh or not cached.exists()
+                                   else cached.read_bytes())
+            continue
+        if not refresh and cached.exists():
+            snapshots[relative] = cached.read_bytes()
+            continue
+        if entry['url'] not in aggregates:
+            aggregates[entry['url']] = download(entry['url']).decode('utf-8-sig')
+        snapshots[relative] = extract_plugin(aggregates[entry['url']], entry)
     jobs, script_paths = {}, {}
     for path, data in snapshots.items():
         text = data.decode('utf-8-sig')
@@ -170,9 +225,7 @@ def refresh_resources(*, root=ROOT, refresh=False):
     previous = json.loads(old_manifest.read_text(encoding='utf-8')) if old_manifest.exists() else {}
     obsolete = {item['file'] for item in previous.values() if 'file' in item} - set(snapshots)
     old_aggregate = root / 'sources/blockAds.plugin'
-    # Full import explicitly selects this source. Never delete it as a stale
-    # legacy aggregate after a successful refresh.
-    if old_aggregate.exists() and 'sources/blockAds.plugin' not in snapshots:
+    if old_aggregate.exists():
         for url in re.findall(r'(?:jq-path|data-path)\s*=\s*["\']?(https?://[^"\'\s,]+)', old_aggregate.read_text(encoding='utf-8-sig')):
             relative = 'sources/' + Path(urllib.parse.urlparse(url).path).name
             if relative not in snapshots:
