@@ -59,6 +59,11 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(self.git('diff', '--cached', '--diff-filter=D', '--name-only').strip(),
                          'stash-plugins/scripts/old.js')
 
+    def test_dev_refresh_always_updates_plugin_and_script_sources(self):
+        step = next(step for step in STEPS if step['name'] == 'Refresh upstream plugin and script sources')
+        self.assertIn('fetch_dependencies.py --refresh', step['run'])
+        self.assertNotIn('GITHUB_REF_NAME', step['run'])
+
     def test_guard_stops_publication_when_main_configuration_is_modified(self):
         script = next(step['run'] for step in STEPS if step['name'] == 'Verify hand-maintained configuration was not changed')
         def run_guard():
