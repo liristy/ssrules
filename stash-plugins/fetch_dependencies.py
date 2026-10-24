@@ -170,7 +170,9 @@ def refresh_resources(*, root=ROOT, refresh=False):
     previous = json.loads(old_manifest.read_text(encoding='utf-8')) if old_manifest.exists() else {}
     obsolete = {item['file'] for item in previous.values() if 'file' in item} - set(snapshots)
     old_aggregate = root / 'sources/blockAds.plugin'
-    if old_aggregate.exists():
+    # Full import explicitly selects this source. Never delete it as a stale
+    # legacy aggregate after a successful refresh.
+    if old_aggregate.exists() and 'sources/blockAds.plugin' not in snapshots:
         for url in re.findall(r'(?:jq-path|data-path)\s*=\s*["\']?(https?://[^"\'\s,]+)', old_aggregate.read_text(encoding='utf-8-sig')):
             relative = 'sources/' + Path(urllib.parse.urlparse(url).path).name
             if relative not in snapshots:
