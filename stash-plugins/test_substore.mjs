@@ -9,7 +9,7 @@ let downloaded = JSON.stringify(patch), failDownload = false;
 const context = vm.createContext({ProxyUtils: {
   yaml: {safeLoad: JSON.parse, safeDump: JSON.stringify},
   download: async url => {
-    assert.equal(url, 'https://raw.githubusercontent.com/liristy/ssrules/main/stash_plugins.stoverride');
+    assert.equal(url, 'https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride');
     if (failDownload) throw new Error('offline');
     return downloaded;
   },
