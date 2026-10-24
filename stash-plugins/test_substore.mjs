@@ -9,7 +9,7 @@ const unifiedCode = fs.readFileSync(new URL('../stash_override.js', import.meta.
 const syncStart = '// BEGIN synced full-plugin merger (from stash_plugins.js)\n';
 const syncEnd = '// END synced full-plugin merger\n';
 const normalizeMerger = code.split('async function operator(input) {')[0]
-  .replace(/^\/\/ Sub-Store 文件处理脚本:[^\n]*\n\/\/ 生成订阅时读取[^\n]*\n/, '')
+  .replace(/^\/\/ Sub-Store 文件处理脚本：[^\n]*\n\/\/ 生成订阅时读取[^\n]*\n/, '')
   .trimEnd()
   .replace('async function main(config) {', 'async function stashMergeAllPlugins(config) {');
 assert.ok(unifiedCode.includes(syncStart) && unifiedCode.includes(syncEnd), 'unified script merger markers missing');
