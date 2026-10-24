@@ -33,7 +33,7 @@ def between(text, start, end):
 
 def trim_script(url, script):
     """Keep full upstream handlers in full mode; preserve the special 12306 splash adapter."""
-    if PROFILE == "all-enabled" and url != "https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js":
+    if PROFILE == "all-enabled":
         return script
     if url == 'https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js':
         # Only placement 0007 is the splash; leave other placements untouched.
@@ -77,6 +77,8 @@ def trim_script(url, script):
 
 def splash_pattern(source, pattern):
     """Keep adapted matches confined to known splash endpoints."""
+    if PROFILE == 'all-enabled':
+        return pattern
     aliases = {
         'Bilibili_splash.lpx': {
             r'^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/list\?':
