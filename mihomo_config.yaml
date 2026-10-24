@@ -16,16 +16,15 @@ disable-keep-alive: false
 profile:
   store-selected: true
   store-fake-ip: true
-secret: >-
-  kw1rwlpq9POfMc6jt0U8tU3pvwsaEuiSkRkDzi6xrIshB3U6UTGHurGELi77qdEsObgqr8tzaSbhIeAOL5YiIm9edTZs050HX
+# Set controller/API credentials locally; never publish real credentials.
+secret: ''
 external-controller: '127.0.0.1:9090'
 mode: rule
 lan-allowed-ips:
   - 0.0.0.0/0
   - '::/0'
 lan-disallowed-ips: []
-authentication:
-  - "mihomo_core:z7Q^3!w#K@9vL$pF2*mX&8nC"
+authentication: []
 skip-auth-prefixes:
   - 127.0.0.1/32
 geo-auto-update: true
@@ -94,6 +93,9 @@ dns:
     - 223.5.5.5
     - 119.29.29.29
   nameserver-policy:
+    "rule-set:DirectRevise,Steam_Download,Game_Download,Download":
+      - "https://223.5.5.5/dns-query#DIRECT"
+      - "https://1.12.12.12/dns-query#DIRECT"
     "geosite:cn":
       - "https://223.5.5.5/dns-query#DIRECT"
       - "https://1.12.12.12/dns-query#DIRECT"
@@ -106,10 +108,11 @@ dns:
   proxy-server-nameserver:
     - "https://223.5.5.5/dns-query#DIRECT"
     - "https://1.12.12.12/dns-query#DIRECT"
+  # DIRECT also follows policy; unknown names must not fall back to domestic DNS.
   direct-nameserver:
-    - "https://223.5.5.5/dns-query#DIRECT"
-    - "https://1.12.12.12/dns-query#DIRECT"
-  direct-nameserver-follow-policy: false
+    - "https://8.8.8.8/dns-query#PROXY"
+    - "https://1.1.1.1/dns-query#PROXY"
+  direct-nameserver-follow-policy: true
   nameserver:
     - "https://8.8.8.8/dns-query#PROXY"
     - "https://1.1.1.1/dns-query#PROXY"
@@ -352,6 +355,14 @@ rule-providers:
     url: >-
       https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Game/Game.yaml
     path: ./ruleset/Game.yaml
+  Steam_Download:
+    behavior: domain
+    interval: 86400
+    format: yaml
+    type: http
+    url: >-
+      https://raw.githubusercontent.com/liristy/ssrules/dev/Rule/yaml/Steam_Download.yaml
+    path: ./ruleset/Steam_Download.yaml
   Game_Download:
     behavior: classical
     interval: 86400
@@ -389,7 +400,7 @@ rule-providers:
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/ProxyRevise.yaml
+      https://raw.githubusercontent.com/liristy/ssrules/dev/Rule/yaml/ProxyRevise.yaml
     path: ./ruleset/ProxyRevise.yaml
   Direct:
     behavior: classical
@@ -461,15 +472,15 @@ rule-providers:
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_IP.yaml
-    path: ./ruleset/ChinaIP.yaml
+      https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.yaml
+    path: ./ruleset/ChinaIP-clean.yaml
   Hijacking_DNS:
     behavior: ipcidr
     interval: 86400
     format: yaml
     type: http
     url: >-
-      https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Hijacking_DNS.yaml
+      https://raw.githubusercontent.com/liristy/ssrules/dev/Rule/yaml/Hijacking_DNS.yaml
     path: ./ruleset/Hijacking_DNS.yaml
   Application_CN:
     behavior: classical
@@ -480,14 +491,21 @@ rule-providers:
       https://raw.githubusercontent.com/liristy/ssrules/main/Rule/yaml/Application_CN.yaml
     path: ./ruleset/Application_CN.yaml
 rules:
+  - DOMAIN,steamcn-sh.oss-cn-shanghai.aliyuncs.com,DIRECT
+  - DOMAIN,steamcloud-hkg.oss-accelerate.aliyuncs.com,DIRECT
+  - DOMAIN,steamcloud-sgp.oss-accelerate.aliyuncs.com,DIRECT
+  - DOMAIN,ocsp.globalsign.com,DIRECT
+  - DOMAIN,crl.globalsign.com,DIRECT
   - DOMAIN-KEYWORD,jyq.,DIRECT
-  - RULE-SET,Lan,DIRECT
-  - RULE-SET,DirectRevise,DIRECT
-  - RULE-SET,BlockRevise,AdBlock
+  - RULE-SET,Lan,DIRECT,no-resolve
+  - RULE-SET,Hijacking_DNS,GLOBAL
   - RULE-SET,Privacy_Domain,AdBlock
   - RULE-SET,Privacy,AdBlock
+  - RULE-SET,BlockRevise,AdBlock
   - RULE-SET,AdBlock,AdBlock
   - RULE-SET,Hijacking,AdBlock
+  - RULE-SET,DirectRevise,DIRECT
+  - RULE-SET,Steam_Download,DIRECT
   - RULE-SET,Game_Download,DIRECT
   - RULE-SET,Download,DIRECT
   - RULE-SET,PayPal,PayPal
@@ -511,7 +529,7 @@ rules:
   - RULE-SET,Global,GLOBAL
   - RULE-SET,China_Domain,DIRECT
   - RULE-SET,China,DIRECT
-  - RULE-SET,Hijacking_DNS,GLOBAL
+  - IP-ASN,132203,DIRECT,no-resolve
   - RULE-SET,ChinaIP,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,FINAL

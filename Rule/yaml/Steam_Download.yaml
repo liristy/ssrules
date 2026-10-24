@@ -1,0 +1,22 @@
+# Steam download CDN supplement; keep store/community traffic in Game.
+# Sources: blackmatrix7 GameDownload and Game; locally maintained subset.
+# https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/Clash/Game
+payload:
+  - "+.dl.steam.ksyna.com"
+  - "+.dl.steam.clngaa.com"
+  - "+.steampipe.akamaized.net"
+  - "+.steampipe-kr.akamaized.net"
+  - "+.steampipe-partner.akamaized.net"
+  - "+.edge.steam-dns.top.comcast.net"
+  - "+.steam.eca.qtlglb.com"
+  - "+.steam.naeu.qtlglb.com"
+  - "+.steam.ru.qtlglb.com"
+  - "+.steam.apac.qtlglb.com"
+  - "+.steam.cdn.on.net"
+  - "+.steam.cdn.orcon.net.nz"
+  - "+.steam.cdn.slingshot.co.nz"
+  - "+.steam.cdn.webra.ru"
+  - "+.steamcdn-a.akamaihd.net"
+  - "+.steamusercontent-a.akamaihd.net"
+  - "+.steamcontent.com"
+  - "+.steamcontent.tnkjmec.com"
