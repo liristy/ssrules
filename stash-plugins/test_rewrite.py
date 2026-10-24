@@ -98,8 +98,8 @@ class RewriteScopeTests(unittest.TestCase):
         self.assertEqual(json.loads(mock['text'])['data']['keep_ids'], [])
         self.assertTrue(keep_entry('mock', mock, builder.source))
         import re
-        for suffix in ['', '?appkey=1']:
-            self.assertIsNotNone(re.search(mock['match'], 'https://app.bilibili.com/x/v2/splash/brand/list' + suffix))
+        self.assertIsNotNone(re.search(mock['match'], 'https://app.bilibili.com/x/v2/splash/list?appkey=1'))
+        self.assertIsNone(re.search(mock['match'], 'https://app.bilibili.com/x/v2/splash/brand/list?appkey=1'))
         self.assertIsNone(re.search(mock['match'], 'https://app.bilibili.com/x/v2/splash/list_extra'))
 
 
