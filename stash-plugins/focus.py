@@ -1,6 +1,7 @@
 """Full-import policy for the Stash development branch.
 
-Every enabled plugin, including the complete fmz200 aggregate, is converted.
+Only previously selected standalone plugins are imported whole; the full
+fmz200 aggregate is excluded, and older targeted snippets remain scoped.
 No application/function allowlist and no splash-only script trimming.
 """
 
