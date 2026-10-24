@@ -86,6 +86,19 @@ class RewriteScopeTests(unittest.TestCase):
         builder.rewrite(prefix + r'response.json.jq("del(.ads) | .name = \"keep\"")')
         self.assertTrue(builder.data['http']['body-rewrite'][0].endswith('del(.ads) | .name = "keep"'))
 
+    def test_binary_grpc_mock_preserves_base64_payload(self):
+        import base64
+        builder = self.builder()
+        source = b'\0\0\0\0\x03\x08\x01'
+        encoded = base64.b64encode(source).decode()
+        line = ('response if ${url} ~= /' + self.pattern + '/i then '
+                'response.body.mock("text", "' + encoded + '", 200, true)')
+        builder.rewrite(line)
+        value = builder.data['http']['mock'][0]
+        self.assertEqual(base64.b64decode(value['base64']), source)
+        self.assertEqual(value['status-code'], 200)
+        self.assertEqual(value['headers']['Content-Type'], 'application/grpc')
+
     def test_text_mock_with_explicit_200_keeps_upstream_cache_reset(self):
         import json
         builder = self.builder()
