@@ -21,20 +21,20 @@
 | --- | --- |
 | Mihomo 基础配置、策略组和基础分流 | `mihomo_config.yaml` |
 | Loon 配置、插件启用列表 | `loon_config.conf` |
-| Stash 的主配置兼容转换、DNS、策略名称和 QUIC 顺序 | **`stash_override.js`** |
-| 把广告资源合并进完整 Stash 配置 | `stash_plugins.js` |
+| Stash 的主配置转换、DNS、策略与 QUIC 顺序，以及 dev 全量插件自动合并 | **`stash_override.js`** |
+| 独立广告合并兼容入口（dev 不必重复执行） | `stash_plugins.js` |
 | Stash 广告覆写产物 | `stash_plugins.stoverride`，由构建生成 |
 | 额外完整插件与历史精简清单 | `stash-plugins/extra-plugins.json`、`stash-plugins/focus-policy.json`（dev 不筛选） |
 | 全量下载、Stash 格式转换与生成逻辑 | `stash-plugins/fetch_dependencies.py`、`build.py`、`focus.py` |
 | 本仓库分流修正规则 | `Rule/list/` 与 `Rule/yaml/` |
 
-`stash_override.js` 先执行，`stash_plugins.js` 后执行。它们是 Sub-Store **文件处理脚本**，处理 `$content`，不是节点操作脚本。
+`dev` 只需执行 `stash_override.js` 一个 Sub-Store **文件处理脚本**：先转换 Mihomo 主配置，再下载 dev 全量 `stash_plugins.stoverride`，合并全部分流、MITM、重写、脚本和 provider，最后写回 `$content`。不能放到节点操作。原 `stash_plugins.js` 仍可用于旧两阶段流程，但不应默认叠加，避免重复下载。
 
 Mihomo 分流优先使用上游提供的 `behavior: domain` 规则集，减少 `classical` 规模；需要补充关键词、IP、进程等规则时，使用上游配套的补充集合，避免再叠加包含同一批域名的完整 `classical` 集合。先核实实际文件与覆盖范围；上游没有 domain 版本时保留必要的 classical 规则，不直接修改 behavior 导致格式不兼容或遗漏规则。
 
 QUIC / UDP 443 由 **`stash_override.js`** 管理，位置是现有业务分流、国内直连之后，首条 `MATCH` / `FINAL` 之前。不要在广告覆写里重新前置全局 QUIC 拦截。当前这两条规则只处理兜底前尚未匹配的流量；不能描述为“所有代理连接都会屏蔽 QUIC”。用户已实测全局前置拦截会造成小红书打开和刷新缓慢。
 
-`dev` 的 `extra-plugins.json` 只列额外 **完整源插件**，不接受 `select`、独立 MITM 裁剪或参数重新拼接。`focus-policy.json` 为历史清单，在 `dev` 不参与构建。旧全局 QUIC 拦截仍由主配置处理，插件自带的定向 QUIC 规则保留。下载、语法校验及 Sub-Store 合并必须覆盖整个实际发布内容；构建验证不等于设备真机验证。
+`dev` 的 `extra-plugins.json` 只列额外 **完整源插件**，不接受 `select`、独立 MITM 裁剪或参数重新拼接。`stash_override.js` 内嵌的全量插件合并逻辑必须与 `stash_plugins.js` 一致，任何一方改动都应同步更新，并由 `stash-plugins/test_substore.mjs` 的源代码一致性、单/双流程等价性和幂等校验把关。`focus-policy.json` 为历史清单，在 `dev` 不参与构建。旧全局 QUIC 拦截仍由主配置处理，插件自带的定向 QUIC 规则保留。下载、语法校验及 Sub-Store 合并必须覆盖整个实际发布内容；构建验证不等于设备真机验证。
 
 ## 广告维护流程
 
