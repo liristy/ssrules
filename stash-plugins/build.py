@@ -558,6 +558,15 @@ class Builder:
                 self.add('body-rewrite', f'{target} {kind}-jq {expression}')
                 self.note('已内嵌最新外部 jq 文件：' + url)
                 return
+            header_action = re.fullmatch(
+                r'(request|response)\.header\.(add|replace|delete)\("([^"]+)"(?:,\s*"([^"]*)")?\)', action)
+            if header_action and header_action[1] == kind:
+                operation, name, value = header_action[2], header_action[3], header_action[4]
+                if not re.fullmatch(r'[A-Za-z0-9-]+', name) or (operation != 'delete' and value is None):
+                    raise ValueError('Invalid header edit: ' + action)
+                suffix = f'{name} {value}' if value is not None else name
+                self.add('header-rewrite', f'{target} {kind}-{operation} {suffix}')
+                return
             if jq_action and jq_action[1] == kind:
                 expression = jq_action[2].replace(r'\"', '"')
                 return self.rewrite(target + f' {kind}-body-json-jq ' + expression)
