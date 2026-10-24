@@ -1,4 +1,4 @@
-"""Unselected upstream syntax must not block publication of reviewed rules."""
+"""Validate full-scope rewrite conversion and fail-closed handling of unknown syntax."""
 import unittest
 from unittest.mock import patch
 
@@ -18,12 +18,12 @@ class RewriteScopeTests(unittest.TestCase):
     def conditional(self):
         return 'request if ${url} ~= /' + self.pattern + '/i then reject_dict(200)'
 
-    def test_actual_mail_conditional_is_excluded(self):
+    def test_actual_mail_conditional_is_included(self):
         builder = self.builder()
         builder.rewrite(self.conditional())
         row = builder.data['http']['url-rewrite'][0]
         self.assertEqual(row, '(?i)' + self.pattern + ' - reject-dict')
-        self.assertFalse(keep_entry('url-rewrite', row, builder.source))
+        self.assertTrue(keep_entry('url-rewrite', row, builder.source))
 
     def test_selected_conditional_still_fails(self):
         builder = self.builder()
@@ -44,22 +44,19 @@ class RewriteScopeTests(unittest.TestCase):
         builder.rewrite(self.conditional().replace('reject_dict(200)', 'reject(200)'))
         self.assertTrue(builder.data['http']['url-rewrite'][0].endswith(' - reject-200'))
 
-    def test_unsupported_unselected_conditional_is_recorded(self):
+    def test_unsupported_full_scope_conditional_fails_closed(self):
         builder = self.builder()
-        builder.rewrite(self.conditional().replace('reject_dict(200)', 'future_action()'))
-        self.assertEqual(builder.data['http']['url-rewrite'], [])
-        self.assertEqual(builder.notes[0]['source'], builder.source)
+        with self.assertRaisesRegex(ValueError, 'Unsupported selected conditional rewrite'):
+            builder.rewrite(self.conditional().replace('reject_dict(200)', 'future_action()'))
 
     def test_ambiguous_conditional_still_fails(self):
         with self.assertRaises(ValueError):
             self.builder().rewrite('request if ${method} == GET then reject_dict(200)')
 
-    def test_unknown_action_only_skipped_outside_scope(self):
+    def test_unknown_action_fails_closed_in_full_mode(self):
         builder = self.builder()
-        builder.rewrite(self.pattern + ' future-action')
-        with patch.dict('build.POLICY', {builder.source: {'rewrite': [self.pattern]}}):
-            with self.assertRaisesRegex(ValueError, 'Unrecognized selected rewrite'):
-                builder.rewrite(self.pattern + ' future-action')
+        with self.assertRaisesRegex(ValueError, 'Unrecognized selected rewrite'):
+            builder.rewrite(self.pattern + ' future-action')
 
     def test_supported_rewrite_remains_in_validation_data(self):
         builder = self.builder()
