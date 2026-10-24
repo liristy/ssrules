@@ -141,7 +141,7 @@ assert 0 < len(scripts) <= 80
 assert set(providers) == {entry['name'] for entry in scripts}
 # Full mode keeps internal page handlers and expanded script bindings.
 assert len(core['http'].get('body-rewrite', [])) == report['source_counts']['body-rewrite']
-assert any('HUPU' in name for name in providers)
+assert any('虎扑' in name for name in providers)
 assert sum('weatherkit' in row['match'] for row in scripts) == 2
 assert all(not name.startswith(('loon-', 'ssrules-')) for name in providers)
 for entry in scripts:
