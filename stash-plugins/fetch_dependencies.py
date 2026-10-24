@@ -40,45 +40,6 @@ def selected_plugins(config, root=ROOT):
     return entries
 
 
-def entry_pattern(section, line):
-    if line.startswith(('request if ', 'response if ')):
-        match = re.fullmatch(r'(?:request|response) if \$\{url\} ~= /((?:\\.|[^/])*)/[a-z]* then .+', line)
-        if not match:
-            raise ValueError('Unrecognized conditional source entry: ' + line)
-        return match[1]
-    return re.sub(r'\s*,\s*', ',', line) if section == 'rule' else line.split()[1 if section == 'script' else 0]
-
-
-def extract_plugin(text, entry):
-    """Persist only explicitly selected entries from a large aggregate."""
-    available, section = {}, ''
-    for line in text.splitlines():
-        line = line.strip()
-        if not line or line.startswith(('#', ';', '//')):
-            continue
-        if line.startswith('[') and line.endswith(']'):
-            section = line[1:-1].lower()
-        else:
-            available.setdefault(section, []).append(line)
-    output = ['#!name=' + entry['name'], '# Extracted from: ' + entry['url']]
-    if entry.get('author'):
-        output.append('#!author=' + entry['author'])
-    if entry.get('license_url'):
-        output.append('# Aggregate license (dependencies retain their own terms): ' + entry['license_url'])
-    if entry.get('arguments'):
-        output += ['[Argument]', *entry['arguments']]
-    for section, patterns in entry['select'].items():
-        output.append('[' + section.title() + ']')
-        for pattern in patterns:
-            rows = [line for line in available.get(section, [])
-                    if entry_pattern(section, line) == pattern]
-            if len(rows) != 1:
-                raise ValueError('Selected aggregate entry changed: ' + pattern)
-            output.append(rows[0])
-    output += ['[MitM]', 'hostname=' + ', '.join(entry['mitm'])]
-    return ('\n'.join(output) + '\n').encode()
-
-
 def excluded_plugin(url):
     # Full import: the enabled fmz200/blockAds.plugin is an ordinary plugin,
     # not a special excluded aggregate. Kept for callers in older tests.
