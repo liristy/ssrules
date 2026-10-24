@@ -1,27 +1,27 @@
 {
-  "date": "2026-10-07",
+  "date": "2026-10-25",
   "profile": "all-enabled",
   "counts": {
     "plugins": 27,
-    "rules": 485,
-    "providers": 51,
+    "rules": 482,
+    "providers": 39,
     "mitm": 139,
-    "url-rewrite": 222,
-    "body-rewrite": 74,
+    "url-rewrite": 216,
+    "body-rewrite": 87,
     "mock": 2,
-    "script": 60
+    "script": 46
   },
   "source_counts": {
     "plugins": 27,
-    "rules": 485,
-    "providers": 11,
+    "rules": 482,
+    "providers": 10,
     "force-http-engine": 1,
-    "mitm": 130,
-    "url-rewrite": 222,
+    "mitm": 135,
+    "url-rewrite": 216,
     "header-rewrite": 0,
-    "body-rewrite": 74,
+    "body-rewrite": 87,
     "mock": 2,
-    "script": 60
+    "script": 46
   },
   "addons": [],
   "excluded_plugins": [
@@ -356,7 +356,7 @@
     {
       "file": "Amap_remove_ads.lpx",
       "url": "https://kelee.one/Tool/Loon/Lpx/Amap_remove_ads.lpx",
-      "sha256": "36b1d2156c6d36511e324ac328a865f89695e5d93e959c7bca2d547b25578ef3"
+      "sha256": "17aea055bd7ad50be3507d4d39db8b4191167be7c30ea5018db427d83e765eb0"
     },
     {
       "file": "HUPU_remove_ads.lpx",
@@ -467,73 +467,13 @@
     },
     {
       "source": "Amap_remove_ads.lpx",
-      "line": 40,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 41,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 42,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 43,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 44,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 45,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 46,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 47,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 48,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 49,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 50,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 51,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+      "line": 18,
+      "message": "已内嵌最新外部 jq 文件：https://kelee.one/Resource/JQLang/Amap/updatable.jq"
     },
     {
       "source": "Amap_remove_ads.lpx",
       "line": 52,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 53,
-      "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+      "message": "已内嵌最新外部 jq 文件：https://kelee.one/Resource/JQLang/Amap/search_poi_detail.jq"
     },
     {
       "source": "HUPU_remove_ads.lpx",
@@ -743,14 +683,19 @@
       "source": "Amap_remove_ads.lpx",
       "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
       "before": [
-        "*.amap.com"
+        "m5.amap.com",
+        "ai.amap.com",
+        "m5-zb.amap.com",
+        "center.amap.com",
+        "sns.amap.com",
+        "info.amap.com"
       ],
       "after": [
         "ai.amap.com",
+        "center.amap.com",
         "info.amap.com",
         "m5-zb.amap.com",
         "m5.amap.com",
-        "oss.amap.com",
         "sns.amap.com"
       ]
     },
