@@ -2,7 +2,7 @@ name: Update Stash plugins
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - '.github/workflows/update-stash-plugins.yml'
       - 'stash-plugins/*.py'
@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   update:
-    if: github.ref_name == github.event.repository.default_branch
+    if: github.ref_name == github.event.repository.default_branch || github.ref_name == 'dev'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -50,10 +50,16 @@ jobs:
       - name: Test refresh and failure handling
         run: python -m unittest discover -s stash-plugins -p 'test_*.py'
 
-      - name: Download current plugins and all dependencies
-        run: python stash-plugins/fetch_dependencies.py --refresh
+      - name: Download plugins and dependencies
+        run: |
+          if [ "$GITHUB_REF_NAME" = "dev" ]; then
+            # Dev runs use checked-in snapshots for reproducible full-coverage testing.
+            python stash-plugins/fetch_dependencies.py
+          else
+            python stash-plugins/fetch_dependencies.py --refresh
+          fi
 
-      - name: Build and validate splash, YouTube and weather override
+      - name: Build and validate Stash override
         run: |
           python stash-plugins/build.py
           python stash-plugins/validate.py
