@@ -477,7 +477,7 @@ class Builder:
             # Loon v2 JSON editing maps directly to Stash's native JSON body actions.
             # Parse arguments as JSON so quoted JSON strings are not confused with
             # objects, and convert vector arguments to Stash's repeated pairs.
-            json_action = re.fullmatch(r'(request|response)\\.json\\.(delete|replace|add)\\((.*)\\)', action)
+            json_action = re.fullmatch(r'(request|response)\.json\.(delete|replace|add)\((.*)\)', action)
             if json_action and json_action[1] == kind:
                 method, arguments = json_action[2], json_action[3]
                 if method == 'delete':
@@ -504,12 +504,12 @@ class Builder:
                     self.add('body-rewrite', f'{target} {kind}-json-{method} ' + ' '.join(pairs))
                 return
             body_replace = re.fullmatch(
-                r'(request|response)\\.body\\.replace\\(/((?:\\\\.|[^/])*)/([a-z]*),\\s*("(?:\\\\.|[^"])*")\\)', action)
+                r'(request|response)\.body\.replace\(/((?:\\.|[^/])*)/([a-z]*),\s*("(?:\\.|[^"])*")\)', action)
             if body_replace and body_replace[1] == kind:
                 pattern, flags, quoted = body_replace[2], body_replace[3], body_replace[4]
                 if flags not in ('', 'i'):
                     raise ValueError('Unsupported body replace flags: ' + flags)
-                raw_match = ('(?i)' if flags == 'i' else '') + pattern.replace(r'\\/', '/')
+                raw_match = ('(?i)' if flags == 'i' else '') + pattern.replace(r'\/', '/')
                 replacement = json.loads(quoted)
                 if not raw_match or not replacement or any(char.isspace() for char in (raw_match + replacement)):
                     raise ValueError('Unsupported whitespace/empty body replacement: ' + action)
