@@ -53,7 +53,7 @@ Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集
 
 ### Stash 与 Sub-Store
 
-**dev 分支插件全量覆写**：导入当前 Loon `[Plugin]` 中全部已启用插件（包含 fmz200 的完整 `blockAds.plugin`），以及 `extra-plugins.json` 中的完整 Bilibili 插件。**不再按应用或接口精选，不使用开屏白名单和脚本裁剪。**保留原始 HTTP 重写、脚本、完整 MITM 域名及参数，进行 Stash 兼容转换；仅对重复或前序完全覆盖的规则去重。旧版全局 QUIC 兜底仍交给 `stash_override.js`，而插件中针对特定应用的 QUIC 规则保留。最新有效产物（2026-10-25）：22 份插件、2,617 条分流、1,520 条 URL 重写、173 条正文重写、265 条脚本触发、991 项 MITM。全量规则可能增大内存开销和误拦截概率，建议先在设备上测试，`main` 保持原有精简版。
+**dev 分支当前范围**：完整导入原来已启用的独立应用插件（Loon `[Plugin]` 清单，排除 fmz200 综合合集），外加完整 Bilibili 插件及原有明确选取的盒马、懂球帝、12306、携程、肯德基、航旅纵横功能。**“完整”指已选插件的内容全部保留，不代表导入所有 App 的去广告规则。** 原本的 fmz200 `blockAds.plugin` 只作为指定功能的来源，不将整个约 730 款 App 合集并入。各独立插件不再按开屏/信息流等功能过滤，构建保留其全部有效规则、重写、MITM、脚本和依赖；精选附加来源仍只限此前已批准的具体功能，避免扩大 App 范围。通用 QUIC 保持由 `stash_override.js` 在兜底前管理。最终规则数以新的 `stash-plugins/report.json` 为准。`main` 不变。
 
 **dev 推荐直接使用** `https://raw.githubusercontent.com/liristy/ssrules/dev/stash_override.js`：此文件现在同时完成 Mihomo → Stash 配置转换和完整插件合并，会在生成时下载 `dev/stash_plugins.stoverride`，无需再叠加 `stash_plugins.js`。直接导入 Stash 的独立覆写仍是 `https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride`。全部运行脚本引用 `dev/stash-plugins/runtime/`，与 `main` 保持隔离。
 
