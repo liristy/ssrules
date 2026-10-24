@@ -474,6 +474,47 @@ class Builder:
                         raise ValueError('Unsupported script argument: ' + line)
                     legacy += ', argument="' + '&'.join('{' + name + '}' for name in names) + '"'
                 return self.script(legacy)
+            # Loon v2 JSON editing maps directly to Stash's native JSON body actions.
+            # Parse arguments as JSON so quoted JSON strings are not confused with
+            # objects, and convert vector arguments to Stash's repeated pairs.
+            json_action = re.fullmatch(r'(request|response)\\.json\\.(delete|replace|add)\\((.*)\\)', action)
+            if json_action and json_action[1] == kind:
+                method, arguments = json_action[2], json_action[3]
+                if method == 'delete':
+                    paths = json.loads(arguments)
+                    paths = paths if isinstance(paths, list) else [paths]
+                    if not paths or any(not isinstance(p, str) or not p or any(c.isspace() for c in p) for p in paths):
+                        raise ValueError('Invalid JSON deletion paths: ' + action)
+                    self.add('body-rewrite', f'{target} {kind}-json-del ' + ' '.join(paths))
+                else:
+                    arguments = json.loads('[' + arguments + ']')
+                    if len(arguments) != 2:
+                        raise ValueError('Invalid JSON edit arguments: ' + action)
+                    paths, values = arguments
+                    paths = paths if isinstance(paths, list) else [paths]
+                    values = values if isinstance(values, list) else [values]
+                    if not paths or len(paths) != len(values):
+                        raise ValueError('Mismatched JSON edit arrays: ' + action)
+                    pairs = []
+                    for path, value in zip(paths, values):
+                        if not isinstance(path, str) or not path or any(c.isspace() for c in path):
+                            raise ValueError('Invalid JSON edit path: ' + action)
+                        literal = json.dumps(value, ensure_ascii=False, separators=(',', ':'))
+                        pairs.append(path + ' ' + literal)
+                    self.add('body-rewrite', f'{target} {kind}-json-{method} ' + ' '.join(pairs))
+                return
+            body_replace = re.fullmatch(
+                r'(request|response)\\.body\\.replace\\(/((?:\\\\.|[^/])*)/([a-z]*),\\s*("(?:\\\\.|[^"])*")\\)', action)
+            if body_replace and body_replace[1] == kind:
+                pattern, flags, quoted = body_replace[2], body_replace[3], body_replace[4]
+                if flags not in ('', 'i'):
+                    raise ValueError('Unsupported body replace flags: ' + flags)
+                raw_match = ('(?i)' if flags == 'i' else '') + pattern.replace(r'\\/', '/')
+                replacement = json.loads(quoted)
+                if not raw_match or not replacement or any(char.isspace() for char in (raw_match + replacement)):
+                    raise ValueError('Unsupported whitespace/empty body replacement: ' + action)
+                self.add('body-rewrite', f'{target} {kind}-replace-regex {raw_match} {replacement}')
+                return
             if jq_action and jq_action[1] == kind:
                 expression = jq_action[2].replace(r'\"', '"')
                 return self.rewrite(target + f' {kind}-body-json-jq ' + expression)
