@@ -25,6 +25,31 @@ MAX_BODY_BYTES = 256 * 1024
 NATIVE_HTTP_SECTIONS = ('url-rewrite', 'header-rewrite', 'body-rewrite', 'mock')
 
 
+def flatten_jq_source(source):
+    """Inline a multiline jq file without turning its # comments into code."""
+    cleaned = []
+    for line in source.splitlines():
+        quoted, escaped, kept = False, False, []
+        for char in line:
+            if escaped:
+                kept.append(char)
+                escaped = False
+            elif char == '\\' and quoted:
+                kept.append(char)
+                escaped = True
+            elif char == '"':
+                kept.append(char)
+                quoted = not quoted
+            elif char == '#' and not quoted:
+                break
+            else:
+                kept.append(char)
+        stripped = ''.join(kept).strip()
+        if stripped:
+            cleaned.append(stripped)
+    return ' '.join(cleaned)
+
+
 def needs_http(rule):
     return bool(re.search(r'(?:^|\()(?:URL-REGEX|USER-AGENT),', rule))
 
@@ -522,9 +547,7 @@ class Builder:
                 jq_source = ROOT / 'sources' / filename
                 if not jq_source.is_file():
                     raise ValueError(f'External jq file was not refreshed: {url}')
-                jq_lines = jq_source.read_text(encoding='utf-8-sig').splitlines()
-                expression = ' '.join(line.strip() for line in jq_lines
-                                      if line.strip() and not line.lstrip().startswith('#'))
+                expression = flatten_jq_source(jq_source.read_text(encoding='utf-8-sig'))
                 if not expression:
                     raise ValueError('Downloaded external jq file was empty: ' + url)
                 self.add('body-rewrite', f'{target} {kind}-jq {expression}')
@@ -578,7 +601,7 @@ class Builder:
                 if external:
                     resource = Path(urllib.parse.urlparse(external[1]).path).name
                     jq_text = (ROOT / 'sources' / resource).read_text(encoding='utf-8-sig')
-                    rest = ' '.join(line.strip() for line in jq_text.splitlines() if line.strip() and not line.lstrip().startswith('#'))
+                    rest = flatten_jq_source(jq_text)
                     self.note('内嵌远程 jq：' + resource)
             if '"imgUrl" response-body "fmz200"' == rest:
                 rest = '"imgUrl" "fmz200"'
