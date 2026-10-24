@@ -1,4 +1,10 @@
 payload:
+  # Steam Cloud storage and GlobalSign certificate checks.
+  - DOMAIN,steamcn-sh.oss-cn-shanghai.aliyuncs.com
+  - DOMAIN,steamcloud-hkg.oss-accelerate.aliyuncs.com
+  - DOMAIN,steamcloud-sgp.oss-accelerate.aliyuncs.com
+  - DOMAIN,ocsp.globalsign.com
+  - DOMAIN,crl.globalsign.com
   - DOMAIN-SUFFIX,dongdianqiu.com
   - DOMAIN-SUFFIX,clickme.net
   - DOMAIN-SUFFIX,dasheng.top

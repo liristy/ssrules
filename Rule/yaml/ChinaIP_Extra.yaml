@@ -1,0 +1,3 @@
+# ASN supplement: keep separate from the CIDR-only ChinaIP collection.
+payload:
+  - IP-ASN,132203

@@ -41,15 +41,15 @@ TikTok 网页的 `mssdk.tiktokw.us` 在基础配置中设有精确例外，优�
 
 本地 TikTok 集合基于 blackmatrix7，并按 [v2fly 的 TikTok 集合](https://github.com/v2fly/domain-list-community/blob/master/data/tiktok)补充 CDN 与登录静态资源域，保留关键词和进程匹配，使用 `behavior: classical`。具体条目和来源见文件注释，上游许可证保存在 [Rule/licenses/](Rule/licenses/)。后续维护直接修改该文件；现有广告定时构建不会自动刷新它。Mihomo 与转换后的 Stash 共用该集合，广告拦截及直连修正仍优先。
 
-主配置 `rules` 从上到下匹配，按以下层次排列：**云同步与证书检查精确放行 → 自用域名与局域网 → 公网污染 IP 识别 → 隐私及广告拦截 → 直连修正 → 下载直连 → 专属服务 → 通用补充 → 国外/国内集合 → IP 分流 → 兜底**。策略组在界面中的排列不影响匹配顺序。Google 优先于 Apple，厂商服务优先于综合 Game 集合；例如 `login.live.com` 交给 Microsoft。`DirectRevise` 位于隐私及广告拦截之后，避免宽泛白名单抢先放行跟踪域名；`ProxyRevise` 则补充专属服务之后的通用代理，不能把两个修正集合视为同一优先级。
+主配置 `rules` 从上到下匹配，按以下层次排列：**自用域名与局域网 → 公网污染 IP 识别 → 隐私及广告拦截 → 直连修正 → 下载直连 → 专属服务 → 通用补充 → 国外/国内集合 → IP 分流 → 兜底**。策略组在界面中的排列不影响匹配顺序。Google 优先于 Apple，厂商服务优先于综合 Game 集合；例如 `login.live.com` 交给 Microsoft。`DirectRevise` 位于隐私及广告拦截之后，避免宽泛白名单抢先放行跟踪域名；`ProxyRevise` 则补充专属服务之后的通用代理，不能把两个修正集合视为同一优先级。
 
-Mihomo 的 Steam 云存储与 GlobalSign 证书检查使用五条精确直连例外；[Steam 下载 CDN 补充](Rule/yaml/Steam_Download.yaml)使用 domain 集合，位于综合 `Game` 分流之前。下载集合仅覆盖 CDN，不按 Steam 进程整体分流，也不将商店和社区统一直连。`ProxyRevise` 中的节点地址范围保留到 `179.255.0.0/16`，不记录完整主机地址。
+Mihomo 的 Steam 云存储与 GlobalSign 证书检查由 `DirectRevise` 中的五条精确域名规则直连；[Steam 下载 CDN 补充](Rule/yaml/Steam_Download.yaml)使用 domain 集合，位于综合 `Game` 分流之前。下载集合仅覆盖 CDN，不按 Steam 进程整体分流，也不将商店和社区统一直连。`ProxyRevise` 中的节点地址范围保留到 `179.255.0.0/16`，不记录完整主机地址。
 
 [Hijacking_DNS](Rule/yaml/Hijacking_DNS.yaml)只包含公网污染地址信号，放在 `Lan` 后、宽泛国内直连前，并交给 `GLOBAL`；`Lan` 使用 `no-resolve`，污染地址检测仍允许解析。该集合不能识别所有 HTTP 注入或未来新增的污染地址，不能保证所有网站均可访问。
 
-Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集合继续使用国内 DoH 直连，其余默认通过代理访问 Google/Cloudflare DoH，避免直连出口用独立国内解析器再次查询境外域名。`ChinaIP` 使用 MetaCubeX 的纯 CIDR 集合，ASN `132203` 单独以 `IP-ASN` 表达。本机浏览器与定向 DNS 测试已验证相关路径；Stash 仍由兼容转换脚本使用手机已验证的 DNS，不能将 Windows 测试结论直接当作 iOS 实测。
+Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集合继续使用国内 DoH 直连，其余默认通过代理访问 Google/Cloudflare DoH，避免直连出口用独立国内解析器再次查询境外域名。`ChinaIP` 使用 MetaCubeX 的纯 CIDR 集合，ASN `132203` 由 [ChinaIP_Extra](Rule/yaml/ChinaIP_Extra.yaml) 以 classical 规则补充，并保留在 IP 分流阶段。本机浏览器与定向 DNS 测试已验证相关路径；Stash 仍由兼容转换脚本使用手机已验证的 DNS，不能将 Windows 测试结论直接当作 iOS 实测。
 
-此开发配置中本次修改的 `ProxyRevise`、`Hijacking_DNS` 和新增 `Steam_Download` 引用 `dev` 分支；其他规则来源保持原配置。使用时应更新完整主配置，单独刷新旧规则文件不会带入规则顺序及 DNS 变更。
+此开发配置中本次修改的 `DirectRevise`、`ProxyRevise`、`Hijacking_DNS`、`Steam_Download` 和 `ChinaIP_Extra` 引用 `dev` 分支；其他规则来源保持原配置。使用时应更新完整主配置，单独刷新旧规则文件不会带入规则顺序及 DNS 变更。
 
 ### Stash 与 Sub-Store
 
