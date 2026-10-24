@@ -5,6 +5,8 @@ on:
     branches: [main, dev]
     paths:
       - '.github/workflows/update-stash-plugins.yml'
+      - 'stash_override.js'
+      - 'stash_plugins.js'
       - 'stash-plugins/*.py'
       - 'stash-plugins/*.mjs'
       - 'stash-plugins/focus-policy.json'
