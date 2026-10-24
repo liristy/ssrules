@@ -13,7 +13,7 @@
 
 查找并比较两个来源中的相关条目，追溯引用脚本的实际作者和源文件。本地快照用于定位，上游最新内容需另行核实；来源无法访问时如实说明。
 
-**dev 分支当前约定：完整导入所有已启用插件。** 包括 Loon `[Plugin]` 启用的整个 fmz200/blockAds.plugin，以及附加清单中的整份 Bilibili 插件；不筛掉非开屏、信息流、评论、去水印或其他插件内功能，也不裁剪原始脚本分支。若上游规则存在重复或先前匹配覆盖，可在保证原始匹配行为的前提下安全去重，但不能用精选接口清单默默遗漏功能。对新上游语法应添加兼容转换和验证；无法转换时构建失败并保留上次发布文件。`main` 暂时保持精简版，不从 `dev` 直接同步全量行为。
+**dev 分支当前约定：只完整导入已选择的独立插件，不扩展 App 范围。** Loon `[Plugin]` 中的完整 fmz200/blockAds.plugin **必须排除**；只保留原来单独启用的应用插件、Bilibili 的完整插件，以及原有 `extra-plugins.json` 明确选取的少量 fmz200 应用片段。独立插件不再裁剪脚本分支或开屏/信息流等功能。这里的“插件全量”绝不表示启用 fmz200 中约 730 款 App。去重需保证首条匹配行为不变，无法转换时构建失败并保留上次发布文件。`main` 继续保持原样。
 
 ## 文件职责
 
@@ -24,7 +24,7 @@
 | Stash 的主配置转换、DNS、策略与 QUIC 顺序，以及 dev 全量插件自动合并 | **`stash_override.js`** |
 | 独立广告合并兼容入口（dev 不必重复执行） | `stash_plugins.js` |
 | Stash 广告覆写产物 | `stash_plugins.stoverride`，由构建生成 |
-| 额外完整插件与历史精简清单 | `stash-plugins/extra-plugins.json`、`stash-plugins/focus-policy.json`（dev 不筛选） |
+| 额外完整插件、限定来源片段与历史精简清单 | `stash-plugins/extra-plugins.json`、`stash-plugins/focus-policy.json`（dev 不用于过滤独立插件） |
 | 全量下载、Stash 格式转换与生成逻辑 | `stash-plugins/fetch_dependencies.py`、`build.py`、`focus.py` |
 | 本仓库分流修正规则 | `Rule/list/` 与 `Rule/yaml/` |
 
@@ -34,13 +34,13 @@ Mihomo 分流优先使用上游提供的 `behavior: domain` 规则集，减少 `
 
 QUIC / UDP 443 由 **`stash_override.js`** 管理，位置是现有业务分流、国内直连之后，首条 `MATCH` / `FINAL` 之前。不要在广告覆写里重新前置全局 QUIC 拦截。当前这两条规则只处理兜底前尚未匹配的流量；不能描述为“所有代理连接都会屏蔽 QUIC”。用户已实测全局前置拦截会造成小红书打开和刷新缓慢。
 
-`dev` 的 `extra-plugins.json` 只列额外 **完整源插件**，不接受 `select`、独立 MITM 裁剪或参数重新拼接。`stash_override.js` 内嵌的全量插件合并逻辑必须与 `stash_plugins.js` 一致，任何一方改动都应同步更新，并由 `stash-plugins/test_substore.mjs` 的源代码一致性、单/双流程等价性和幂等校验把关。`focus-policy.json` 为历史清单，在 `dev` 不参与构建。旧全局 QUIC 拦截仍由主配置处理，插件自带的定向 QUIC 规则保留。下载、语法校验及 Sub-Store 合并必须覆盖整个实际发布内容；构建验证不等于设备真机验证。
+`dev` 的 `extra-plugins.json` 只允许原有指定应用：可为完整独立插件（如 Bilibili），也可为 fmz200 综合插件中曾明确选择的具体应用功能片段。不能把这些片段扩展为整个 fmz200 合集，也不能未经用户要求扩大 App 范围。`stash_override.js` 内嵌的全量插件合并逻辑必须与 `stash_plugins.js` 一致，任何一方改动都应同步更新，并由 `stash-plugins/test_substore.mjs` 的源代码一致性、单/双流程等价性和幂等校验把关。`focus-policy.json` 为历史清单，在 `dev` 不参与构建。旧全局 QUIC 拦截仍由主配置处理，插件自带的定向 QUIC 规则保留。下载、语法校验及 Sub-Store 合并必须覆盖整个实际发布内容；构建验证不等于设备真机验证。
 
 ## 广告维护流程
 
 1. 检查当前产物是否已经包含目标功能，避免重复添加。
 2. 按上述两个来源查找条目，核对实际请求路径、返回处理、MITM 域名、依赖脚本和作者声明；保留溯源信息。
-3. 修改实际构建入口：`dev` 所有已启用插件的所有受支持内容都必须纳入，不得重新启用 `focus-policy.json` 的精选过滤。修改插件源时更新完整插件清单、下载器和转换器；不能把 fmz200 退回为精选片段。
+3. 修改实际构建入口：`dev` 完整纳入已选的独立插件内容，`focus-policy.json` 不得过滤这些插件内部功能；同时必须排除 fmz200 整份综合插件，只允许事先指定的应用片段。更新上游源文件不得导致意外扩大 App 范围。
 4. 重新生成 `stash_plugins.stoverride` 和关联产物。不要只手改生成文件，否则每日构建会覆盖。不要为了一条规则刷新或扩展无关功能。
 5. 运行与改动相关的校验；广告构建变更执行 `python stash-plugins/build.py`、`python stash-plugins/validate.py`，涉及维护逻辑时再运行现有 `unittest`。验证 Sub-Store 合并后的顺序，而非只看单个文件。
 6. 同步功能说明及原作者致谢。区分静态检查、样例测试与手机实测；没有手机验证就不能声称应用效果已实测。
