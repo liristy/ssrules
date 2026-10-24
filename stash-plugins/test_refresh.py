@@ -105,6 +105,21 @@ class RefreshTests(unittest.TestCase):
         self.assertEqual(selected, [('https://test.invalid/demo.lpx', 'demo.lpx'),
                                     ('https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin', 'blockAds.plugin')])
 
+    def test_enabled_full_aggregate_is_not_deleted_after_successful_refresh(self):
+        aggregate = 'https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin'
+        config = ('[Plugin]\n'
+                  'https://test.invalid/demo.lpx, enabled=true\n'
+                  + aggregate + ', enabled=true\n')
+        (self.root.parent / 'loon_config.conf').write_text(config, encoding='utf-8')
+        self.resources[aggregate] = b'[Rule]\nDOMAIN,ad-one.test,REJECT\n'
+        self.run_refresh()
+        source = self.root / 'sources/blockAds.plugin'
+        self.assertEqual(source.read_bytes(), self.resources[aggregate])
+        self.resources[aggregate] = b'[Rule]\nDOMAIN,ad-two.test,REJECT\n'
+        self.run_refresh()
+        self.assertEqual(source.read_bytes(), self.resources[aggregate])
+        self.assertIn('blockAds.plugin', [name for _, name in fetcher.selected_plugins(config, root=self.root)])
+
     def test_obsolete_script_snapshot_is_removed_after_success(self):
         self.run_refresh()
         manifest = json.loads((self.root / 'dependencies.json').read_text())
