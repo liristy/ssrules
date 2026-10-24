@@ -17,7 +17,7 @@ https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride
 https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.js
 ```
 
-全量规则会增加 MITM 范围、脚本执行次数、内存消耗及误拦截风险，**未经过真机验证**。请先仅在测试设备启用，移除其他同功能 Stash 覆写后再试。当前 dev 工作流在更新构建代码时使用仓库已保存的快照做可复现构建；main 的定时更新继续刷新上游。下方保留此前精简版的设计与来源记录，仅供历史对照，不代表当前 dev 发布范围。
+全量规则会增加 MITM 范围、脚本执行次数、内存消耗及误拦截风险，**未经过真机验证**。请先仅在测试设备启用，移除其他同功能 Stash 覆写后再试。dev 工作流在构建前强制重新下载上游 Loon 插件、JS 脚本、jq/mock 资源和依赖；仅在下载、转换和验证全部成功时提交新的 `sources/`、`scripts/`、`runtime/` 与覆写产物，避免脚本源更新后仍引用旧内容。下载失败则保留上一版已发布文件，`main` 的更新机制不变。下方保留此前精简版的设计与来源记录，仅供历史对照，不代表当前 dev 发布范围。
 
 ## 原精简版范围（main 分支历史记录）
 
