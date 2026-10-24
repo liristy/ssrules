@@ -4,43 +4,32 @@
 
 全量覆写文件为项目根目录的 `stash_plugins.stoverride`。Stash 的 QUIC 兜底拦截由主配置转换脚本 `stash_override.js` 管理，插件自带的特定应用 QUIC 规则则保留。
 
-## dev 分支：完整插件导入
+## dev 分支：保留原应用范围，完整导入所选插件
 
-`dev` 读取 `loon_config.conf` 中全部启用的 `[Plugin]` 条目，**包含完整的 fmz200 `blockAds.plugin`（不是精选片段）**，另从 `extra-plugins.json` 加载可莉来源的**完整 Bilibili 插件**。源文件不做预先裁剪，不再按开屏、APP、接口、脚本分支筛选。合并时对相同或已被前序规则完全覆盖的条目去重，以保证匹配优先级和体积。
+此分支的“全量”仅针对**已选择的独立插件内部全部规则**，不是全网 App 去广告大全。`loon_config.conf` 已启用的普通独立插件整份下载、完整转换；其中的 `fmz200/blockAds.plugin` **不整份导入**。`extra-plugins.json` 保留原来的具体应用功能片段，并为已选择的 Bilibili 应用引入完整插件。
 
-2026-10-25 经 GitHub Actions 刷新并验证的生成结果：
+具体范围为已启用的独立插件 + Bilibili 完整插件 + 盒马、懂球帝、12306、携程、肯德基、航旅纵横等原有指定功能。对独立插件不使用开屏、信息流或脚本分支的内容筛选；对于来自 fmz200 的附加项，仍只抽取此前明确选择的应用片段，避免意外覆盖数百款无关 App。
 
-| 项目 | 数量 |
-| --- | ---: |
-| 插件完整源文件 | 22 |
-| 分流规则 | 2,617 |
-| URL 重写 | 1,520 |
-| HTTP 正文重写 | 173 |
-| HTTP 头部重写 | 2 |
-| HTTP 静态响应 | 17 |
-| JS 触发规则 | 265 |
-| Script providers | 171 |
-| MITM 域名条目 | 991 |
-| 下载的原始脚本依赖 | 92 |
+每次运行 GitHub Actions 都强制刷新最新的插件、JS、jq/mock 资源及依赖，转换、去重、校验成功才发布新版本。实际规则数量以 `report.json` 为准。`main` 保持原精简配置。
 
-构建会完整下载最新插件源、JS、jq/mock 依赖、语法适配并生成 `runtime/`；无法转换或验证不通过时直接中止发布，不会悄悄回退为精选版。与历史版本相比，构建还加入 Bilibili 的二进制响应、gRPC 头部操作适配；脚本自身的业务行为保留上游版本，使用 Stash 兼容包装。
+### dev 一体化使用
 
-dev 一体化使用方法：在 Sub-Store 的**文件处理**中只使用以下一份脚本，它同时完成基础配置转换和完整插件导入：
+Sub-Store 的**文件处理**中只配置以下一份 JS，它先转换 Mihomo 主配置，再合并所选插件的完整规则和脚本：
 
 ```text
 https://raw.githubusercontent.com/liristy/ssrules/dev/stash_override.js
 ```
 
-如果只需要 Stash 独立广告覆写，或者使用旧的第二步合并脚本，对应地址为：
+如使用独立 Stash 覆写或旧分步处理，对应地址分别是：
 
 ```text
 https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride
 https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.js
 ```
 
-**不要将一体化完整配置和独立覆写同时加载**。旧 `stash_plugins.js` 保留兼容；虽然重复执行的幂等性经过测试，仍会重复下载和解析约 400 KiB 的覆写，建议只保留 `stash_override.js`。两个 JS 的共同合并逻辑已纳入源码同步检查。HTTPS 重写需在设备上启用并信任自己的 MITM 证书。全量导入不代表每款应用都已经真机验证，较大的规则及脚本量会明显增加客户端开销，建议先使用测试设备。
-`main` 保持原精简方案。以下是精简版的历史说明，仅用于溯源和比较，**不适用于当前 `dev` 的筛选范围**。
+不要将一体化配置与独立覆写重复加载。原 `stash_plugins.js` 留作兼容；设备仍需信任个人 MITM 证书。自动化通过并不代表各应用已在手机实测。
 
+---
 ## 原精简版范围（main 分支历史记录）
 
 主文件约 28 KB，包含 460 条分流规则、30 条 URL 拦截/跳转、1 条原生正文重写、2 条静态响应，以及 9 份 JavaScript 的 15 条触发规则。MITM 共 44 项，原有 5 条排除项优先。
