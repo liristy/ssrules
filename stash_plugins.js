@@ -1,6 +1,6 @@
 // Sub-Store 文件处理脚本：放在 stash_override.js 之后。
 // 生成订阅时读取最新去广告配置；Stash 中不要再叠加同一份广告覆写。
-const STASH_ADS_URL = 'https://raw.githubusercontent.com/liristy/ssrules/main/stash_plugins.stoverride';
+const STASH_ADS_URL = 'https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride';
 const STASH_ADS_HTTP_FIELDS = ['mitm', 'url-rewrite', 'header-rewrite', 'body-rewrite', 'mock', 'script'];
 const STASH_ADS_OLD_QUIC = [
   'PROTOCOL,QUIC,REJECT,no-track',
