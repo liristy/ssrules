@@ -267,7 +267,7 @@ class Builder:
         # Build-time validation only. This file is ignored by Git and never imported.
         (ROOT / 'validation-input.json').write_text(json.dumps(full, ensure_ascii=False), encoding='utf-8')
         selected = {}
-        for filename, expected in POLICY.items():
+        for filename, expected in (POLICY if PROFILE != 'all-enabled' else {}).items():
             entries = self.plugin_entries.get(filename)
             if entries is None:
                 continue  # Source plugin disabled by the user's Loon config.
