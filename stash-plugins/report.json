@@ -1,15 +1,15 @@
 {
   "date": "2026-10-07",
-  "profile": "splash-youtube-weather",
+  "profile": "all-enabled",
   "counts": {
     "plugins": 27,
-    "rules": 460,
-    "providers": 14,
-    "mitm": 44,
-    "url-rewrite": 30,
-    "body-rewrite": 1,
+    "rules": 485,
+    "providers": 51,
+    "mitm": 139,
+    "url-rewrite": 222,
+    "body-rewrite": 74,
     "mock": 2,
-    "script": 15
+    "script": 60
   },
   "source_counts": {
     "plugins": 27,
@@ -19,7 +19,7 @@
     "mitm": 130,
     "url-rewrite": 222,
     "header-rewrite": 0,
-    "body-rewrite": 42,
+    "body-rewrite": 74,
     "mock": 2,
     "script": 60
   },
@@ -437,11 +437,6 @@
   "adjustments": [
     {
       "source": "12306_remove_ads.lpx",
-      "line": 17,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/ad\\.12306\\.cn\\/ad\\/ser\\/getAdList$"
-    },
-    {
-      "source": "12306_remove_ads.lpx",
       "line": 21,
       "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
     },
@@ -469,86 +464,6 @@
       "source": "YouTube_remove_ads.lpx",
       "line": 25,
       "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 22,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/conf\\.diditaxi\\.com\\.cn\\/homepage\\/v\\d\\/other\\/slow\\?"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 26,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/conf\\.diditaxi\\.com\\.cn\\/homepage\\/v\\d\\/other\\/fast\\?"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 33,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/conf\\.diditaxi\\.com\\.cn\\/homepage\\/v\\d\\/other\\/fast\\?"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 35,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.udache\\.com\\/gulfstream\\/porsche\\/v\\d\\/dache_homepage_layout\\?"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 61,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/htwkop\\.xiaojukeji\\.com(:443)?\\/gateway\\?api=hm\\.fa\\.querySellCardSummary"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 63,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/htwkop\\.xiaojukeji\\.com(:443)?\\/gateway\\?api=hm\\.fa\\.queryWelfareCenter"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 67,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/poi\\.map\\.xiaojukeji\\.com\\/mapapi\\/startinfo\\?api_version"
-    },
-    {
-      "source": "DiDi_remove_ads.lpx",
-      "line": 68,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/poi\\.map\\.xiaojukeji\\.com\\/mapapi\\/poiinfo\\?product_id"
-    },
-    {
-      "source": "DingdongMaicai_remove_ads.lpx",
-      "line": 41,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/homeApi\\/categoriesNewDetail\\?"
-    },
-    {
-      "source": "DingdongMaicai_remove_ads.lpx",
-      "line": 43,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/tool\\/getConfig\\?"
-    },
-    {
-      "source": "DingdongMaicai_remove_ads.lpx",
-      "line": 47,
-      "message": "跳过未纳入发布范围的上游条件重写：^https?:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/homeApi\\/newDetails\\?"
-    },
-    {
-      "source": "DingdongMaicai_remove_ads.lpx",
-      "line": 51,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/maicai\\.api\\.ddxq\\.mobi\\/guide-service\\/productApi\\/productDetail\\/info\\?"
-    },
-    {
-      "source": "FC_Box_remove_ads.lpx",
-      "line": 25,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/consumer\\.fcbox\\.com\\/v1\\/dynamicConfig\\/findTabbarConfig\\/mainPage$"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 22,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/m5\\.amap\\.com\\/ws\\/shield\\/search_business\\/process\\/marketingOperationStructured\\?"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 23,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/m5\\.amap\\.com\\/ws\\/shield\\/search_poi\\/homepage\\?"
-    },
-    {
-      "source": "Amap_remove_ads.lpx",
-      "line": 37,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/m5-zb\\.amap\\.com\\/ws\\/sharedtrip\\/taxi\\/order_detail_car_tips\\?"
     },
     {
       "source": "Amap_remove_ads.lpx",
@@ -639,11 +554,6 @@
       "source": "HUPU_remove_ads.lpx",
       "line": 27,
       "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
-    },
-    {
-      "source": "Remove_ads_by_keli.lpx",
-      "line": 163,
-      "message": "跳过未纳入发布范围的上游条件重写：^https?:\\/\\/cmds\\.omesoft\\.com\\/HypnotistWS\\.asmx"
     },
     {
       "source": "Taobao_remove_ads.lpx",
@@ -756,36 +666,6 @@
       "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
     },
     {
-      "source": "FleaMarket_remove_ads.lpx",
-      "line": 48,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/acs\\.m\\.goofish\\.com\\/gw\\/mtop\\.taobao\\.idlehome\\.magic\\.home\\.page\\.list\\/"
-    },
-    {
-      "source": "FleaMarket_remove_ads.lpx",
-      "line": 52,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/g-acs\\.m\\.goofish\\.com\\/gw\\/mtop\\.taobao\\.idlemtopsearch\\.search\\/"
-    },
-    {
-      "source": "RedPaper_remove_ads.lpx",
-      "line": 25,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v1\\/search\\/banner_list$"
-    },
-    {
-      "source": "RedPaper_remove_ads.lpx",
-      "line": 26,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v1\\/search\\/hot_list$"
-    },
-    {
-      "source": "RedPaper_remove_ads.lpx",
-      "line": 27,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v4\\/search\\/hint"
-    },
-    {
-      "source": "RedPaper_remove_ads.lpx",
-      "line": 28,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/edith\\.xiaohongshu\\.com\\/api\\/sns\\/v4\\/search\\/trending\\?"
-    },
-    {
       "source": "RedPaper_remove_ads.lpx",
       "line": 31,
       "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
@@ -846,71 +726,17 @@
       "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
     },
     {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 18,
-      "message": "知乎商业接口仅保留 launch_v2 / real_time_launch_v2 开屏拦截。"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 26,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/questions\\/\\d+\\/feeds\\?"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 30,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/comment_v\\d\\/(answers|pins)\\/\\d+\\/root_comment\\?"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 32,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/(api|page-info)(?:\\.zhihu)?\\.com\\/answers\\/v\\d\\/\\d+(?:\\?.*)?$"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 37,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/(articles|answers|pins)\\/v\\d\\/\\d+\\?"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 39,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/comment_v\\d\\/answers\\/\\d+\\/list-headers$"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 45,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/podcasts\\/hub\\/v\\d$"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 52,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/search_v\\d\\?"
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "line": 68,
-      "message": "跳过未纳入发布范围的上游条件重写：^https:\\/\\/api\\.zhihu\\.com\\/people\\/self$"
-    },
-    {
-      "source": "DingdongMaicai_remove_ads.lpx",
+      "source": "BlockAdvertisers.lpx",
       "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
       "before": [
-        "119.29.29.*",
-        "maicai.api.ddxq.mobi",
-        "user.api.ddxq.mobi"
+        "video-dsp.pddpic.com",
+        "t-dsp.pinduoduo.com",
+        "images.pinduoduo.com"
       ],
       "after": [
-        "maicai.api.ddxq.mobi"
-      ]
-    },
-    {
-      "source": "FC_Box_remove_ads.lpx",
-      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
-      "before": [
-        "consumer.fcbox.com",
-        "dsp.fcbox.com"
-      ],
-      "after": [
-        "dsp.fcbox.com"
+        "images.pinduoduo.com",
+        "t-dsp.pinduoduo.com",
+        "video-dsp.pddpic.com"
       ]
     },
     {
@@ -920,92 +746,28 @@
         "*.amap.com"
       ],
       "after": [
-        "m5.amap.com"
+        "ai.amap.com",
+        "info.amap.com",
+        "m5-zb.amap.com",
+        "m5.amap.com",
+        "oss.amap.com",
+        "sns.amap.com"
       ]
     },
     {
-      "source": "Remove_ads_by_keli.lpx",
+      "source": "HUPU_remove_ads.lpx",
       "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
       "before": [
-        "api.zcool.com.cn",
-        "acs.m.goofish.com",
-        "acs.m.taobao.com",
-        "api-access.pangolin-sdk-toutiao*.com",
-        "api-access.pangolin-sdk-toutiao.com",
-        "api-mifit*.huami.com",
-        "api-mifit-cn2.huami.com",
-        "api-mifit.huami.com",
-        "api-overmind.youdao.com",
-        "api.ahmobile.cn",
-        "api.angkeduo.com",
-        "api.jr.mi.com",
-        "api.m.mi.com",
-        "api.pinduoduo.com",
-        "api.wfdata.club",
-        "apiwz.midukanshu.com",
-        "app.zhoudamozi.com",
-        "cdke.youdao.com",
-        "conf-darwin.xycdn.com",
-        "dict.youdao.com",
-        "ecard.shenzhentong.com",
-        "ether-pack.pangolin-sdk-toutiao.com",
-        "gromore.pangolin-sdk-toutiao.com",
-        "gw.alicdn.com",
-        "gw.chuangkit.com",
-        "hfapp-service.qweather.net",
-        "home.mi.com",
-        "home.umetrip.com",
-        "img.allahall.com",
-        "img.dailmo.com",
-        "iyes.youku.com",
-        "lfd?-analytics.bytescm.com",
-        "lfd?-cdn-tos.bytescm.com",
-        "m.qianbao.qq.com",
-        "mercury-gateway.ixiaochuan.cn",
-        "mob.mddcloud.com.cn",
-        "mobads-pre-config.cdn.bcebos.com",
-        "p0.pipi.cn",
-        "qiye.gaoding.com",
-        "sdk1xyajs.data.kuiniuca.com",
-        "sfd?-fe-tos.pglstatp-toutiao.com",
-        "sfo.mddcloud.com.cn",
-        "shopapi.io.mi.com",
-        "shealthyapi.senssun.com",
-        "t-dsp.pinduoduo.com",
-        "toblog.ctobsnssdk.com",
-        "tower.ubixioe.com",
-        "umerp.umetrip.com",
-        "us.l.qq.com",
-        "lanfanapp.com",
-        "api.xiachufang.com",
-        "api.xiangji.qq.com",
-        "video-dsp.pddpic.com",
-        "images.pinduoduo.com",
-        "client.app.coc.10086.cn",
-        "cdn.cmgadx.com",
-        "qadx.qinlinad.com",
-        "watch.iot.mi.com",
-        "cdn.web.chelaile.net.cn",
-        "d.socdm.com",
-        "m.client.10010.com",
-        "cmds.omesoft.com",
-        "api.fenxianglife.com"
+        "games.mobileapi.hupu.com",
+        "fairy.mobileapi.hupu.com",
+        "bbs.mobileapi.hupu.com",
+        "goblin.hupu.com"
       ],
       "after": [
-        "acs.m.taobao.com",
-        "api-mifit-cn2.huami.com",
-        "api.jr.mi.com",
-        "api.m.mi.com",
-        "api.pinduoduo.com",
-        "api.xiangji.qq.com",
-        "api.yangkeduo.com",
-        "api.zcool.com.cn",
-        "app.10099.com.cn",
-        "cdke.youdao.com",
-        "client-api-v2.oray.com",
-        "client.app.coc.10086.cn",
-        "m.client.10010.com",
-        "qiye.gaoding.com"
+        "bbs.mobileapi.hupu.com",
+        "fairy.mobileapi.hupu.com",
+        "games.mobileapi.hupu.com",
+        "goblin.hupu.com"
       ]
     },
     {
@@ -1020,6 +782,8 @@
       "after": [
         "acs.m.taobao.com",
         "guide-acs.m.taobao.com",
+        "gw.alicdn.com",
+        "heic.alicdn.com",
         "poplayer.template.alibaba.com"
       ]
     },
@@ -1032,60 +796,13 @@
         "weibo.com"
       ],
       "after": [
+        "api.weibo.cn",
         "bootpreload.uve.weibo.com",
         "bootrealtime.uve.weibo.com",
+        "card.weibo.com",
         "sdkapp.uve.weibo.com",
-        "wbapp.uve.weibo.com"
-      ]
-    },
-    {
-      "source": "FleaMarket_remove_ads.lpx",
-      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
-      "before": [
-        "acs.m.goofish.com",
-        "g-acs.m.goofish.com"
-      ],
-      "after": [
-        "acs.m.goofish.com"
-      ]
-    },
-    {
-      "source": "RedPaper_remove_ads.lpx",
-      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
-      "before": [
-        "ci.xiaohongshu.com",
-        "edith.xiaohongshu.com",
-        "rec.xiaohongshu.com",
-        "so.xiaohongshu.com",
-        "www.xiaohongshu.com"
-      ],
-      "after": [
-        "edith.xiaohongshu.com"
-      ]
-    },
-    {
-      "source": "VideoGo_remove_ads.lpx",
-      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
-      "before": [
-        "api.ys7.com",
-        "i.ys7.com"
-      ],
-      "after": [
-        "api.ys7.com"
-      ]
-    },
-    {
-      "source": "Zhihu_remove_ads.lpx",
-      "message": "按保留的 HTTP 接口重新生成 MITM 列表。",
-      "before": [
-        "m-cloud.zhihu.com",
-        "api.zhihu.com",
-        "www.zhihu.com",
-        "page-info.zhihu.com",
-        "zhida.zhihu.com"
-      ],
-      "after": [
-        "api.zhihu.com"
+        "wbapp.uve.weibo.com",
+        "weibo.com"
       ]
     }
   ]
