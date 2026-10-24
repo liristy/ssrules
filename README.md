@@ -53,7 +53,7 @@ Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集
 
 ### Stash 与 Sub-Store
 
-**dev 分支全量覆写**：此分支已改为加载当前 Loon 配置中启用的普通插件及 `extra-plugins.json` 已选条目，不再只输出开屏广告接口。URL/正文重写、脚本触发与相应 MITM 主机名均参与构建；移除的旧全局 QUIC 拦截仍由主配置脚本统一处理。fmz200 的整份 730 应用合集仍不直接导入，仅沿用已有精选片段，避免重复与不可控的扩展。请先在测试环境确认是否存在误拦截或内存压力，再决定是否合并 `main`。
+**dev 分支插件全量覆写**：导入当前 Loon `[Plugin]` 中全部已启用插件（包含 fmz200 的完整 `blockAds.plugin`），以及 `extra-plugins.json` 中的完整 Bilibili 插件。**不再按应用或接口精选，不使用开屏白名单和脚本裁剪。**保留原始 HTTP 重写、脚本、完整 MITM 域名及参数，进行 Stash 兼容转换；仅对重复或前序完全覆盖的规则去重。旧版全局 QUIC 兜底仍交给 `stash_override.js`，而插件中针对特定应用的 QUIC 规则保留。最新有效产物（2026-10-25）：22 份插件、2,617 条分流、1,520 条 URL 重写、173 条正文重写、265 条脚本触发、991 项 MITM。全量规则可能增大内存开销和误拦截概率，建议先在设备上测试，`main` 保持原有精简版。
 
 dev 覆写地址：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride`；dev 文件处理脚本：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.js`。此分支的运行脚本同样引用 `dev/stash-plugins/runtime/`，与 `main` 保持隔离。以下以 `main` 为例的原始使用说明仍保留用于对比。
 
@@ -92,8 +92,8 @@ dev 覆写地址：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_
 
 | 构建文件 | 职责 |
 | --- | --- |
-| [focus-policy.json](stash-plugins/focus-policy.json) | 允许进入发布产物的 HTTP 接口清单 |
-| [extra-plugins.json](stash-plugins/extra-plugins.json) | 从 fmz200 合集中选择的额外条目及其 MITM、参数 |
+| [focus-policy.json](stash-plugins/focus-policy.json) | 历史精简模式的接口清单；`dev` 全量构建不使用 |
+| [extra-plugins.json](stash-plugins/extra-plugins.json) | `dev` 额外加载的完整插件（当前为 Bilibili），不包含精选配置 |
 | [fetch_dependencies.py](stash-plugins/fetch_dependencies.py) | 下载插件、依赖脚本及选定合集片段，保存来源信息 |
 | [focus.py](stash-plugins/focus.py) | 功能筛选和指定脚本的开屏处理分支提取 |
 | [build.py](stash-plugins/build.py) | 语法转换、去重、MITM 范围收敛及产物生成 |
@@ -102,7 +102,7 @@ dev 覆写地址：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_
 | `runtime/` | 发布产物实际引用的脚本；保留部分旧哈希文件用于兼容旧客户端 |
 | `dependencies.json`、`refresh.json`、`locations.json`、`report.json` | 记录依赖、刷新信息、条目位置和构建统计 |
 
-不要只手动修改 `stash_plugins.stoverride`，应修改筛选清单或生成逻辑后重新构建，否则下次更新会覆盖。基础分流变更需要检查相关客户端的规则表示；专属规则无需机械地复制到所有格式。
+不要只手动修改 `stash_plugins.stoverride`，应修改插件启用入口、完整插件清单或生成逻辑后重新构建，否则下次更新会覆盖。基础分流变更需要检查相关客户端的规则表示；专属规则无需机械地复制到所有格式。
 
 本地构建依赖 Python 3.11+、Node.js 22 及 Python 依赖：
 
