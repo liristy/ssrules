@@ -307,20 +307,25 @@ class Builder:
             rows = full['rules'] if section == 'rules' else full['http'][section]
             selected[section] = [entry for entry, loc in zip(rows, self.locations.get(section, []))
                                  if keep_entry(section, entry, loc.rsplit(':', 1)[0])]
-        hosts = [host for host in full['http']['mitm'] if host.startswith('-')]
-        for filename, entries in self.plugin_entries.items():
-            focused = {key: [row for row in value if keep_entry(key, row, filename)]
-                       for key, value in entries.items() if key != 'mitm'}
-            focused['mitm'] = entries.get('mitm', [])
-            patterns = [row['match'] if isinstance(row, dict) else row.split()[0]
-                        for key in (*NATIVE_HTTP_SECTIONS, 'script') for row in focused.get(key, [])]
-            if not patterns:
-                continue
-            resolved = [literal_url_hosts(pattern) for pattern in patterns]
-            narrowed = sorted({host for group in resolved for host in group}) if all(group is not None for group in resolved) else narrow_mitm(focused)
-            hosts.extend(narrowed)
-            if narrowed != entries.get('mitm', []):
-                self.notes.append({'source': filename, 'message': '按保留的 HTTP 接口重新生成 MITM 列表。', 'before': entries['mitm'], 'after': narrowed})
+        # Full import must preserve every upstream MITM hostname, including
+        # wildcards and endpoints without an exact URL match in the converter.
+        hosts = list(full['http']['mitm']) if PROFILE == 'all-enabled' else [
+            host for host in full['http']['mitm'] if host.startswith('-')
+        ]
+        if PROFILE != 'all-enabled':
+            for filename, entries in self.plugin_entries.items():
+                focused = {key: [row for row in value if keep_entry(key, row, filename)]
+                           for key, value in entries.items() if key != 'mitm'}
+                focused['mitm'] = entries.get('mitm', [])
+                patterns = [row['match'] if isinstance(row, dict) else row.split()[0]
+                            for key in (*NATIVE_HTTP_SECTIONS, 'script') for row in focused.get(key, [])]
+                if not patterns:
+                    continue
+                resolved = [literal_url_hosts(pattern) for pattern in patterns]
+                narrowed = sorted({host for group in resolved for host in group}) if all(group is not None for group in resolved) else narrow_mitm(focused)
+                hosts.extend(narrowed)
+                if narrowed != entries.get('mitm', []):
+                    self.notes.append({'source': filename, 'message': '按保留的 HTTP 接口重新生成 MITM 列表。', 'before': entries['mitm'], 'after': narrowed})
         core = {
             'name': '广告净化',
             'desc': '已启用插件的完整去广告、请求重写、脚本及天气增强（dev）。',
@@ -352,7 +357,7 @@ class Builder:
                 suffix += 1
             entry['name'] = display_name
             core['script-providers'][display_name] = provider
-        assert len(core['http']['script']) <= 80, 'Script bindings exceeded the size budget'
+        assert len(core['http']['script']) <= 1024, 'Script bindings exceeded Stash full-import safety limit'
         runtime_dir = ROOT / 'runtime'
         runtime_dir.mkdir(exist_ok=True)
         for name, payload in runtime_files.items():
@@ -703,7 +708,7 @@ class Builder:
         header = '# 自动生成：python stash-plugins/build.py\n# 拦截、重写和脚本已合并；只需导入此覆写，脚本代码通过远程地址加载。\n# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。\n'
         output = header + yaml.dump(self.data, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=120)
         assert yaml.safe_load(output) == self.data
-        assert len(output.encode()) < 150_000, 'Core override exceeded its size budget'
+        assert len(output.encode()) < 3_000_000, 'Core override exceeded full-import safety limit'
         assert not re.search(r'\{(?:\w+_enable|Weather\.Provider)\}', output)
         OUTPUT.write_text(output, encoding='utf-8')
         print(json.dumps(counts, ensure_ascii=False))
