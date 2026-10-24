@@ -501,7 +501,7 @@ rule-providers:
 rules:
   - DOMAIN-KEYWORD,jyq.,DIRECT
   - RULE-SET,Lan,DIRECT,no-resolve
-  - RULE-SET,Hijacking_DNS,GLOBAL
+  - RULE-SET,Hijacking_DNS,Verizon
   - RULE-SET,Privacy_Domain,AdBlock
   - RULE-SET,Privacy,AdBlock
   - RULE-SET,BlockRevise,AdBlock
@@ -528,10 +528,10 @@ rules:
   - RULE-SET,ProxyRevise,GLOBAL
   - RULE-SET,Application_CN,DIRECT
   - RULE-SET,Direct,DIRECT
-  - RULE-SET,Global_Domain,GLOBAL
-  - RULE-SET,Global,GLOBAL
   - RULE-SET,China_Domain,DIRECT
+  - RULE-SET,Global_Domain,GLOBAL
   - RULE-SET,China,DIRECT
+  - RULE-SET,Global,GLOBAL
   - RULE-SET,ChinaIP_Extra,DIRECT,no-resolve
   - RULE-SET,ChinaIP,DIRECT
   - GEOIP,CN,DIRECT

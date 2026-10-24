@@ -45,7 +45,7 @@ TikTok 网页的 `mssdk.tiktokw.us` 在基础配置中设有精确例外，优�
 
 Mihomo 的 Steam 云存储与 GlobalSign 证书检查由 `DirectRevise` 中的五条精确域名规则直连；[Steam 下载 CDN 补充](Rule/yaml/Steam_Download.yaml)使用 domain 集合，位于综合 `Game` 分流之前。下载集合仅覆盖 CDN，不按 Steam 进程整体分流，也不将商店和社区统一直连。`ProxyRevise` 中的节点地址范围保留到 `179.255.0.0/16`，不记录完整主机地址。
 
-[Hijacking_DNS](Rule/yaml/Hijacking_DNS.yaml)只包含公网污染地址信号，放在 `Lan` 后、宽泛国内直连前，并交给 `GLOBAL`；`Lan` 使用 `no-resolve`，污染地址检测仍允许解析。该集合不能识别所有 HTTP 注入或未来新增的污染地址，不能保证所有网站均可访问。
+[Hijacking_DNS](Rule/yaml/Hijacking_DNS.yaml)只包含公网污染地址信号，放在 `Lan` 后、宽泛国内直连前，并交给 `Verizon`（经 DMIT 链式连接）；`Lan` 使用 `no-resolve`，污染地址检测仍允许解析。该集合不能识别所有 HTTP 注入或未来新增的污染地址，不能保证所有网站均可访问。
 
 Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集合继续使用国内 DoH 直连，其余默认通过代理访问 Google/Cloudflare DoH，避免直连出口用独立国内解析器再次查询境外域名。`ChinaIP` 使用 MetaCubeX 的纯 CIDR 集合，ASN `132203` 由 [ChinaIP_Extra](Rule/yaml/ChinaIP_Extra.yaml) 以 classical 规则补充，并保留在 IP 分流阶段。本机浏览器与定向 DNS 测试已验证相关路径；Stash 仍由兼容转换脚本使用手机已验证的 DNS，不能将 Windows 测试结论直接当作 iOS 实测。
 
