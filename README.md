@@ -53,6 +53,10 @@ Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集
 
 ### Stash 与 Sub-Store
 
+**dev 分支全量覆写**：此分支已改为加载当前 Loon 配置中启用的普通插件及 `extra-plugins.json` 已选条目，不再只输出开屏广告接口。URL/正文重写、脚本触发与相应 MITM 主机名均参与构建；移除的旧全局 QUIC 拦截仍由主配置脚本统一处理。fmz200 的整份 730 应用合集仍不直接导入，仅沿用已有精选片段，避免重复与不可控的扩展。请先在测试环境确认是否存在误拦截或内存压力，再决定是否合并 `main`。
+
+dev 覆写地址：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride`；dev 文件处理脚本：`https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.js`。此分支的运行脚本同样引用 `dev/stash-plugins/runtime/`，与 `main` 保持隔离。以下以 `main` 为例的原始使用说明仍保留用于对比。
+
 完整配置的处理顺序是：
 
 ```text
