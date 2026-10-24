@@ -20,7 +20,7 @@ config_text = (ROOT.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
 assert report['counts']['plugins'] == len(selected_plugins(config_text))
 assert report['counts']['rules'] == len(core['rules'])
 assert report['source_counts']['rules'] == len(data['rules'])
-assert report['profile'] == 'splash-youtube-weather'
+assert report['profile'] == 'all-enabled'
 approved_excerpts = {entry['file'] for entry in extra_plugins()}
 assert not any(item['file'] == 'blockAds.plugin' or ('/fmz200/' in item['url'] and item['file'] not in approved_excerpts) for item in report['sources'])
 assert not any('/fmz200/' in url for url in json.loads((ROOT / 'dependencies.json').read_text(encoding='utf-8')))
@@ -34,103 +34,21 @@ assert core['rules'] == selected('rules')
 for key in NATIVE_HTTP_SECTIONS:
     assert core['http'].get(key, []) == selected(key), key
     assert report['counts'].get(key, 0) == len(core['http'].get(key, []))
-google_redirects = [row for row, loc in zip(data['http']['url-rewrite'], locations['url-rewrite']) if loc.startswith('Google.lpx:')]
-assert len(google_redirects) == 2
-assert all(row in core['http']['url-rewrite'] and row.endswith(' 307') for row in google_redirects)
-assert 'www.google.cn' in core['http']['mitm']
-assert not {'*.amap.com', '*.weibo.cn', '*.weibo.com'} & set(core['http']['mitm'])
-assert {'m5.amap.com', 'sdkapp.uve.weibo.com'} <= set(core['http']['mitm'])
-assert not {'info.amap.com', 'api.weibo.cn', 'mobile.12306.cn', 'rec.xiaohongshu.com'} & set(core['http']['mitm'])
-assert 'api.zhihu.com' in core['http']['mitm']
-assert any(row.removeprefix('(?i)') == ZHIHU_SPLASH + ' - reject-dict' for row in core['http']['url-rewrite'])
-for suffix in ['launch_v2', 'launch_v2?screen=1', 'real_time_launch_v2?screen=1', 'launch_v2/']:
-    assert re.search(ZHIHU_SPLASH, 'https://api.zhihu.com/commercial_api/' + suffix)
-for suffix in ['app_float_layer', 'banners_v3/app_topstory_banner', 'answer/123/bottom-v2', 'launch_v2_extra']:
-    assert not re.search(ZHIHU_SPLASH, 'https://api.zhihu.com/commercial_api/' + suffix)
-assert not any('zhihu' in row['match'] for row in core['http']['script'])
-assert 'DOMAIN-KEYWORD,apimg.qunliao.info,REJECT' in core['rules']
-assert 'ap.dongdianqiu.com' in core['http']['mitm']
-dqd_rule = next(row for row in core['http']['url-rewrite'] if 'dongdianqiu' in row)
-dqd_match, dqd_target, dqd_action = dqd_rule.split()
-assert (dqd_target, dqd_action) == ('-', 'reject')
-assert re.search(dqd_match, 'https://ap.dongdianqiu.com/plat/v4?platform=ios')
-assert not re.search(dqd_match, 'https://www.dongqiudi.com/articles')
-assert not any('dongqiudi' in row['match'] or 'dongdianqiu' in row['match'] for row in core['http']['script'])
-assert {'app.bilibili.com', 'acs-m.freshippo.com', 'acs.m.taobao.com'} <= set(core['http']['mitm'])
-assert not any('bilibili' in row['name'].lower() for row in core['http']['script'])
-assert sum('盒马' in row['name'] for row in core['http']['script']) == 1
-bili_rule = next(row for row in core['http']['body-rewrite'] if 'bilibili' in row)
-bili_match, bili_action, bili_expression = bili_rule.split(maxsplit=2)
-assert bili_action == 'response-jq'
-for endpoint in ['show', 'event/list2']:
-    assert re.search(bili_match, 'https://app.bilibili.com/x/v2/splash/' + endpoint + '?appkey=test')
-assert not re.search(bili_match, 'https://app.bilibili.com/x/v2/feed/index?appkey=test')
-assert jq.compile(bili_expression).input({'code': 0, 'data': {'show': [1], 'event_list': [2], 'keep': 3}}).first() == {'code': 0, 'data': {'show': [], 'event_list': [], 'keep': 3}}
-bili_mock = next(row for row in core['http']['mock'] if 'bilibili' in row['match'])
-bili_data = json.loads(bili_mock['text'])
-assert bili_mock['status-code'] == 200 and bili_data['code'] == 0
-assert bili_data['data']['max_time'] == 0
-assert bili_data['data']['keep_ids'] == [] and bili_data['data']['show'] == []
-assert bili_data['data']['list'] == [{}]
-for scheme in ['http', 'https']:
-    for endpoint in ['list', 'brand/list']:
-        for suffix in ['', '?appkey=test']:
-            assert re.search(bili_mock['match'], scheme + '://app.bilibili.com/x/v2/splash/' + endpoint + suffix)
-for endpoint in ['list_extra', 'brand/list_extra', '../feed/index']:
-    assert not re.search(bili_mock['match'], 'https://app.bilibili.com/x/v2/splash/' + endpoint)
-umetrip = [row for row in core['http']['url-rewrite'] if 'umetrip' in row]
-assert len(umetrip) == 1 and umetrip[0].endswith(' - reject')
-umetrip_match = umetrip[0].split()[0]
-for scheme in ['http', 'https']:
-    for host in ['startup.umetrip.com', 'discardrp.umetrip.com']:
-        assert host in core['http']['mitm']
-        assert re.search(umetrip_match, scheme + '://' + host + '/gateway/api/umetrip/native?rpid=1000002')
-for url in ['https://home.umetrip.com/gateway/api/umetrip/native',
-            'https://startup.umetrip.com/gateway/api/umetrip/native_extra',
-            'https://startup.umetrip.com/gateway/api/umetrip/login']:
-    assert not re.search(umetrip_match, url)
-assert not {'home.umetrip.com', 'mbank5.jsbchina.cn'} & set(core['http']['mitm'])
+# Full dev build must include every successfully converted rule and HTTP entry.
+assert len(core['rules']) == report['source_counts']['rules']
+assert len(core['http'].get('url-rewrite', [])) == report['source_counts']['url-rewrite']
+assert len(core['http'].get('body-rewrite', [])) == report['source_counts']['body-rewrite']
+assert len(core['http'].get('script', [])) == report['source_counts']['script']
+assert len(core['http']['script']) > 30, 'Full script entries were accidentally filtered'
+assert len(core['http']['url-rewrite']) > 100, 'Full URL rewrites were accidentally filtered'
+assert len(core['http']['body-rewrite']) > 20, 'Full body rewrites were accidentally filtered'
 assert 'weatherkit.apple.com' in core['http']['mitm']
-assert 'api.xiachufang.com' not in core['http']['mitm']
-assert core_path.stat().st_size < 150_000
+assert 'DOMAIN-KEYWORD,apimg.qunliao.info,REJECT' in core['rules']
+assert 'app.bilibili.com' in core['http']['mitm']
 assert not set(LEGACY_QUIC_RULES) & set(core['rules'])
 assert not any('QUIC' in rule for rule in core['rules'])
-# Dingdong uses native splash interception; do not import shopping/feed cleanup.
-dingdong = [row for row in core['http']['url-rewrite'] if 'ddxq' in row]
-assert len(dingdong) == 1
-assert dingdong[0].split()[0].removeprefix('(?i)') == r'^https?:\/\/maicai\.api\.ddxq\.mobi\/advert\/'
-assert dingdong[0].split()[1:] in [['-', 'reject'], ['-', 'reject-200']]
-assert 'maicai.api.ddxq.mobi' in core['http']['mitm']
-assert 'user.api.ddxq.mobi' not in core['http']['mitm']
-for scheme in ['http', 'https']:
-    assert re.search(dingdong[0].split()[0], scheme + '://maicai.api.ddxq.mobi/advert/start?city=1')
-for path in ['homeApi/newDetails', 'order/getRecommend', 'search/hotKeyword']:
-    assert not re.search(dingdong[0].split()[0], 'https://maicai.api.ddxq.mobi/' + path)
-assert not any('ddxq' in row['match'] for row in core['http']['script'])
-# Keep travel/food app handling confined to the reviewed advertising endpoints.
-assert {'ad.12306.cn', 'ma-adx.ctrip.com', 'res.kfc.com.cn'} <= set(core['http']['mitm'])
-assert 'm.ctrip.com' not in core['http']['mitm']
-rail = [row for row in core['http']['script'] if '12306' in row['match']]
-assert len(rail) == 1 and rail[0]['type'] == 'request' and rail[0]['require-body']
-assert not any('12306' in row for row in core['http'].get('body-rewrite', []))
-for scheme in ['http', 'https']:
-    for suffix in ['', '?version=1']:
-        assert re.search(rail[0]['match'], scheme + '://ad.12306.cn/ad/ser/getAdList' + suffix)
-assert not re.search(rail[0]['match'], 'https://mobile.12306.cn/otsmobile/app/mgs/mgw.htm')
-for token, urls, excluded in [
-    ('ctrip', ['https://ma-adx.ctrip.com/_ma.gif?scene=splash'],
-     ['https://m.ctrip.com/restapi/soa2/13916/json/tripAds', 'https://m.ctrip.com/restapi/soa2/10000/json/search']),
-    ('kfc', ['https://res.kfc.com.cn/CRM/kfcad/apphome5/apphome.json',
-             'https://res.kfc.com.cn/CRM/kfcad/apphome6/launch.json?v=1'],
-     ['https://res.kfc.com.cn/advertisement/banner.png', 'https://res.kfc.com.cn/CRM/order/create']),
-]:
-    rows = [row for row in core['http']['url-rewrite'] if token in row]
-    assert len(rows) == len(urls)
-    for url in urls:
-        assert any(re.search(row.split()[0], url) for row in rows), url
-    for url in excluded:
-        assert not any(re.search(row.split()[0], url) for row in rows), url
-    assert not any(token in row['match'] for row in core['http']['script'])
+assert core_path.stat().st_size < 150_000
+
 exclusions = []
 for _, line in sections(config_text).get('mitm', []):
     if line.lower().startswith('hostname'):
@@ -219,14 +137,12 @@ providers = core['script-providers']
 scripts = core['http']['script']
 assert report['counts']['script'] == len(scripts)
 assert report['counts']['providers'] == len(providers)
-assert 0 < len(scripts) <= 16
+assert 0 < len(scripts) <= 80
 assert set(providers) == {entry['name'] for entry in scripts}
-assert len(core['http'].get('body-rewrite', [])) <= 5
-assert not any('HUPU' in name for name in providers)
-assert sum('12306' in name for name in providers) == 1
+# Full mode keeps internal page handlers and expanded script bindings.
+assert len(core['http'].get('body-rewrite', [])) == report['source_counts']['body-rewrite']
+assert any('HUPU' in name for name in providers)
 assert sum('weatherkit' in row['match'] for row in scripts) == 2
-assert sum('YouTube' in row['name'] for row in scripts) == 3
-assert sum('微博' in row['name'] for row in scripts) == 3
 assert all(not name.startswith(('loon-', 'ssrules-')) for name in providers)
 for entry in scripts:
     assert entry['timeout'] <= 10
@@ -253,4 +169,4 @@ subprocess.run(['node', str(ROOT / 'test_substore.mjs')], input=json.dumps(core,
 print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
 print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
 print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')
-print('Focused override: splash handlers (including Bilibili), YouTube, weather and requested Hema cleanup retained; other internal UI/feed/watermark processing excluded; script/body limits and remote providers verified.')
+print('Full dev override: all selected-source rewrites, body modifications, scripts and relevant MITM hosts retained; size limits and remote providers verified.')
