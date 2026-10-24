@@ -1,5 +1,5 @@
 {
-  "description": "开屏去广告、YouTube 去广告和天气增强；保留通用网络拦截。未列入的 HTTP 功能不自动加入。",
+  "description": "历史精简模式的关键接口清单；dev 全量模式不依据此清单过滤，其条目继续用于上游一致性检查。",
   "plugins": {
     "12306_remove_ads.lpx": {
       "rewrite": [],
