@@ -480,7 +480,7 @@ class Builder:
             redirect = re.fullmatch(r'redirect[(](302|307),\s*"([^"\s]+)"[)]', action)
             script = re.fullmatch(r'script[(]"(https?://[^"\s]+)"(?:,\s*(\{.*\}))?[)](?: with (.+))?', action)
             jq_action = re.fullmatch(r'(request|response)[.]json[.]jq[(]"(.*)"[)]', action)
-            mock = re.fullmatch(r'response[.]body[.]mock[(]"(json|text)",\s*"(.*)"(?:,\s*(200))?[)]', action)
+            mock = re.fullmatch(r'response[.]body[.]mock[(]"(json|text)",\s*"(.*)"(?:,\s*(200|404))?(?:,\s*(true|false))?[)]', action)
             if reject and kind == 'request':
                 name, status = reject.groups()
                 if name != 'reject' and status != '200':
@@ -563,9 +563,19 @@ class Builder:
                 return self.rewrite(target + f' {kind}-body-json-jq ' + expression)
             if mock and kind == 'response':
                 body = mock[2].replace(r'\"', '"')
-                json.loads(body)
-                self.add('mock', {'match': target, 'status-code': 200, 'text': body,
-                                  'headers': {'Content-Type': 'application/json' if mock[1] == 'json' else 'text/plain; charset=utf-8'}})
+                status = int(mock[3] or 200)
+                if mock[4] == 'true':
+                    # Loon binary=true supplies a base64-encoded body, commonly
+                    # gRPC/protobuf responses which are not valid JSON.
+                    import base64
+                    base64.b64decode(body, validate=True)
+                    self.add('mock', {'match': target, 'status-code': status, 'base64': body,
+                                      'headers': {'Content-Type': 'application/grpc', 'grpc-status': '0'}})
+                else:
+                    if mock[1] == 'json':
+                        json.loads(body)
+                    self.add('mock', {'match': target, 'status-code': status, 'text': body,
+                                      'headers': {'Content-Type': 'application/json' if mock[1] == 'json' else 'text/plain; charset=utf-8'}})
                 return
             if not selected:
                 self.note('跳过未纳入发布范围的上游条件重写：' + pattern)
