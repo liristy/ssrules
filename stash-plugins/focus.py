@@ -1,14 +1,17 @@
-"""Reviewed HTTP allowlist and extraction of upstream splash-only JS branches."""
+"""Full enabled-plugin mode, with legacy reviewed splash allowlist retained for reference."""
 import json
 import re
 from pathlib import Path
 
+PROFILE = 'all-enabled'  # dev: publish every supported entry from the selected plugin snapshots.
 POLICY = json.loads(Path(__file__).with_name('focus-policy.json').read_text(encoding='utf-8'))['plugins']
 ZHIHU_COMMERCIAL = r'^https:\/\/api\.zhihu\.com\/commercial_api\/'
 ZHIHU_SPLASH = ZHIHU_COMMERCIAL + r'(?:launch_v2|real_time_launch_v2)(?:\?|/|$)'
 
 
 def keep_entry(section, entry, source):
+    if PROFILE == 'all-enabled':
+        return True
     if section == 'rules':
         # Keep ordinary network blocking, including QUIC. HTTP matching and
         # explicit shopping-page blocks are outside the focused feature set.
@@ -29,7 +32,9 @@ def between(text, start, end):
 
 
 def trim_script(url, script):
-    """Extract fresh upstream branches each build; fail on structural changes."""
+    """Keep full upstream handlers in full mode; preserve the special 12306 splash adapter."""
+    if PROFILE == "all-enabled" and url != "https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js":
+        return script
     if url == 'https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js':
         # Only placement 0007 is the splash; leave other placements untouched.
         branches = re.findall(r'"0007"===\w+\.placementNo\?\'([^\']+)\'', script)
