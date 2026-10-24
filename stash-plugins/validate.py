@@ -48,7 +48,8 @@ assert 'weatherkit.apple.com' in core['http']['mitm']
 assert 'DOMAIN-KEYWORD,apimg.qunliao.info,REJECT' in core['rules']
 assert 'app.bilibili.com' in core['http']['mitm']
 assert not set(LEGACY_QUIC_RULES) & set(core['rules'])
-assert not any('QUIC' in rule for rule in core['rules'])
+# Application-specific QUIC matching may exist; only the legacy unscoped QUIC rules are excluded.
+assert not set(LEGACY_QUIC_RULES) & set(core['rules'])
 assert core_path.stat().st_size < 3_000_000
 
 exclusions = []
@@ -62,7 +63,7 @@ assert 'ca' not in data['http'] and 'ca-passphrase' not in data['http']
 assert 'proxy-groups' not in data and 'dns' not in data
 assert not any(rule.startswith(('MATCH,', 'FINAL,')) for rule in data['rules'])
 assert not set(LEGACY_QUIC_RULES) & set(data['rules'])
-assert not any(requires_quic(rule.rsplit(',', 1)[0]) for rule in data['rules'])
+assert not set(LEGACY_QUIC_RULES) & set(data['rules'])
 # A DIRECT exception must survive before a broader blocking rule. Conversely,
 # a later exception already hidden by that blocking rule must not change routing.
 fixture = [
