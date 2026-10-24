@@ -68,6 +68,22 @@ class RefreshTests(unittest.TestCase):
         self.assertEqual((self.root / manifest['https://test.invalid/app.js']['file']).read_bytes(),
                          self.resources['https://test.invalid/app.js'])
 
+    def test_conditional_jq_file_is_fetched_and_refreshed(self):
+        from hashlib import sha256
+        url = 'https://test.invalid/filter.jq'
+        self.resources['https://test.invalid/demo.lpx'] = (
+            '[Rewrite]\n'
+            r'response if ${url} ~= /^https:\/\/example\.com\//i then response.json.jq_file("https://test.invalid/filter.jq")'
+            '\n'
+        ).encode()
+        self.run_refresh()
+        name = sha256(url.encode()).hexdigest()[:12] + '-filter.jq'
+        path = self.root / 'sources' / name
+        self.assertEqual(path.read_bytes(), self.resources[url])
+        self.resources[url] = b'del(.new_ad_field)\n'
+        self.run_refresh()
+        self.assertEqual(path.read_bytes(), self.resources[url])
+
     def test_unchanged_refresh_preserves_date_and_files(self):
         self.run_refresh()
         path = self.root / 'refresh.json'
