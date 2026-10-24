@@ -84,6 +84,25 @@ class RefreshTests(unittest.TestCase):
         self.run_refresh()
         self.assertEqual(path.read_bytes(), self.resources[url])
 
+    def test_standalone_extra_imports_complete_plugin_instead_of_selected_endpoints(self):
+        entry = {'file': 'FullApp.lpx', 'name': 'FullApp',
+                 'url': 'https://test.invalid/complete.lpx'}
+        (self.root / 'extra-plugins.json').write_text(json.dumps([entry]), encoding='utf-8')
+        self.resources[entry['url']] = (
+            '[Rule]\nDOMAIN,app.example,REJECT\n'
+            '[Rewrite]\n^https://app.example/start reject\n'
+            '^https://app.example/feed reject\n'
+            '[Script]\nhttp-response ^https://app.example/full '
+            'script-path=https://test.invalid/full.js, requires-body=true\n'
+            '[Mitm]\nhostname=app.example\n'
+        ).encode()
+        self.resources['https://test.invalid/full.js'] = b'$done({});\n'
+        self.run_refresh()
+        self.assertEqual((self.root / 'sources/FullApp.lpx').read_bytes(),
+                         self.resources[entry['url']])
+        self.assertIn('https://test.invalid/full.js',
+                      json.loads((self.root / 'dependencies.json').read_text()))
+
     def test_unchanged_refresh_preserves_date_and_files(self):
         self.run_refresh()
         path = self.root / 'refresh.json'
@@ -98,27 +117,11 @@ class RefreshTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             fetcher.enabled_plugins('[Plugin]\nhttps://test.invalid/off.lpx, enabled=false\n')
 
-    def test_fmz200_full_plugin_is_included_when_enabled_in_loon(self):
+    def test_fmz200_is_excluded_even_when_enabled_in_loon(self):
         selected = fetcher.enabled_plugins(
             '[Plugin]\nhttps://test.invalid/demo.lpx, enabled=true\n'
             'https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin, enabled=true\n')
-        self.assertEqual(selected, [('https://test.invalid/demo.lpx', 'demo.lpx'),
-                                    ('https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin', 'blockAds.plugin')])
-
-    def test_enabled_full_aggregate_is_not_deleted_after_successful_refresh(self):
-        aggregate = 'https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin'
-        config = ('[Plugin]\n'
-                  'https://test.invalid/demo.lpx, enabled=true\n'
-                  + aggregate + ', enabled=true\n')
-        (self.root.parent / 'loon_config.conf').write_text(config, encoding='utf-8')
-        self.resources[aggregate] = b'[Rule]\nDOMAIN,ad-one.test,REJECT\n'
-        self.run_refresh()
-        source = self.root / 'sources/blockAds.plugin'
-        self.assertEqual(source.read_bytes(), self.resources[aggregate])
-        self.resources[aggregate] = b'[Rule]\nDOMAIN,ad-two.test,REJECT\n'
-        self.run_refresh()
-        self.assertEqual(source.read_bytes(), self.resources[aggregate])
-        self.assertIn('blockAds.plugin', [name for _, name in fetcher.selected_plugins(config, root=self.root)])
+        self.assertEqual(selected, [('https://test.invalid/demo.lpx', 'demo.lpx')])
 
     def test_obsolete_script_snapshot_is_removed_after_success(self):
         self.run_refresh()
@@ -140,33 +143,41 @@ class RefreshTests(unittest.TestCase):
             self.assertEqual(request.call_count, 3)
             self.assertEqual(request.call_args.args[0].get_header('User-agent'), fetcher.UA)
 
-    def test_extra_plugin_downloads_entire_content_and_all_dependencies(self):
-        extra = {'file': 'Extra.lpx', 'name': 'Full app',
-                 'url': 'https://test.invalid/aggregate.plugin'}
+    def test_extra_excerpt_downloads_only_selected_script_dependencies(self):
+        extra = {'file': 'Extra.lpx', 'name': 'Selected app', 'url': 'https://test.invalid/aggregate.plugin',
+                 'author': 'Original author', 'license_url': 'https://test.invalid/LICENSE',
+                 'select': {'script': [r'^https://selected\.test/'], 'rule': ['DOMAIN,ads.selected.test,REJECT']}, 'mitm': ['selected.test']}
         (self.root / 'extra-plugins.json').write_text(json.dumps([extra]), encoding='utf-8')
         self.resources[extra['url']] = (
-            '[Script]\n'
-            'http-response ^https://selected.test/ script-path=https://test.invalid/selected.js, requires-body=true\n'
+            '[Script]\nhttp-response ^https://selected\\.test/ script-path=https://test.invalid/selected.js, requires-body=true\n'
             'http-response ^https://unrelated.test/ script-path=https://test.invalid/unrelated.js\n'
-            '[Rule]\nDOMAIN, ads.selected.test, REJECT\nDOMAIN, other.test, REJECT\n'
-        ).encode()
+            '[Rule]\nDOMAIN, ads.selected.test, REJECT\nDOMAIN, other.test, REJECT\n').encode()
         self.resources['https://test.invalid/selected.js'] = b'$done({});\n'
-        self.resources['https://test.invalid/unrelated.js'] = b'$done({});\n'
         self.run_refresh()
-        snapshot = (self.root / 'sources/Extra.lpx').read_bytes()
-        self.assertEqual(snapshot, self.resources[extra['url']])
-        self.assertIn(b'unrelated.js', snapshot)
-        self.assertIn(b'DOMAIN, other.test, REJECT', snapshot)
+        snapshot = (self.root / 'sources/Extra.lpx').read_text()
+        self.assertIn('selected.js', snapshot)
+        self.assertIn('#!author=Original author', snapshot)
+        self.assertIn('https://test.invalid/LICENSE', snapshot)
+        self.assertNotIn('unrelated', snapshot)
+        self.assertIn('DOMAIN, ads.selected.test, REJECT', snapshot)
+        self.assertNotIn('other.test', snapshot)
         manifest = json.loads((self.root / 'dependencies.json').read_text())
         self.assertIn('https://test.invalid/selected.js', manifest)
-        self.assertIn('https://test.invalid/unrelated.js', manifest)
+        self.assertNotIn('https://test.invalid/unrelated.js', manifest)
+        self.assertFalse((self.root / 'sources/aggregate.plugin').exists())
 
-    def test_curated_extra_entries_are_rejected(self):
+    def test_conditional_excerpt_selects_only_splash_without_script_dependencies(self):
         extra = {'file': 'Splash.lpx', 'name': 'Splash', 'url': 'https://test.invalid/full.lpx',
                  'select': {'rewrite': [r'^https:\/\/app\.test\/splash\?']}, 'mitm': ['app.test']}
-        (self.root / 'extra-plugins.json').write_text(json.dumps([extra]), encoding='utf-8')
-        with self.assertRaisesRegex(ValueError, 'rejects curated extras'):
-            fetcher.selected_plugins('[Plugin]\nhttps://test.invalid/demo.lpx, enabled=true\n', root=self.root)
+        source = ('[Rewrite]\nresponse if ${url} ~= /^https:\\/\\/app\\.test\\/splash\\?/i then '
+                  'response.body.mock("text", "{\\"code\\":0}", 200)\n'
+                  '[Script]\nresponse if ${url} ~= /^https:\\/\\/app\\.test\\/feed/i then '
+                  'script("https://test.invalid/unrelated.js")\n')
+        result = fetcher.extract_plugin(source, extra).decode()
+        self.assertIn('response.body.mock', result)
+        self.assertNotIn('unrelated.js', result)
+        with self.assertRaisesRegex(ValueError, 'Selected aggregate entry changed'):
+            fetcher.extract_plugin(source.replace('/splash', '/changed'), extra)
 
 
 if __name__ == '__main__':
