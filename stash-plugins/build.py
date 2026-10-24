@@ -11,7 +11,7 @@ import re
 import urllib.parse
 import yaml
 from fetch_dependencies import selected_plugins, excluded_plugin
-from focus import keep_entry, trim_script, POLICY, ZHIHU_COMMERCIAL, ZHIHU_SPLASH, splash_pattern
+from focus import PROFILE, keep_entry, trim_script, POLICY, ZHIHU_COMMERCIAL, ZHIHU_SPLASH, splash_pattern
 
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent
@@ -20,7 +20,7 @@ LEGACY_QUIC_RULES = [
     'PROTOCOL,QUIC,REJECT,no-track',
     'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track',
 ]
-RUNTIME_URL = 'https://raw.githubusercontent.com/liristy/ssrules/main/stash-plugins/runtime/'
+RUNTIME_URL = 'https://raw.githubusercontent.com/liristy/ssrules/dev/stash-plugins/runtime/'
 MAX_BODY_BYTES = 256 * 1024
 NATIVE_HTTP_SECTIONS = ('url-rewrite', 'header-rewrite', 'body-rewrite', 'mock')
 
@@ -298,7 +298,7 @@ class Builder:
                 self.notes.append({'source': filename, 'message': '按保留的 HTTP 接口重新生成 MITM 列表。', 'before': entries['mitm'], 'after': narrowed})
         core = {
             'name': '广告净化',
-            'desc': '开屏去广告（含叮咚买菜）、YouTube 去广告与天气增强。',
+            'desc': '已启用插件的完整去广告、请求重写、脚本及天气增强（dev）。',
             'date': full['date'],
             'rules': selected['rules'],
             'http': {
@@ -440,9 +440,9 @@ class Builder:
                 raise ValueError(f'Ambiguous conditional rewrite at {self.source}:{self.line}: {line}')
             kind, pattern, flags, action = conditional.groups()
             pattern = splash_pattern(self.source, pattern)
-            selected_pattern = ZHIHU_SPLASH if self.source == 'Zhihu_remove_ads.lpx' and pattern == ZHIHU_COMMERCIAL else pattern
+            selected_pattern = ZHIHU_SPLASH if PROFILE != 'all-enabled' and self.source == 'Zhihu_remove_ads.lpx' and pattern == ZHIHU_COMMERCIAL else pattern
             selected_kind = 'script' if action.startswith('script(') else 'rewrite'
-            selected = selected_pattern in POLICY.get(self.source, {}).get(selected_kind, [])
+            selected = PROFILE == 'all-enabled' or selected_pattern in POLICY.get(self.source, {}).get(selected_kind, [])
             if flags not in ('', 'i'):
                 raise ValueError(f'Unsupported regex flags at {self.source}:{self.line}: {flags}')
             target = ('(?i)' if flags == 'i' else '') + pattern
@@ -497,7 +497,7 @@ class Builder:
             return self.script(line)
         pattern, action, *tail = line.split(maxsplit=2)
         pattern = splash_pattern(self.source, pattern)
-        if self.source == 'Zhihu_remove_ads.lpx' and pattern.removeprefix('(?i)') == ZHIHU_COMMERCIAL:
+        if PROFILE != 'all-enabled' and self.source == 'Zhihu_remove_ads.lpx' and pattern.removeprefix('(?i)') == ZHIHU_COMMERCIAL:
             pattern = ('(?i)' if pattern.startswith('(?i)') else '') + ZHIHU_SPLASH
             self.note('知乎商业接口仅保留 launch_v2 / real_time_launch_v2 开屏拦截。')
         rest = tail[0] if tail else ''
@@ -618,7 +618,7 @@ class Builder:
         self.export_combined()
         counts = {'plugins': len(self.sources), 'rules': len(self.data['rules']), 'providers': len(self.data['script-providers']), **{key: len(value) for key, value in self.data['http'].items()}}
         excluded = [line.split(',', 1)[0].strip() for _, line in config.get('plugin', []) if excluded_plugin(line.split(',', 1)[0].strip())]
-        report = {'date': self.data['date'], 'profile': 'splash-youtube-weather', 'counts': counts, 'source_counts': source_counts, 'addons': [], 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
+        report = {'date': self.data['date'], 'profile': PROFILE, 'counts': counts, 'source_counts': source_counts, 'addons': [], 'excluded_plugins': excluded, 'duplicates_removed': dict(self.duplicates), 'shadowed_rules_removed': self.shadowed_rules, 'sources': self.sources, 'adjustments': self.notes}
         (ROOT / 'report.json').write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
         (ROOT / 'locations.json').write_text(json.dumps(self.locations, ensure_ascii=False), encoding='utf-8')
         header = '# 自动生成：python stash-plugins/build.py\n# 拦截、重写和脚本已合并；只需导入此覆写，脚本代码通过远程地址加载。\n# HTTPS 重写需要启用 MITM 并信任自己的证书；请停用旧版及独立增强覆写后替换。\n'
