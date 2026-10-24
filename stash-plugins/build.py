@@ -641,8 +641,9 @@ class Builder:
         self.source = 'user:QUIC'
         # Consolidate upstream QUIC blocks with temporary sentinels, then remove
         # them: the main config transformer now owns QUIC routing and ordering.
-        for self.line, rule in enumerate(LEGACY_QUIC_RULES, 1):
-            self.add('rules', rule)
+        if PROFILE != 'all-enabled':
+            for self.line, rule in enumerate(LEGACY_QUIC_RULES, 1):
+                self.add('rules', rule)
         config_text = (PROJECT / 'loon_config.conf').read_text(encoding='utf-8-sig')
         config = sections(config_text)
         plugins = selected_plugins(config_text)
@@ -689,8 +690,16 @@ class Builder:
                         raise ValueError('Unrecognized section: ' + section)
         self.deduplicate_rules()
         # Advertising overrides must not prepend QUIC blocks to the main routes.
-        self.data['rules'] = self.data['rules'][len(LEGACY_QUIC_RULES):]
-        self.locations['rules'] = self.locations['rules'][len(LEGACY_QUIC_RULES):]
+        if PROFILE != 'all-enabled':
+            self.data['rules'] = self.data['rules'][len(LEGACY_QUIC_RULES):]
+            self.locations['rules'] = self.locations['rules'][len(LEGACY_QUIC_RULES):]
+        else:
+            # Import app-specific QUIC filters verbatim, but avoid re-adding the
+            # two legacy global rules managed by stash_override.js.
+            paired = [(rule, source) for rule, source in zip(self.data['rules'], self.locations['rules'])
+                      if rule not in LEGACY_QUIC_RULES]
+            self.data['rules'] = [rule for rule, _ in paired]
+            self.locations['rules'] = [source for _, source in paired]
         # Keep the user's existing Loon MITM exclusions before positive hosts.
         exclusions = []
         for _, line in config.get('mitm', []):
