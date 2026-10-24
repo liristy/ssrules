@@ -26,8 +26,10 @@ def extra_plugins(root=ROOT):
     entries = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
     for entry in entries:
         filename = entry['file']
-        if Path(filename).name != filename or not filename.endswith('.lpx'):
+        if Path(filename).name != filename or not filename.endswith(('.lpx', '.plugin')):
             raise ValueError('Invalid extra plugin filename: ' + filename)
+        if entry.get('select') or 'arguments' in entry or 'mitm' in entry:
+            raise ValueError('Full-import mode rejects curated extras: ' + filename)
     return entries
 
 
@@ -78,8 +80,9 @@ def extract_plugin(text, entry):
 
 
 def excluded_plugin(url):
-    parsed = urllib.parse.urlparse(url)
-    return parsed.netloc.lower() in ('github.com', 'raw.githubusercontent.com') and parsed.path.lower().startswith('/fmz200/')
+    # Full import: the enabled fmz200/blockAds.plugin is an ordinary plugin,
+    # not a special excluded aggregate. Kept for callers in older tests.
+    return False
 
 
 def enabled_plugins(config):
@@ -98,8 +101,6 @@ def enabled_plugins(config):
         url = line.split(',', 1)[0].strip()
         parsed = urllib.parse.urlparse(url)
         name = Path(parsed.path).name
-        if excluded_plugin(url):
-            continue
         if parsed.scheme != 'https' or not name.endswith(('.lpx', '.plugin')):
             raise ValueError('Unsupported plugin URL: ' + url)
         if name in names:
@@ -153,21 +154,10 @@ def atomic_write(path, data):
 def refresh_resources(*, root=ROOT, refresh=False):
     config = (root.parent / 'loon_config.conf').read_text(encoding='utf-8-sig')
     plugins = selected_plugins(config, root)
-    extras = extra_plugins(root)
-    extra_names = {entry['file'] for entry in extras}
-    plugin_jobs = {'sources/' + name: url for url, name in plugins if name not in extra_names}
+    # Download every selected plugin as a whole, including blockAds.plugin.
+    # Never synthesize a shortened Loon plugin from an allowlist.
+    plugin_jobs = {'sources/' + name: url for url, name in plugins}
     snapshots = fetch_batch(plugin_jobs, root=root, refresh=refresh)
-    aggregates = {}
-    for entry in extras:
-        relative = 'sources/' + entry['file']
-        plugin_jobs[relative] = entry['url']
-        cached = root / relative
-        if not refresh and cached.exists():
-            snapshots[relative] = cached.read_bytes()
-            continue
-        if entry['url'] not in aggregates:
-            aggregates[entry['url']] = download(entry['url']).decode('utf-8-sig')
-        snapshots[relative] = extract_plugin(aggregates[entry['url']], entry)
     jobs, script_paths = {}, {}
     for path, data in snapshots.items():
         text = data.decode('utf-8-sig')
