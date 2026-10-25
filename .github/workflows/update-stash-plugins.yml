@@ -8,6 +8,7 @@ on:
       - 'stash_override.js'
       - 'stash_plugins.js'
       - 'stash_localdevvpn.stoverride'
+      - 'tests/emproxy/**'
       - 'stash-plugins/*.py'
       - 'stash-plugins/*.mjs'
       - 'stash-plugins/focus-policy.json'
@@ -45,6 +46,32 @@ jobs:
           node --check stash_plugins.js
           python -c "import json,yaml; print(json.dumps(yaml.safe_load(open('stash_plugins.stoverride'))))" | node stash-plugins/test_substore.mjs
           python -m unittest discover -s stash-plugins -p 'test_localdevvpn.py'
+
+  emproxy-protocol:
+    if: github.ref_name == 'localdevvpn_test'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check out unmodified upstream EMProxy
+        uses: actions/checkout@v6
+        with:
+          repository: SideStore/em_proxy
+          ref: 6e117e140ca7cff4ff106bdefa18147552a0e592
+          path: upstream-emproxy
+          persist-credentials: false
+      - name: Exercise real WireGuard handshake and packet reflection
+        run: |
+          mkdir -p evidence
+          cp tests/emproxy/packet_reflection.rs upstream-emproxy/tests/ssrules_reflection.rs
+          set -o pipefail
+          cargo test --locked --manifest-path upstream-emproxy/Cargo.toml --test ssrules_reflection -- --nocapture 2>&1 | tee evidence/emproxy.log
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: emproxy-protocol-evidence
+          path: evidence/
+          retention-days: 7
 
   update:
     if: github.ref_name == github.event.repository.default_branch || github.ref_name == 'dev'

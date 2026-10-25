@@ -1,6 +1,6 @@
 # Stash 替代 LocalDevVPN 测试
 
-本分支从 `dev` 的 `1aed594` 创建。目标是在同一条 Stash VPN 中同时保留原有代理分流，并为 SideStore 提供本机回环连接。当前完成配置和离线验证，**尚未在 iPhone 上验证安装、续签或后台稳定性**。
+本分支从 `dev` 的 `1aed594` 创建。目标是在同一条 Stash VPN 中同时保留原有代理分流，并为 SideStore 提供本机回环连接。配置和离线检查已完成；本次手机反馈为 Active=No、设备端点初始化失败，SideStore 与 Safari 定向访问均未观察到连接记录。**目前不能作为可用替代方案推荐，根因尚未确认。**
 
 ## 方案与适用范围
 
@@ -96,3 +96,13 @@ python -m unittest discover -s stash-plugins -p 'test_localdevvpn.py'
 - [SideStore EMProxy 开关和配置导出实现](https://github.com/SideStore/SideStore/blob/d97ec133719d79916675bdaf722b82a8d091d545/SideStore/Views/Settings/Advanced/UserCustomizations/UserCustomizationsView.swift)
 
 上述公开配置和源码归 SideStore 原作者所有；本仓库仅做配置映射与实验验证，保持仅供个人使用、不用于商业用途的声明。
+
+## Actions 协议实验
+
+`emproxy-protocol` 在 Linux runner 编译并运行固定版本的真实上游 EMProxy，用 boringtun 客户端完成真实 WireGuard UDP 握手，发送校验和正确的 IPv4/TCP SYN，并检查解密返回的数据包。保留完整构建和运行日志；不修改上游实现，不用预制成功响应代替服务器。
+
+此实验验证 EMProxy 是否只交换源/目标 IP、保留端口和 SYN 标志。若成立，返回的包仍需由能够接收该目标端口的网络栈处理；单独握手成功不代表设备服务连接成功。Stash 文档称 WireGuard 为四层代理，因此缺少返回包到 iOS 本机服务的桥接是待核实的兼容性疑点。这里没有运行 Stash，不能将实验直接称为 Stash 故障复现。
+
+GitHub macOS runner 可用于普通 iOS Simulator 测试，但 Simulator 不能替代本任务所需的真机 Packet Tunnel、lockdownd/RemotePairing 和侧载安装环境。协议实验不验证 iOS 路由是否接管 10.7.0.1，也不解释手机没有连接记录的原因。
+
+上游仓库及其许可证保留在 Actions 临时 checkout 中；这里只保存本仓库的实验代码，不复制上游实现。测试日志由 Actions artifact 提供。
