@@ -6,7 +6,9 @@ import re
 import subprocess
 import yaml
 import jq
-from build import Builder, LEGACY_QUIC_RULES, requires_quic, sections, RUNTIME_URL, MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS
+from build import (Builder, LEGACY_QUIC_RULES, requires_quic, sections, RUNTIME_URL,
+                   MAX_BODY_BYTES, NATIVE_HTTP_SECTIONS, STASH_JSON_DEL_MAX_PATHS,
+                   STASH_NATIVE_JSON_PATH)
 from fetch_dependencies import selected_plugins, extra_plugins
 from focus import keep_entry, ZHIHU_SPLASH
 
@@ -123,6 +125,71 @@ for rule in data['http']['body-rewrite']:
 baidu = next(x for x in expressions if x.startswith('.data.data |= map'))
 before = {'data': {'data': [{'type': 'novel'}, {'type': 'file'}, {'type': 'shortplay'}]}}
 assert jq.compile(baidu).input(before).first() == {'data': {'data': [{'type': 'file'}]}}
+# Regression for Stash iOS failing to parse the Amap response-json-del
+# expression containing a digit-prefixed JSON key and 39 concatenated paths.
+# The published YAML must use short, valid native paths and jq for that key.
+for row in core['http'].get('body-rewrite', []):
+    if ' response-json-del ' in row or ' request-json-del ' in row:
+        matched = re.search(r' (?:request|response)-json-del (.*)    if isinstance(rows, list):
+        assert len(rows) == len({json.dumps(row, sort_keys=True) for row in rows}), section
+assert any('response-jq .data.data |= map' in row for row in data['http']['body-rewrite'])
+youtube = next(row for row in data['http']['script'] if 'YouTube_remove_ads_response' in row['name'])
+assert json.loads(youtube['argument'])['captionLang'] == 'off'
+assert youtube['binary-mode'] is True
+weather = next(row for row in data['http']['script'] if 'weatherkit' in row['match'])
+assert 'Weather.Provider=ColorfulClouds' in weather['argument']
+assert '-weather-data.apple.com' in data['http']['mitm']
+assert 'weatherkit.apple.com' in data['http']['mitm']
+assert 'api.xiachufang.com' in data['http']['mitm']
+assert report['addons'] == []
+providers = core['script-providers']
+scripts = core['http']['script']
+assert report['counts']['script'] == len(scripts)
+assert report['counts']['providers'] == len(providers)
+assert 0 < len(scripts) <= 1024
+assert set(providers) == {entry['name'] for entry in scripts}
+# Full mode keeps internal page handlers and expanded script bindings.
+assert len(core['http'].get('body-rewrite', [])) == report['source_counts']['body-rewrite']
+assert any('虎扑' in name for name in providers)
+assert sum('weatherkit' in row['match'] for row in scripts) == 2
+assert all(not name.startswith(('loon-', 'ssrules-')) for name in providers)
+for entry in scripts:
+    assert entry['timeout'] <= 10
+    if entry.get('require-body'):
+        assert 0 < entry['max-size'] <= MAX_BODY_BYTES
+for name, provider in providers.items():
+    assert 'payload' not in provider
+    assert provider['url'].startswith(RUNTIME_URL)
+    filename = provider['url'][len(RUNTIME_URL):]
+    assert '/' not in filename and '\\' not in filename
+    assert not filename.startswith(('loon-', 'ssrules-')), filename
+    runtime = ROOT / 'runtime' / filename
+    original_name = filename.rsplit('-', 1)[0]
+    assert runtime.read_text(encoding='utf-8') == data['script-providers'][original_name]['payload']
+def script_identity(entry):
+    return json.dumps({key: value for key, value in entry.items() if key not in ('name', 'timeout', 'max-size')}, sort_keys=True)
+assert [script_identity(row) for row in scripts] == [script_identity(row) for row in selected('script')]
+for published, original in zip(scripts, selected('script')):
+    assert providers[published['name']]['url'].rsplit('/', 1)[1].rsplit('-', 1)[0] == original['name']
+assert len(scripts) == len({script_identity(row) for row in scripts})
+(ROOT / 'validation-input.json').write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
+subprocess.run(['node', str(ROOT / 'validate.mjs')], check=True)
+subprocess.run(['node', str(ROOT / 'test_substore.mjs')], input=json.dumps(core, ensure_ascii=False), encoding='utf-8', check=True)
+print('YAML, regex, references, mock responses, arguments, exclusions and deduplication OK.')
+print(f'jq syntax OK: {len(expressions)} expressions; BaiduNetDisk filtering fixture OK.')
+print('Deduplication preserves first-match routing, DIRECT exceptions, OR/NOT conditions and no-resolve behavior.')
+print('Full dev override: all selected-source rewrites, body modifications, scripts and relevant MITM hosts retained; size limits and remote providers verified.')
+, row)
+        assert matched, row
+        paths = matched.group(1).split()
+        assert 1 <= len(paths) <= STASH_JSON_DEL_MAX_PATHS, row
+        assert all(STASH_NATIVE_JSON_PATH.fullmatch(path) for path in paths), row
+        assert not any(path.startswith('$.') for path in paths), row
+assert any(' response-jq del(.data["920bestwishes"])' in row
+           for row in core['http']['body-rewrite']), 'Amap numeric JSON key must be escaped as jq'
+assert any(' response-json-del data.shadingWords' in row
+           for row in core['http']['body-rewrite']), 'Loon JSONPath root must be removed'
+assert not any('data.920bestwishes' in row for row in core['http']['body-rewrite'])
 for section, rows in data['http'].items():
     if isinstance(rows, list):
         assert len(rows) == len({json.dumps(row, sort_keys=True) for row in rows}), section
