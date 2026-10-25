@@ -24,6 +24,45 @@ RUNTIME_URL = 'https://raw.githubusercontent.com/liristy/ssrules/dev/stash-plugi
 MAX_BODY_BYTES = 256 * 1024
 NATIVE_HTTP_SECTIONS = ('url-rewrite', 'header-rewrite', 'body-rewrite', 'mock')
 
+STASH_JSON_DEL_MAX_PATHS = 8
+STASH_NATIVE_JSON_PATH = re.compile(
+    r'[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*|\[\d+\])*'
+)
+
+
+def normalize_json_path(raw):
+    """Normalize Loon's optional JSONPath root before emitting a Stash path."""
+    if not isinstance(raw, str) or not raw:
+        raise ValueError('Invalid upstream JSON path: ' + repr(raw))
+    normalized = raw.removeprefix('$.').removeprefix('.')
+    if not normalized or any(c.isspace() for c in normalized):
+        raise ValueError('Invalid upstream JSON path: ' + repr(raw))
+    return normalized
+
+
+def stash_json_delete_path(raw):
+    """Return (native path, jq path), with exactly one non-None.
+
+    Stash native JSON paths cannot safely express dotted keys beginning with a
+    digit. jq bracket access keeps the original key rather than silently
+    dropping it or passing an invalid expression to the Stash core.
+    """
+    path = normalize_json_path(raw)
+    if STASH_NATIVE_JSON_PATH.fullmatch(path):
+        return path, None
+    # Only normalize plain dotted object keys here. Array/quoted paths have
+    # different semantics and must be reviewed before introducing a converter.
+    segments = path.split('.')
+    if not all(re.fullmatch(r'[A-Za-z0-9_$]+', part) for part in segments):
+        raise ValueError('Unsupported upstream JSON deletion path: ' + repr(raw))
+    jq_path = ''.join(
+        '.' + part if re.fullmatch(r'[A-Za-z_$][A-Za-z0-9_$]*', part)
+        else '[' + json.dumps(part, ensure_ascii=False) + ']'
+        for part in segments
+    )
+    return None, jq_path
+
+
 
 def flatten_jq_source(source):
     """Inline a multiline jq file without turning its # comments into code."""
@@ -513,9 +552,28 @@ class Builder:
                 if method == 'delete':
                     paths = json.loads(arguments)
                     paths = paths if isinstance(paths, list) else [paths]
-                    if not paths or any(not isinstance(p, str) or not p or any(c.isspace() for c in p) for p in paths):
-                        raise ValueError('Invalid JSON deletion paths: ' + action)
-                    self.add('body-rewrite', f'{target} {kind}-json-del ' + ' '.join(paths))
+                    if not paths:
+                        raise ValueError('Empty JSON deletion paths: ' + action)
+                    # The upstream Amap list includes data.920bestwishes:
+                    # it is NOT valid native Stash dotted-path syntax. Keep
+                    # every field, but use jq for that one escaped key.
+                    # Also cap the length of each native delete expression.
+                    batch = []
+                    for path in paths:
+                        native, jq_path = stash_json_delete_path(path)
+                        if native is not None:
+                            batch.append(native)
+                            if len(batch) >= STASH_JSON_DEL_MAX_PATHS:
+                                self.add('body-rewrite', f'{target} {kind}-json-del ' + ' '.join(batch))
+                                batch = []
+                            continue
+                        if batch:
+                            self.add('body-rewrite', f'{target} {kind}-json-del ' + ' '.join(batch))
+                            batch = []
+                        self.add('body-rewrite', f'{target} {kind}-jq del({jq_path})')
+                        self.note('将 Stash 不支持的数字开头 JSON 键转为 jq 路径：' + path)
+                    if batch:
+                        self.add('body-rewrite', f'{target} {kind}-json-del ' + ' '.join(batch))
                 else:
                     arguments = json.loads('[' + arguments + ']')
                     if len(arguments) != 2:
@@ -527,10 +585,11 @@ class Builder:
                         raise ValueError('Mismatched JSON edit arrays: ' + action)
                     pairs = []
                     for path, value in zip(paths, values):
-                        if not isinstance(path, str) or not path or any(c.isspace() for c in path):
-                            raise ValueError('Invalid JSON edit path: ' + action)
+                        normalized = normalize_json_path(path)
+                        if not STASH_NATIVE_JSON_PATH.fullmatch(normalized):
+                            raise ValueError('Unsupported Stash JSON edit path: ' + repr(path))
                         literal = json.dumps(value, ensure_ascii=False, separators=(',', ':'))
-                        pairs.append(path + ' ' + literal)
+                        pairs.append(normalized + ' ' + literal)
                     self.add('body-rewrite', f'{target} {kind}-json-{method} ' + ' '.join(pairs))
                 return
             body_replace = re.fullmatch(
