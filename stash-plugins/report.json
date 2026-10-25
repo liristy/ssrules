@@ -8,7 +8,7 @@
     "mitm": 139,
     "url-rewrite": 218,
     "header-rewrite": 1,
-    "body-rewrite": 97,
+    "body-rewrite": 103,
     "mock": 7,
     "script": 49
   },
@@ -20,7 +20,7 @@
     "mitm": 139,
     "url-rewrite": 218,
     "header-rewrite": 1,
-    "body-rewrite": 97,
+    "body-rewrite": 103,
     "mock": 7,
     "script": 49
   },
@@ -453,6 +453,11 @@
       "source": "YouTube_remove_ads.lpx",
       "line": 25,
       "message": "将源文件错放在 Script 段的重写移回 url-rewrite。"
+    },
+    {
+      "source": "Amap_remove_ads.lpx",
+      "line": 16,
+      "message": "将 Stash 不支持的数字开头 JSON 键转为 jq 路径：data.920bestwishes"
     },
     {
       "source": "Amap_remove_ads.lpx",
