@@ -49,6 +49,8 @@ Mihomo 的 Steam 云存储与 GlobalSign 证书检查由 `DirectRevise` 中的�
 
 Mihomo 的直连 DNS 遵循 `nameserver-policy`：既有国内域名和下载集合继续使用国内 DoH 直连，其余默认通过代理访问 Google/Cloudflare DoH，避免直连出口用独立国内解析器再次查询境外域名。`ChinaIP` 使用 MetaCubeX 的纯 CIDR 集合，ASN `132203` 由 [ChinaIP_Extra](Rule/yaml/ChinaIP_Extra.yaml) 以 classical 规则补充，并保留在 IP 分流阶段。本机浏览器与定向 DNS 测试已验证相关路径；Stash 仍由兼容转换脚本使用手机已验证的 DNS，不能将 Windows 测试结论直接当作 iOS 实测。
 
+[LoopbackGuard](Rule/yaml/LoopbackGuard.yaml) 位于局域网放行之前，只拒绝通过代理再次访问本机代理端口的请求，防止嵌套连接回到核心自身；其他本机服务和普通代理请求不受影响。修改 `mixed-port` 时应同步调整集合中的端口，`no-resolve` 保证此检查不会额外触发 DNS 解析。
+
 此开发配置中本次修改的 `DirectRevise`、`ProxyRevise`、`Hijacking_DNS`、`Steam_Download` 和 `ChinaIP_Extra` 引用 `dev` 分支；其他规则来源保持原配置。使用时应更新完整主配置，单独刷新旧规则文件不会带入规则顺序及 DNS 变更。
 
 ### Stash 与 Sub-Store

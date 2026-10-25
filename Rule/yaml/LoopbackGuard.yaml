@@ -1,0 +1,5 @@
+# Reject attempts to reach the proxy itself through that same proxy.
+# Keep DST-PORT in sync with mixed-port in mihomo_config.yaml.
+payload:
+  - AND,((DST-PORT,7890),(IP-CIDR,127.0.0.1/32))
+  - AND,((DST-PORT,7890),(IP-CIDR6,::1/128))
