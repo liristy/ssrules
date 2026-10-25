@@ -77,6 +77,54 @@ class RewriteScopeTests(unittest.TestCase):
         import json
         self.assertEqual(json.loads(entry['argument']), {'captionLang': 'off', 'blockUpload': False})
 
+    def test_amap_large_delete_list_and_digit_prefixed_key(self):
+        """Stash must never receive invalid data.920bestwishes or an enormous expression."""
+        import json
+        import jq
+        from build import STASH_JSON_DEL_MAX_PATHS, STASH_NATIVE_JSON_PATH
+
+        paths = [f'data.adItem{i}' for i in range(26)]
+        paths += ['data.920bestwishes', 'data.custom_consultdata.widget_guide',
+                  'data.free_ride', 'data.wallet']
+        builder = self.builder()
+        builder.source = 'Amap_remove_ads.lpx'
+        action = 'response.json.delete(' + json.dumps(paths, ensure_ascii=False) + ')'
+        builder.rewrite('response if ${url} ~= /' + self.pattern + '/i then ' + action)
+        entries = builder.data['http']['body-rewrite']
+        native_paths = []
+        for rule in entries:
+            if ' response-json-del ' in rule:
+                native = rule.split(' response-json-del ', 1)[1].split()
+                self.assertLessEqual(len(native), STASH_JSON_DEL_MAX_PATHS)
+                self.assertTrue(all(STASH_NATIVE_JSON_PATH.fullmatch(p) for p in native))
+                native_paths += native
+        self.assertEqual(native_paths, [p for p in paths if p != 'data.920bestwishes'])
+        jq_rules = [rule.split(' response-jq ', 1)[1] for rule in entries if ' response-jq ' in rule]
+        self.assertEqual(jq_rules, ['del(.data["920bestwishes"])'])
+        obj = {'data': {'920bestwishes': {'ad': 1}, 'wallet': 1, 'untouched': 123}}
+        self.assertEqual(jq.compile(jq_rules[0]).input(obj).first()['data'],
+                         {'wallet': 1, 'untouched': 123})
+        self.assertTrue(all('data.920bestwishes' not in rule for rule in entries))
+
+    def test_loon_jsonpath_root_normalization(self):
+        from build import normalize_json_path
+        builder = self.builder()
+        builder.rewrite(
+            'response if ${url} ~= /' + self.pattern + '/i then '
+            'response.json.delete("$.data.shadingWords")'
+        )
+        self.assertEqual(
+            builder.data['http']['body-rewrite'][0],
+            '(?i)' + self.pattern + ' response-json-del data.shadingWords')
+        self.assertEqual(normalize_json_path('$.data.name'), 'data.name')
+
+    def test_reject_unrepresentable_stash_json_path(self):
+        builder = self.builder()
+        with self.assertRaisesRegex(ValueError, 'Unsupported upstream JSON deletion path'):
+            builder.rewrite(
+                'response if ${url} ~= /' + self.pattern + '/i then '
+                'response.json.delete("data.invalid-key")')
+
     def test_json_mock_and_jq_unescape_quoted_values(self):
         import json
         builder = self.builder()
