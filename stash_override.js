@@ -14,7 +14,30 @@ async function main(config) {
     throw new Error('请先合并 mihomo_config.yaml，再执行 Stash 覆写。');
   }
 
-  // 1. 沿用手机已验证的 DNS：国内 DoH 直连，继承普通 Fake-IP 排除项。
+  // 1. Stash 保留 GLOBAL；只修改策略名称和引用，不改域名、URL 或规则集名称。
+  const groups = config['proxy-groups'];
+  if (groups.some(g => g.name === 'GLOBAL') && groups.some(g => g.name === 'Global')) {
+    throw new Error('GLOBAL 与 Global 策略组同时存在，请先解决重名。');
+  }
+  const rename = value => value === 'GLOBAL' ? 'Global' : value;
+  for (const group of groups) {
+    group.name = rename(group.name);
+    if (Array.isArray(group.proxies)) group.proxies = group.proxies.map(rename);
+    if (group['ssid-policy']) {
+      for (const key of Object.keys(group['ssid-policy'])) {
+        group['ssid-policy'][key] = rename(group['ssid-policy'][key]);
+      }
+    }
+  }
+  const renameRule = rule => {
+    const parts = rule.split(',');
+    let index = parts.length - 1;
+    while (index > 0 && ['no-resolve', 'no-track'].includes(parts[index].trim())) index--;
+    if (index > 0 && parts[index].trim() === 'GLOBAL') parts[index] = 'Global';
+    return parts.join(',');
+  };
+
+  // 2. 沿用手机已验证的 DNS：国内 DoH 直连，继承普通 Fake-IP 排除项。
   const dns = config.dns || {};
   config.dns = {
     ipv6: dns.ipv6 ?? false,
@@ -27,10 +50,10 @@ async function main(config) {
   };
 
   const providers = config['rule-providers'] || {};
-  // 2. iOS 不使用这组 Windows 进程规则。
+  // 3. iOS 不使用这组 Windows 进程规则。
   delete providers.Application_CN;
 
-  // 3. 仅在原配置仍使用已知源时拆分 Privacy，保留源更新间隔和其他参数。
+  // 4. 仅在原配置仍使用已知源时拆分 Privacy，保留源更新间隔和其他参数。
   const privacy = providers.Privacy;
   const splitPrivacy = /\/Privacy_Classical\.yaml(?:[?#]|$)/.test(privacy?.url || '');
   if (splitPrivacy) {
@@ -47,7 +70,7 @@ async function main(config) {
     privacy.path = './ruleset/stash/Privacy_Other.yaml';
   }
 
-  // 4. 已知 ChinaMax_IP 源混入 ASN；采用与手机验证版相同的替代源。
+  // 5. 已知 ChinaMax_IP 源混入 ASN；采用与手机验证版相同的替代源。
   const china = providers.ChinaIP;
   const replaceChina = /\/ChinaMax\/ChinaMax_IP\.yaml(?:[?#]|$)/.test(china?.url || '');
   if (replaceChina) {
@@ -55,7 +78,7 @@ async function main(config) {
     china.path = './ruleset/stash/ChinaIPs.yaml';
   }
 
-  // 5. 从当前源读取 Hijacking_DNS，动态展开；不在脚本内复制网段列表。
+  // 6. 从当前源读取 Hijacking_DNS，动态展开；不在脚本内复制网段列表。
   const hijacking = providers.Hijacking_DNS;
   const hasHijackingRule = config.rules.some(rule =>
     /^RULE-SET\s*,\s*Hijacking_DNS\s*,/.test(rule.trim())
@@ -88,20 +111,21 @@ async function main(config) {
 
   // 原地替换对应规则，继承其目标策略及 no-resolve 等参数，其他规则保持原顺序。
   config.rules = config.rules.flatMap(rule => {
-    const parts = rule.split(',').map(s => s.trim());
-    if (parts[0] !== 'RULE-SET') return [rule];
+    const renamed = renameRule(rule);
+    const parts = renamed.split(',').map(s => s.trim());
+    if (parts[0] !== 'RULE-SET') return [renamed];
     const tail = parts.slice(2).join(',');
     if (parts[1] === 'Application_CN') return [];
     if (parts[1] === 'Hijacking_DNS') return cidrRules.map(cidr => `${cidr},${tail}`);
     if (parts[1] === 'Privacy' && splitPrivacy) {
-      return [`RULE-SET,Privacy_Domain,${tail}`, rule];
+      return [`RULE-SET,Privacy_Domain,${tail}`, renamed];
     }
     if (parts[1] === 'ChinaIP' && replaceChina) {
-      return [rule, `IP-ASN,132203,${tail}`];
+      return [renamed, `IP-ASN,132203,${tail}`];
     }
-    return [rule];
+    return [renamed];
   });
-  // 6. QUIC 由主配置统一管理：现有分流优先，最后在兜底前拦截。
+  // 7. QUIC 由主配置统一管理：现有分流优先，最后在兜底前拦截。
   // 清除本项目旧版前置/带 CN 条件的规则，避免重复或抢先拦截国内直连。
   const quicKey = rule => rule.replace(/\s+/g, '').replace(/,no-track$/, '');
   const previousQuic = new Set(STASH_PREVIOUS_QUIC_RULES.map(quicKey));

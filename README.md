@@ -70,7 +70,7 @@ dev 完整配置的处理顺序是：
        Stash 更新完整配置
 ```
 
-在 Sub-Store **文件处理**中只需添加 `dev/stash_override.js` 一项，不能放到节点操作。它保留上游的 `GLOBAL` 策略组名称及其引用（不再改成 `Global`），并将完整插件分流、MITM、HTTP 重写、脚本与远程提供者并入最终配置；其他 Stash 专用 DNS 和规则兼容处理不变。旧的 `stash_plugins.js` 留作兼容独立合并方案；连续运行经过幂等校验，但会重复下载和解析完整覆写，建议移除第二步。
+在 Sub-Store **文件处理**中只需添加 `dev/stash_override.js` 一项，不能放到节点操作。它保留原 DNS、策略、基础规则和证书，将完整插件分流、MITM、HTTP 重写、脚本与远程提供者并入最终配置。旧的 `stash_plugins.js` 留作兼容独立合并方案；连续运行经过幂等校验，但会重复下载和解析完整覆写，建议移除第二步。
 
 如果不使用一体化 `stash_override.js`，也可以在 Stash 单独导入 [dev 全量广告覆写](https://raw.githubusercontent.com/liristy/ssrules/dev/stash_plugins.stoverride)，但不要同时在完整配置中再导入一份。HTTPS 重写需要正确配置并信任自己的 MITM 证书，不能使用仓库或他人提供的证书私钥和口令。
 上述规则层次描述的是主配置。加入全量插件后，插件分流在主配置之前，因此主配置的放行例外可能被插件中的前置拦截覆盖；遇到冲突须检查生成后的最终规则顺序。主配置的通用 QUIC 拦截位于现有业务分流、国内直连之后与兜底之前；插件的特定应用 QUIC 规则保留。

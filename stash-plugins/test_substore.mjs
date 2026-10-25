@@ -112,19 +112,6 @@ const previousScopedQuic = [
 ];
 const overrideContext = vm.createContext({ProxyUtils: context.ProxyUtils});
 vm.runInContext(unifiedCode, overrideContext);
-// Preserve the upstream GLOBAL group, nested references and rule targets without renaming them.
-const originalGlobalGroups = [
-  {name: 'GLOBAL', type: 'select', proxies: ['node']},
-  {name: 'Custom', type: 'select', proxies: ['GLOBAL'], 'ssid-policy': {home: 'GLOBAL'}},
-];
-const originalGlobalRules = ['DOMAIN,global.example,GLOBAL', 'RULE-SET,custom,GLOBAL,no-resolve', 'MATCH,GLOBAL'];
-const preservedGlobal = JSON.parse(JSON.stringify(await overrideContext.main(structuredClone({
-  ...clean, 'proxy-groups': originalGlobalGroups, rules: originalGlobalRules,
-}))));
-assert.deepEqual(preservedGlobal['proxy-groups'], originalGlobalGroups, 'GLOBAL group and references must remain unchanged');
-assert.deepEqual(preservedGlobal.rules, [
-  ...originalGlobalRules.slice(0, -1), ...legacyQuic, originalGlobalRules.at(-1),
-], 'GLOBAL policy targets must remain unchanged');
 const routes = ['DOMAIN,private.example,DIRECT', 'DOMAIN,proxy.example,Proxy', 'GEOIP,CN,DIRECT', 'MATCH,Proxy'];
 for (const previous of [[], legacyQuic, previousScopedQuic, legacyQuic.map(rule => rule.replace(',no-track', ''))]) {
   const source = {...clean, rules: [...previous, ...routes]};
