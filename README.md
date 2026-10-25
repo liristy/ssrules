@@ -6,6 +6,8 @@
 
 包含客户端配置、分流规则、应用去广告和天气增强功能。
 
+`localdevvpn_test` 分支提供 [Stash 替代 LocalDevVPN 的实验方案](docs/localdevvpn_test.md)：通过 SideStore 的本机 EMProxy WireGuard 服务定向处理 `10.7.0.1/32`。可选择本分支 `stash_override.js` 一体化生成，或导入 [独立覆写](stash_localdevvpn.stoverride)。需要先启用 SideStore EMProxy；已完成离线检查，iPhone 安装和续签效果待验证。原有广告来源继续引用 `dev`，详见测试说明。
+
 ## 仓库结构
 
 | 文件或目录 | 用途 |

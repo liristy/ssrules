@@ -116,6 +116,11 @@ async function main(config) {
   const oldQuic = new Set(STASH_ADS_OLD_QUIC.map(ruleKey));
   const incomingRules = patch.rules.filter(rule => !oldQuic.has(ruleKey(rule)));
   const result = {...config, rules: stashAdsMergeRows(incomingRules, config.rules)};
+  // Preserve the experimental local device route when the legacy second step runs.
+  const localRule = 'IP-CIDR,10.7.0.1/32,SideStore-Local,no-resolve';
+  if (config.rules.includes(localRule)) {
+    result.rules = [localRule, ...result.rules.filter(rule => rule !== localRule)];
+  }
   const http = {...(config.http || {})};
   for (const field of STASH_ADS_HTTP_FIELDS) {
     if (patch.http[field] === undefined) continue;

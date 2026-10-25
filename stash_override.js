@@ -1,4 +1,35 @@
-// Dev unified Sub-Store file script: Mihomo to Stash + complete Stash plugin override.
+// localdevvpn_test: Mihomo to Stash + existing dev plugins + local EMProxy test.
+// Public, shared EMProxy test parameters from SideStore's bundled SideStore.conf.
+// These are NOT a user's VPN credentials; do not replace them with personal keys here.
+// Source commit: SideStore/SideStore@d97ec133719d79916675bdaf722b82a8d091d545
+const STASH_LOCALDEVVPN_RULE = 'IP-CIDR,10.7.0.1/32,SideStore-Local,no-resolve';
+const STASH_LOCALDEVVPN_PROXY = {
+  name: 'SideStore-Local', type: 'wireguard',
+  server: '127.0.0.1', port: 51820, ip: '10.7.0.10',
+  'private-key': 'AIIeeUDvk3NeAFJ9BWCQvPJize/9WZibMnGJ/0rt5k4=',
+  'public-key': 'kHDoekeYhBvfW9a9UQ+UCmpbG423eejTjcjW+DT+JF0=',
+  keepalive: 25, 'benchmark-disabled': true,
+};
+
+function stashApplyLocalDevVPN(config) {
+  const name = STASH_LOCALDEVVPN_PROXY.name;
+  const proxies = config.proxies || [];
+  if (!Array.isArray(proxies)) throw new Error('proxies 必须是数组。');
+  if ((config['proxy-groups'] || []).some(group => group.name === name)
+      || Object.hasOwn(config['proxy-providers'] || {}, name)) {
+    throw new Error('SideStore-Local 名称已被占用，请先改名。');
+  }
+  const existing = proxies.filter(proxy => proxy.name === name);
+  if (existing.length > 1 || existing.some(proxy => stashAdsKey(proxy) !== stashAdsKey(STASH_LOCALDEVVPN_PROXY))) {
+    throw new Error('SideStore-Local 节点已存在且参数不同；停止生成，避免覆盖。');
+  }
+  return {
+    ...config,
+    proxies: [...proxies.filter(proxy => proxy.name !== name), {...STASH_LOCALDEVVPN_PROXY}],
+    rules: [STASH_LOCALDEVVPN_RULE, ...config.rules.filter(rule => rule !== STASH_LOCALDEVVPN_RULE)],
+  };
+}
+
 const STASH_QUIC_RULES = [
   'PROTOCOL,QUIC,REJECT,no-track',
   'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT,no-track',
@@ -253,6 +284,11 @@ async function stashMergeAllPlugins(config) {
   const oldQuic = new Set(STASH_ADS_OLD_QUIC.map(ruleKey));
   const incomingRules = patch.rules.filter(rule => !oldQuic.has(ruleKey(rule)));
   const result = {...config, rules: stashAdsMergeRows(incomingRules, config.rules)};
+  // Preserve the experimental local device route when the legacy second step runs.
+  const localRule = 'IP-CIDR,10.7.0.1/32,SideStore-Local,no-resolve';
+  if (config.rules.includes(localRule)) {
+    result.rules = [localRule, ...result.rules.filter(rule => rule !== localRule)];
+  }
   const http = {...(config.http || {})};
   for (const field of STASH_ADS_HTTP_FIELDS) {
     if (patch.http[field] === undefined) continue;
@@ -282,7 +318,7 @@ async function operator(input) {
   // dev plugin rules, HTTP rewriting, MITM hosts and remote script providers.
   // Keep the original input untouched if either phase fails.
   const converted = await main(ProxyUtils.yaml.safeLoad(input.$content));
-  const config = await stashMergeAllPlugins(converted);
+  const config = stashApplyLocalDevVPN(await stashMergeAllPlugins(converted));
   input.$content = ProxyUtils.yaml.safeDump(config);
   return input;
 }

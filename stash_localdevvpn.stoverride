@@ -1,0 +1,16 @@
+# Experimental SideStore EMProxy route. See docs/localdevvpn_test.md.
+# Public shared keys: https://github.com/SideStore/SideStore/blob/d97ec133719d79916675bdaf722b82a8d091d545/SideStore.conf
+name: SideStore 本机回环测试
+desc: 需要启用 SideStore EMProxy；仅接管 10.7.0.1/32，手机效果待验证。
+proxies:
+  - name: "SideStore-Local"
+    type: "wireguard"
+    server: "127.0.0.1"
+    port: 51820
+    ip: "10.7.0.10"
+    private-key: "AIIeeUDvk3NeAFJ9BWCQvPJize/9WZibMnGJ/0rt5k4="
+    public-key: "kHDoekeYhBvfW9a9UQ+UCmpbG423eejTjcjW+DT+JF0="
+    keepalive: 25
+    benchmark-disabled: true
+rules:
+  - IP-CIDR,10.7.0.1/32,SideStore-Local,no-resolve

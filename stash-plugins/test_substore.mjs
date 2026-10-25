@@ -144,8 +144,20 @@ const unifiedOutput = await overrideContext.operator(unifiedInput);
 assert.equal(unifiedOutput, unifiedInput);
 assert.deepEqual(unifiedOutput.$files, ['untouched']);
 const convertedBase = await overrideContext.main(structuredClone(unifiedBase));
-const expectedFull = await context.main(convertedBase);
+const expectedFull = overrideContext.stashApplyLocalDevVPN(await context.main(convertedBase));
 const unifiedFull = JSON.parse(unifiedOutput.$content);
+const localRule = 'IP-CIDR,10.7.0.1/32,SideStore-Local,no-resolve';
+assert.equal(unifiedFull.rules[0], localRule, 'device route must precede plugins and LAN');
+const localProxy = unifiedFull.proxies.find(proxy => proxy.name === 'SideStore-Local');
+assert.equal(localProxy.type, 'wireguard');
+assert.equal(localProxy.server, '127.0.0.1', 'EMProxy must stay on the same device');
+assert.equal(localProxy.port, 51820);
+assert.equal(localProxy.ip, '10.7.0.10');
+assert.equal(localProxy['benchmark-disabled'], true);
+assert.equal(localProxy['dialer-proxy'], undefined, 'no upstream proxy for local EMProxy');
+assert.deepEqual(unifiedFull.proxies.filter(proxy => proxy.name !== 'SideStore-Local'), clean.proxies);
+assert.deepEqual(unifiedFull['proxy-groups'], clean['proxy-groups'], 'do not add local node to airport groups');
+assert.equal(unifiedFull.rules.filter(rule => rule.includes('SideStore-Local')).length, 1);
 assert.deepEqual(unifiedFull, JSON.parse(JSON.stringify(expectedFull)),
   'one-shot Stash conversion must match the original two-script pipeline');
 assert.ok(unifiedFull.rules.length >= patch.rules.length, 'unified script lost full rule coverage');
@@ -158,6 +170,17 @@ assert.equal(unifiedInput.$content, singlePass, 'unified processing must be idem
 await context.operator(unifiedInput);
 assert.equal(unifiedInput.$content, singlePass,
   'retained stash_plugins.js must not double-apply the full override');
+// Collisions fail before output is replaced; existing user's node is never overwritten.
+for (const conflict of [
+  {proxies: [...clean.proxies, {...localProxy, port: 9999}]},
+  {'proxy-groups': [...clean['proxy-groups'], {name: 'SideStore-Local', type: 'select', proxies: ['DIRECT']}]},
+  {'proxy-providers': {'SideStore-Local': {type: 'http', url: 'https://custom.example/nodes'}}},
+]) {
+  const failed = {$content: JSON.stringify({...unifiedBase, ...conflict})};
+  const original = failed.$content;
+  await assert.rejects(overrideContext.operator(failed), /SideStore-Local/);
+  assert.equal(failed.$content, original);
+}
 downloaded = '<html>bad response</html>';
 await assert.rejects(overrideContext.operator(unifiedInput));
 assert.equal(unifiedInput.$content, singlePass, 'failed full import must leave input intact');
