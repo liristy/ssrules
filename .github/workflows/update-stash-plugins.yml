@@ -53,7 +53,14 @@ jobs:
         run: python -m unittest discover -s stash-plugins -p 'test_*.py'
 
       - name: Refresh upstream plugin and script sources
-        run: python stash-plugins/fetch_dependencies.py --refresh
+        run: |
+          if python stash-plugins/fetch_dependencies.py --refresh; then
+            echo 'All upstream plugin and script sources refreshed.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '::warning title=Upstream refresh unavailable::Using committed plugin/script snapshots; resources may be stale.'
+            echo '⚠️ 上游下载失败，使用仓库已有快照构建；本次并非完整刷新。' >> "$GITHUB_STEP_SUMMARY"
+            python stash-plugins/fetch_dependencies.py
+          fi
 
       - name: Build and validate Stash override
         run: |
